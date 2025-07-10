@@ -1,0 +1,60 @@
+{
+  "id": "0009",
+  "type": "ARCHITECTURE_MISMATCH",
+  "title": "ValidationService schema mismatch with real OSM data structure",
+  "severity": "MEDIUM",
+  "component": "ValidationService",
+  "discovered_date": "2025-07-06", 
+  "discovered_during": "config_impl task validation analysis",
+  "description": "ValidationService currently validates only 9 properties but real OSM data contains 104 unique properties. Service architecture needs expansion to handle realistic data complexity while maintaining performance.",
+
+  "current_validation_scope": {
+    "implemented_fields": ["lat", "lng", "name", "accessible", "hours", "fee", "changing_table", "payment_contactless", "access"],
+    "missing_high_frequency": ["male", "female", "unisex", "toilets:disposal", "level", "building", "check_date", "operator"],
+    "missing_specialized": ["payment methods (13 types)", "address fields (7 types)", "building details (9 types)"]
+  },
+
+  "architecture_impact": {
+    "service_design": "Current ValidationService assumes simple schema, needs extensible property validation framework",
+    "performance": "104-property validation requires optimized validation patterns",
+    "maintainability": "Hard-coded validation logic doesn't scale to OSM complexity",
+    "error_handling": "Validation errors need property-specific messaging for 104 fields"
+  },
+
+  "technical_requirements": {
+    "extensible_validation": "Plugin-based validation system for property types",
+    "enum_validation": "Standardized enum validation for OSM conventions",
+    "conditional_validation": "Some properties depend on others (e.g., fee + charge)",
+    "performance_optimization": "Validate only submitted properties, not all 104",
+    "schema_versioning": "Support for evolving OSM property standards"
+  },
+
+  "recommended_enhancement": {
+    "validation_registry": "Property-specific validation rules registry",
+    "property_categories": "Core, optional, specialized validation groups",
+    "lazy_validation": "Only validate properties present in request",
+    "enum_mappings": "OSM enum value validation with error context",
+    "type_coercion": "Automatic type conversion (string 'yes' to boolean true)"
+  },
+
+  "implementation_priority": {
+    "immediate": "Extend ValidationService for top 10 most frequent properties",
+    "short_term": "Add enum validation for standardized fields (access, wheelchair, etc.)",
+    "medium_term": "Implement extensible validation framework",
+    "long_term": "Full 104-property validation support"
+  },
+
+  "affected_files": [
+    "src/services/validationService.ts",
+    "src/types/suggestions.ts", 
+    "tests/services/validation_service_test.js",
+    "docs/reference/api/suggest-api.md"
+  ],
+
+  "compatibility_requirements": {
+    "backward_compatibility": "Existing 9-property validation must continue working",
+    "api_versioning": "Consider API versioning for expanded property support",
+    "error_format": "Maintain consistent error response format",
+    "performance_targets": "Validation time must remain < 10ms for typical requests"
+  }
+}

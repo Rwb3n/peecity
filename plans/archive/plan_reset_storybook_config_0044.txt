@@ -1,0 +1,93 @@
+{
+  "id": "reset_storybook_config_0044",
+  "goal": "Reset the Storybook configuration to a clean, working baseline with Tailwind integration so that primary colours render correctly without touching component source code.",
+  "linked_issue": null,
+  "analysis": {
+    "problem_summary": "Storybook preview still lacks theme CSS variables. Existing config is polluted with legacy fixes. A surgical reset of .storybook is needed, followed by clean Tailwind re-integration.",
+    "affected_files": [
+      ".storybook/**",
+      "tests/storybook/"
+    ],
+    "requirements": [
+      "Archive current .storybook directory to retain history",
+      "Generate fresh Storybook config via official init command",
+      "Prove missing CSS variables with a failing RED test using @storybook/test-runner",
+      "Integrate Tailwind/PostCSS properly so test turns GREEN",
+      "Validate Storybook static build"
+    ]
+  },
+  "user_stories": [
+    {
+      "id": "SBRESET001",
+      "title": "As a frontend developer, I need Storybook to display correct theme colours so I can visually verify atoms and higher components.",
+      "acceptance_criteria": [
+        "Button primary variant shows yellow background in Storybook",
+        "Badge success & warning variants render green / amber",
+        "npm run build-storybook completes without errors"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "archive_old_config",
+      "type": "IMPLEMENTATION",
+      "description": "Rename current .storybook directory to .storybook_archive with a timestamp to preserve old config.",
+      "dependencies": [],
+      "confidence_level": "High",
+      "self_critique": "Pure filesystem operation; minimal risk.",
+      "validation_criteria": [
+        ".storybook directory no longer exists",
+        ".storybook_archive/* contains previous config"
+      ]
+    },
+    {
+      "id": "fresh_storybook_init",
+      "type": "IMPLEMENTATION",
+      "description": "Run `npx storybook@latest init --builder webpack5 --type react --use-npm` to scaffold a clean Storybook v8 config.",
+      "dependencies": ["archive_old_config"],
+      "confidence_level": "High",
+      "self_critique": "Relies on network/npm availability; otherwise straightforward.",
+      "validation_criteria": [
+        "New .storybook/main.ts & preview.ts files exist",
+        "`npm run storybook` starts with default UI"
+      ]
+    },
+    {
+      "id": "tailwind_variables_diag_test_create",
+      "type": "DIAGNOSTIC_TEST_CREATION",
+      "description": "Write a failing test `tests/storybook/tailwind_vars_diag_test.js` using @storybook/test-runner. It renders the Button primary story and asserts computed background colour is NOT transparent.",
+      "dependencies": ["fresh_storybook_init"],
+      "confidence_level": "High",
+      "self_critique": "Simple assertion; will fail until Tailwind is reintegrated.",
+      "validation_criteria": [
+        "Test file exists and fails (RED) due to transparent background"
+      ]
+    },
+    {
+      "id": "tailwind_integration_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Add PostCSS loader rule and import `globals.css` at top of new preview.ts. Ensure webpack final config mirrors working pattern from previous setup.",
+      "dependencies": ["tailwind_variables_diag_test_create"],
+      "confidence_level": "Medium",
+      "self_critique": "Integration error-prone; guided by proven pattern from .storybook_archive.",
+      "validation_criteria": [
+        "Running the diagnostic test now passes (GREEN)",
+        "Storybook dev shows coloured components"
+      ]
+    },
+    {
+      "id": "static_build_validation",
+      "type": "REFACTORING",
+      "description": "Run `npm run build-storybook` in CI to confirm static export builds correctly with no colour warnings.",
+      "dependencies": ["tailwind_integration_impl"],
+      "confidence_level": "High",
+      "self_critique": "Smoke validation step with low complexity.",
+      "validation_criteria": [
+        "Static build completes with exit code 0",
+        "No colour-variable warnings in console"
+      ]
+    }
+  ],
+  "status": "COMPLETED",
+  "v": 2
+} 

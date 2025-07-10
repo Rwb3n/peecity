@@ -1,0 +1,56 @@
+{
+  "id": "docs_agent_api_0009",
+  "goal": "Create comprehensive API reference pages for ingest-agent, duplicate-service, rate-limit-service, and validation-service with OpenAPI-style examples.",
+  "user_stories": [
+    {
+      "id": "DX010",
+      "title": "As a contributor, I need clear API reference documentation for all backend agents so I can integrate or debug them confidently.",
+      "acceptance_criteria": [
+        "Each service (ingest-agent, duplicate-service, rate-limit-service, validation-service) has a standalone Markdown file in docs/reference/api/ named <service>-api.md.",
+        "Each page includes: purpose overview, endpoint/function signature table, request schema, response schema, at least one example request & response (JSON), and error response section.",
+        "Minimum length per file: 60 lines.",
+        "Automated test enforces presence and minimum length for all four files."
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "agent_api_docs_test_create",
+      "type": "TEST_CREATION",
+      "description": "Write Jest test (tests/docs/agent_api_docs_presence_test.js) that fails if any of the four reference pages is missing or < 60 lines. RED phase.",
+      "user_story_ref": "DX010",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "fs"],
+      "confidence_level": "High",
+      "self_critique": "Presence/length checks are straightforward but line-count method may be brittle if automatic formatting adds blank lines. Could use word count alternative.",
+      "validation_expectations": { "red_phase": "Test fails because new reference pages don't exist yet." },
+      "acceptance_criteria": ["Test file exists and fails initially"],
+      "status": "DONE",
+      "completion_timestamp": "2025-07-06T20:00:00.000Z"
+    },
+    {
+      "id": "agent_api_docs_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Create docs/reference/api/{ingest-agent,duplicate-service,rate-limit-service,validation-service}-api.md with OpenAPI-style sections and examples. Ensure test passes.",
+      "user_story_ref": "DX010",
+      "dependencies": ["agent_api_docs_test_create"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "self_critique": "Need to maintain consistency across docs and avoid stale examples; risk mitigated by referencing source code.",
+      "acceptance_criteria": ["All four Markdown files created (≥60 lines each)", "Test passes (GREEN phase)"],
+      "status": "DONE",
+      "completion_timestamp": "2025-07-06T20:25:00.000Z"
+    },
+    {
+      "id": "agent_api_docs_refactor",
+      "type": "REFACTORING",
+      "description": "Polish formatting, add cross-links, run spell-check and link-check, and update docs index. Ensure tests remain green.",
+      "user_story_ref": "DX010",
+      "dependencies": ["agent_api_docs_impl"],
+      "external_dependencies": ["markdown-link-check", "cspell"],
+      "confidence_level": "High",
+      "self_critique": "Low-risk textual refactor; potential false positives from link-check.",
+      "acceptance_criteria": ["Index updated", "Spellcheck passes", "All tests pass"]
+    }
+  ]
+} 

@@ -1,0 +1,39 @@
+{
+  "id": "issue_0022",
+  "type": "BUG",
+  "title": "Documentation tests failing due to missing YAML front-matter",
+  "description": "Some documentation files are missing required YAML front-matter causing documentation validation tests to fail. This is a documentation formatting issue.",
+  "severity": "low",
+  "status": "OPEN",
+  "created_at": "2025-07-08T05:00:00Z",
+  "updated_at": "2025-07-08T05:00:00Z",
+  "v": 1,
+  "g": 89,
+  "affected_files": [
+    "docs/**/*.md",
+    "tests/documentation/docs_validation_test.js"
+  ],
+  "error_details": {
+    "message": "Missing YAML front-matter in documentation files",
+    "symptoms": [
+      "Documentation validation tests failing",
+      "Markdown files missing required metadata",
+      "Tests expecting front-matter finding none"
+    ]
+  },
+  "reproduction_steps": [
+    "Run documentation validation tests",
+    "Observe failures for missing front-matter",
+    "Check affected markdown files for YAML headers"
+  ],
+  "proposed_solution": [
+    "Audit all documentation files for front-matter requirements",
+    "Add missing YAML headers with required fields",
+    "Create documentation template with standard front-matter",
+    "Update contributing guide with documentation standards",
+    "Consider making front-matter optional if not truly required"
+  ],
+  "priority": "P3",
+  "tags": ["documentation", "testing", "markdown"],
+  "discovered_during": "plan_metrics_export_0013_task_3"
+}

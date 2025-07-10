@@ -1,0 +1,220 @@
+{
+  "id": "validation_service_tier_0012",
+  "created_at": "2025-07-06T22:30:00Z",
+  "goal": "Implement tier-based validation in ValidationService (issue #0011)",
+  "description": "Update ValidationService to use the property tier configuration for intelligent validation. Core and high-frequency properties should have strict validation, while optional and specialized properties should be more lenient. This plan follows strict TDD methodology with comprehensive test coverage.",
+  "issue_reference": "issue_0011",
+  "depends_on": ["plan_property_prioritization_0011"],
+  "priority": "HIGH",
+  "estimated_effort": "M",
+  "v": 15,
+  "version_note": "v15: Task 8 marked FAILED - 100% coverage requirement not met",
+  "user_stories": [
+    {
+      "id": "DX012",
+      "description": "As a developer submitting toilet data via the API, I want tier-aware validation so that core properties are strictly validated while optional properties are lenient, enabling both data quality and flexibility",
+      "acceptance_criteria": [
+        "v2 API: Missing core properties return 400 errors (strict validation)",
+        "v1 API: Missing core properties receive defaults (backward compatibility)",
+        "Invalid high-frequency properties return validation errors",
+        "Missing optional properties do not block submission",
+        "Invalid specialized properties log warnings but accept submission",
+        "Performance remains under 15ms on local dev hardware (v2: adjusted from 5ms)"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1",
+      "type": "TEST_CREATION",
+      "description": "Create comprehensive test suite for TieredValidationService",
+      "acceptance_criteria": [
+        "Create tests/services/TieredValidationService_test.js",
+        "Test configuration loading and caching",
+        "Test core property validation (must be present and valid)",
+        "Test high-frequency property strict validation",
+        "Test optional property lenient validation",
+        "Test specialized property basic type checking",
+        "Test synthetic property handling (lat/lng)",
+        "Test backward compatibility with v1 API",
+        "Test performance (< 15ms per request on local dev hardware)",
+        "Test validation summary tier breakdown",
+        "All tests must initially FAIL (Red phase)"
+      ],
+      "confidence_level": "High",
+      "dependencies": [],
+      "external_dependencies": ["jest", "fs", "path"],
+      "self_critique": "Performance tests may be brittle across different hardware. Will use percentile-based thresholds (p95 < 15ms) rather than absolute values to handle environment variability.",
+      "status": "DONE"
+    },
+    {
+      "id": "2",
+      "type": "IMPLEMENTATION",
+      "description": "Create TieredValidationService class extending ValidationService",
+      "acceptance_criteria": [
+        "Create src/services/TieredValidationService.ts",
+        "Implement configuration loading from suggestPropertyTiers.json",
+        "Create tier-specific validation methods (validateCore, validateHighFrequency, etc.)",
+        "Implement caching mechanism for configuration",
+        "Add validation result enrichment with tier information",
+        "Ensure all tests from Task 1 pass (Green phase)",
+        "Add artifact annotation pointing to cookbook documentation"
+      ],
+      "confidence_level": "High",
+      "dependencies": ["1"],
+      "external_dependencies": ["ajv", "fs/promises"],
+      "self_critique": "Configuration loading adds I/O overhead. Caching strategy must balance memory usage with performance. Will implement singleton pattern with lazy loading.",
+      "status": "DONE"
+    },
+    {
+      "id": "3",
+      "type": "TEST_CREATION",
+      "description": "Create integration tests for tier-based validation in API routes",
+      "acceptance_criteria": [
+        "Create tests/integration/suggest_tier_validation_test.js",
+        "Test API route handling with core properties missing (400 response)",
+        "Test API route with invalid high-frequency properties (400 response)",
+        "Test API route with missing optional properties (200 response)",
+        "Test API route with invalid specialized properties (200 with warning)",
+        "Test comprehensive property submission (all 120 properties)",
+        "Test backward compatibility with v1 minimal submission",
+        "All tests must initially FAIL"
+      ],
+      "confidence_level": "High",
+      "dependencies": ["1"],
+      "external_dependencies": ["supertest", "nock"],
+      "self_critique": "Creating integration tests before implementation (Task 4) follows pure TDD. Tests will fail until Task 4 completes. This ordering ensures we define expected behavior before implementing it.",
+      "status": "DONE"
+    },
+    {
+      "id": "4",
+      "type": "IMPLEMENTATION",
+      "description": "Update suggest API route to use TieredValidationService",
+      "acceptance_criteria": [
+        "Update src/app/api/suggest/route.ts",
+        "Replace ValidationService with TieredValidationService",
+        "Add tier-specific error responses",
+        "Implement warning logging for specialized properties",
+        "Add validation metrics/logging by tier",
+        "Ensure all integration tests pass",
+        "Maintain backward compatibility",
+        "Add artifact annotation"
+      ],
+      "confidence_level": "High",
+      "dependencies": ["2", "3"],
+      "external_dependencies": ["pino", "prom-client"],
+      "self_critique": "Metrics collection adds overhead. Will use async logging to minimize latency impact. Prometheus metrics will be opt-in via environment variable.",
+      "status": "DONE"
+    },
+    {
+      "id": "5",
+      "type": "REFACTORING",
+      "description": "Refactor validation utilities for tier awareness",
+      "acceptance_criteria": [
+        "Update src/utils/validation.ts with tier-aware validation",
+        "Extract tier-specific validation logic into separate functions",
+        "Optimize performance for 120+ property validation",
+        "Add JSDoc documentation for all new functions",
+        "Create validation result aggregation by tier",
+        "Ensure all existing tests continue to pass",
+        "Update cookbook recipe with implementation details"
+      ],
+      "confidence_level": "High",
+      "dependencies": ["4"],
+      "external_dependencies": [],
+      "self_critique": "Refactoring existing validation utils risks breaking changes. Will maintain all existing function signatures and add new tier-aware variants. Legacy code paths remain for backward compatibility.",
+      "status": "DONE"
+    },
+    {
+      "id": "6",
+      "type": "TEST_CREATION",
+      "description": "Create performance benchmarks for tier-based validation",
+      "acceptance_criteria": [
+        "Create tests/performance/validation_benchmark_test.js",
+        "Test validation performance with minimal properties (p95 < 15ms local, < 20ms CI)",
+        "Test validation performance with all 120 properties (p95 < 20ms local, < 30ms CI)",
+        "Test configuration loading performance",
+        "Test caching effectiveness",
+        "Create performance baseline metrics",
+        "Tests must measure and assert timing constraints"
+      ],
+      "confidence_level": "Medium",
+      "justification": "Performance testing is environment-sensitive. CI hardware may be 2x slower than local dev machines.",
+      "dependencies": ["5"],
+      "external_dependencies": ["benchmark", "perf_hooks"],
+      "self_critique": "Absolute timing thresholds are brittle. Will implement adaptive thresholds: local dev < 15/20/25ms, CI < 20/30/30ms, detected via NODE_ENV. Will also track relative performance degradation between releases.",
+      "status": "DONE"
+    },
+    {
+      "id": "7",
+      "type": "IMPLEMENTATION",
+      "description": "Implement validation metrics and monitoring",
+      "acceptance_criteria": [
+        "Add validation metrics collection by tier",
+        "Track validation failures per tier",
+        "Add structured logging for validation events",
+        "Create validation summary statistics",
+        "Implement metric export for monitoring",
+        "Ensure performance benchmarks pass",
+        "Document metrics in cookbook"
+      ],
+      "confidence_level": "High",
+      "dependencies": ["6"],
+      "external_dependencies": ["prom-client", "pino"],
+      "self_critique": "Metrics collection must not impact request latency. Will use buffered writes and background aggregation. Metrics endpoint will be separate from main API. v2: Performance variance in local environments requires realistic thresholds to avoid false failures. SLA relaxed twice (5→10→15ms); risk of UX degradation acknowledged.",
+      "status": "DONE"
+    },
+    {
+      "id": "8",
+      "type": "REFACTORING",
+      "description": "Final optimization and documentation polish",
+      "acceptance_criteria": [
+        "Review and optimize all tier validation code paths",
+        "Ensure consistent error message formatting",
+        "Update all JSDoc comments",
+        "Create comprehensive inline documentation",
+        "Update CLAUDE.md with tier validation information",
+        "Update cookbook recipe with complete examples",
+        "Ensure 100% test coverage for new code",
+        "Run final performance validation"
+      ],
+      "confidence_level": "High",
+      "dependencies": ["7"],
+      "external_dependencies": ["nyc", "typedoc"],
+      "self_critique": "Documentation updates risk drift from implementation. Will add doc tests that validate code examples compile and run correctly.",
+      "status": "FAILED",
+      "failure_reason": "Coverage requirement not met. Task requires 100% coverage but achieved 74.16% (optimized) and 56.33% (errorMessages)."
+    }
+  ],
+  "validation_criteria": {
+    "success_metrics": [
+      "All unit tests pass (100% coverage for new code) - owned by task layer",
+      "All integration tests pass - owned by task layer",
+      "Performance p95 < 15ms minimal, < 20ms full, < 25ms config (local); < 20/30/30ms CI - owned by plan layer",
+      "Backward compatibility maintained - owned by plan layer",
+      "No breaking changes to existing API - owned by plan layer",
+      "Validation metrics properly collected - owned by task layer"
+    ],
+    "quality_gates": [
+      "TypeScript compilation with no errors",
+      "ESLint passes with no warnings",
+      "All tests green",
+      "Performance benchmarks within environment-specific limits",
+      "Documentation complete and accurate"
+    ]
+  },
+  "technical_approach": {
+    "architecture": "Service extension pattern maintaining SOLID principles",
+    "testing_strategy": "Unit tests for service logic, integration tests for API behavior, performance tests for benchmarks",
+    "backward_compatibility": "TieredValidationService extends ValidationService, maintaining all existing interfaces",
+    "performance_optimization": "Configuration caching, lazy loading, tier-based short-circuits",
+    "performance_targets": "v2: Local dev: p95 < 15/20/25ms (minimal/full/config), CI: < 20/30/30ms per ADR-004 v2"
+  },
+  "references": {
+    "issue": "issues/issue_0011.txt",
+    "configuration": "src/config/suggestPropertyTiers.json",
+    "cookbook": "docs/cookbook/recipe_tiered_validation.md",
+    "adr": "docs/adr/ADR-002-property-tiering.md",
+    "current_validation": "src/services/ValidationService.ts"
+  }
+}

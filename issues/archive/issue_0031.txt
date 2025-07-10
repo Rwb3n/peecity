@@ -1,0 +1,27 @@
+{
+  "id": "issue_0031",
+  "type": "BUG",
+  "title": "Monitor-agent Task 1 validation failed: CLI executable flag & Windows path expectations",
+  "description": "Re-validation of plan_monitor_agent_0016 Task 1 shows two failing tests. The CLI wrapper lacks executable permission bits on Windows, and configuration path expectations use Unix-style forward slashes causing assertion failure. Core logic passes; fixes are minor but required to meet TDD Green criteria.",
+  "severity": "low",
+  "status": "OPEN",
+  "created_at": "2025-07-09T21:10:00Z",
+  "updated_at": "2025-07-09T21:10:00Z",
+  "v": 1,
+  "g": 119,
+  "affected_files": [
+    "scripts/monitor-agent.ts",
+    "tests/agents/monitor_agent_test.js"
+  ],
+  "error_details": {
+    "tests_failing": 2,
+    "failing_tests": [
+      "CLI executable permission check",
+      "Configuration path expectation"
+    ]
+  },
+  "proposed_solution": [
+    "Add shebang and chmod +x to CLI script or adjust test for Windows",
+    "Normalise path separators in test or MonitorService config"
+  ]
+} 

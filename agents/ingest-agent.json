@@ -1,0 +1,29 @@
+{
+  "name": "ingest-agent",
+  "version": "1.0.0",
+  "description": "Fetches and normalizes OSM toilet data via Overpass API",
+  "type": "data-ingestion",
+  "schedule": "manual",
+  "dependencies": {
+    "dotenv": "^16.6.1"
+  },
+  "config": {
+    "overpass_api_url": "https://overpass-api.de/api/interpreter",
+    "output_file": "data/toilets.geojson",
+    "retry_attempts": 3,
+    "retry_delay_ms": 1000,
+    "timeout_ms": 30000
+  },
+  "environment": {
+    "required": ["OVERPASS_API_URL"],
+    "optional": ["LOG_LEVEL"]
+  },
+  "outputs": [
+    {
+      "file": "data/toilets.geojson",
+      "format": "GeoJSON",
+      "schema": "internal"
+    }
+  ],
+  "documentation": "docs/architecture-spec.md#ingest-agent"
+}

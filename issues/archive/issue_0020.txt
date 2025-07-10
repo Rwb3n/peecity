@@ -1,0 +1,38 @@
+{
+  "id": "issue_0020",
+  "type": "BUG",
+  "title": "Validation service config loading failures in test suite",
+  "description": "Multiple test suites are failing due to validation service configuration loading issues. This appears to be related to test environment setup rather than the actual service implementation.",
+  "severity": "medium",
+  "status": "OPEN",
+  "created_at": "2025-07-08T05:00:00Z",
+  "updated_at": "2025-07-08T05:00:00Z",
+  "v": 1,
+  "g": 89,
+  "affected_files": [
+    "tests/services/validation_service_test.js",
+    "tests/services/tiered_validation_service_test.js"
+  ],
+  "error_details": {
+    "message": "Config loading failures in validation service tests",
+    "symptoms": [
+      "Tests expecting configuration to be loaded are failing",
+      "Service initialization may be timing out",
+      "Possible race condition in test setup"
+    ]
+  },
+  "reproduction_steps": [
+    "Run full test suite with `npm test`",
+    "Observe validation service test failures",
+    "Note that these failures are unrelated to metrics implementation"
+  ],
+  "proposed_solution": [
+    "Review test setup and teardown procedures",
+    "Ensure proper mocking of configuration loading",
+    "Add explicit waits for service initialization if needed",
+    "Consider using beforeAll() for expensive setup operations"
+  ],
+  "priority": "P2",
+  "tags": ["testing", "validation-service", "configuration"],
+  "discovered_during": "plan_metrics_export_0013_task_3"
+}

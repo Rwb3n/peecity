@@ -1,0 +1,78 @@
+{
+  "id": "0008",
+  "type": "DOCUMENTATION_GAP",
+  "title": "API documentation critically incomplete - 104 OSM properties vs 9 documented",
+  "severity": "HIGH",
+  "component": "suggest-agent API documentation",
+  "discovered_date": "2025-07-06",
+  "discovered_during": "config_impl task OSM schema analysis",
+  "description": "Systematic analysis of real OpenStreetMap data reveals suggest API documentation covers only 8.6% (9 out of 104) of actual OSM properties. Current schema assumptions are fundamentally incorrect, creating significant gaps between documented API capabilities and real-world data complexity.",
+  
+  "critical_findings": {
+    "schema_coverage": "9 documented properties vs 104 actual OSM properties (8.6% coverage)",
+    "data_type_mismatch": "API documents boolean values, OSM uses string 'yes'/'no' conventions",
+    "missing_high_value_properties": [
+      "male/female facilities (447 total occurrences)",
+      "unisex facilities (118 occurrences)",
+      "toilets:disposal types (175 occurrences)", 
+      "building level information (186 occurrences)",
+      "payment methods (13 different payment properties)",
+      "accessibility details beyond basic wheelchair access"
+    ],
+    "monetary_format_complexity": "charge field uses mixed formats: '£0.20', '0.20 GBP', '1 GBP'",
+    "opening_hours_complexity": "Complex time formats not documented in API schema"
+  },
+
+  "documentation_gaps": {
+    "suggest_api_md": "docs/reference/api/suggest-api.md contains incomplete schema",
+    "claude_md": "CLAUDE.md project schema documentation fundamentally incomplete",
+    "validation_services": "ValidationService only handles 9 properties vs 104 available",
+    "api_integration": "Suggest API route handlers lack validation for 95 properties"
+  },
+
+  "data_analysis_source": {
+    "file": "docs/export.geojson",
+    "features": 1042,
+    "unique_properties": 104,
+    "analysis_date": "2025-07-06",
+    "methodology": "systematic property extraction and frequency analysis"
+  },
+
+  "impact": {
+    "development": "API development based on incomplete understanding of data complexity",
+    "validation": "Suggest-agent validation missing 91.4% of potential user input fields", 
+    "user_experience": "Users cannot submit comprehensive toilet information available in OSM",
+    "data_integrity": "Significant data loss when processing real OSM complexity through simplified API"
+  },
+
+  "required_actions": [
+    "Update docs/reference/api/suggest-api.md with complete 104-property schema",
+    "Revise CLAUDE.md project schema to reflect OSM data reality",
+    "Expand ValidationService to handle high-frequency OSM properties",
+    "Update suggest API route handlers with comprehensive property validation",
+    "Create property priority classification (core/optional/specialized)",
+    "Document data type conversion patterns (OSM strings to API formats)",
+    "Add enum validation for standardized OSM fields"
+  ],
+
+  "recommended_approach": {
+    "phase_1": "Update documentation with complete schema (immediate)",
+    "phase_2": "Expand ValidationService for top 20 properties (high priority)",
+    "phase_3": "Enhance API routes with comprehensive validation (medium priority)",
+    "phase_4": "Full 104-property support implementation (future enhancement)"
+  },
+
+  "priority_properties": {
+    "core_required": ["lat", "lng", "amenity", "@id"],
+    "high_frequency": ["fee", "wheelchair", "access", "male", "female", "changing_table"],
+    "valuable_optional": ["unisex", "toilets:disposal", "level", "opening_hours", "payment:contactless"],
+    "specialized": ["building details", "address fields", "payment methods", "toilet specifications"]
+  },
+
+  "validation_standards": {
+    "enum_fields": "access, wheelchair, toilets:disposal require enum validation",
+    "boolean_mapping": "OSM 'yes'/'no' strings need boolean conversion patterns",
+    "monetary_formats": "charge field needs standardized format validation",
+    "coordinate_validation": "lat/lng remain core required fields with range validation"
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "id": "plan_docs_standardisation_0015",
+  "name": "Documentation Standardisation, Linting & Observability Expansion (Refined)",
+  "goal": "Introduce a unified front-matter schema, robust lint tooling, phased migration of existing docs, dedicated runbooks, and new observability content (exporter, k6, native histograms).",
+  "created_at": "2025-07-08T08:20:00Z",
+  "updated_at": "2025-07-08T08:20:00Z",
+  "v": 1,
+  "g": 95,
+  "phase": "BLUEPRINT",
+  "epic": true,
+  "type": "PLAN",
+  "status": "ACTIVE",
+  "dependencies": {
+    "prerequisite_plans": ["plan_metrics_export_0013"],
+    "libraries": ["markdownlint@0.37", "ajv@8", "gray-matter@4"],
+    "environment_variables": []
+  },
+  "tasks": [
+    {
+      "id": 0,
+      "type": "IMPLEMENTATION",
+      "title": "Define docs_frontmatter_schema.json",
+      "description": "Create JSON schema specifying required fields (title, description, category, last_updated) and optional fields (tags, version, author, status). Provide examples of valid and invalid front-matter in docs/reference/frontmatter_examples.md.",
+      "tags": ["schema", "docs"],
+      "confidence_level": "High",
+      "status": "DONE"
+    },
+    {
+      "id": 1,
+      "type": "TEST_CREATION",
+      "title": "Failing tests for schema & markdownlint baseline",
+      "description": "Write Jest tests (tests/docs/docs_schema_test.js) that use gray-matter to parse all .md files and Ajv to validate against the new schema; expect failures initially.",
+      "dependencies": [0],
+      "tags": ["docs", "lint", "tdd-red"],
+      "confidence_level": "High",
+      "status": "DONE"
+    },
+    {
+      "id": 2,
+      "type": "IMPLEMENTATION",
+      "title": "Implement lint tooling & CI caching",
+      "description": "Add scripts/lint-docs.js invoking markdownlint and schema validation; integrate gray-matter; add npm scripts and Git pre-commit hook; implement file-change caching to speed CI.",
+      "dependencies": [1],
+      "tags": ["docs", "lint", "tdd-green"],
+      "confidence_level": "High",
+      "status": "DONE"
+    },
+    {
+      "id": 3,
+      "type": "REFACTORING",
+      "title": "Phase 1: Apply schema to Cookbook docs (10 files)",
+      "description": "Add/standardise front-matter in docs/cookbook/*.md; update last_updated; ensure tests green for cookbook subset.",
+      "dependencies": [2],
+      "tags": ["docs", "cookbook", "tdd-refactor"],
+      "confidence_level": "Medium",
+      "status": "DONE"
+    },
+    {
+      "id": 4,
+      "type": "REFACTORING",
+      "title": "Phase 2: Apply schema to ADR & Reference docs (13 files)",
+      "description": "Standardise front-matter in docs/adr and docs/reference; update intra-doc links.",
+      "dependencies": [3],
+      "tags": ["docs", "adr", "reference", "tdd-refactor"],
+      "confidence_level": "Medium",
+      "status": "DONE"
+    },
+    {
+      "id": 5,
+      "type": "REFACTORING",
+      "title": "Phase 3: Apply schema to remaining docs (howto, explanations, feedback, archive)",
+      "description": "Complete migration; tests should now pass for all markdown files.",
+      "dependencies": [4],
+      "tags": ["docs", "metadata", "tdd-refactor"],
+      "confidence_level": "Medium",
+      "status": "DONE"
+    },
+    {
+      "id": 6,
+      "type": "TEST_CREATION",
+      "title": "Failing tests for runbook folder & template",
+      "description": "Add Jest tests asserting every file in docs/runbooks/ has correct category=runbook front-matter and that dashboard JSONs contain links to runbooks.",
+      "dependencies": [5],
+      "tags": ["runbooks", "tdd-red"],
+      "confidence_level": "High",
+      "status": "DONE"
+    },
+    {
+      "id": 7,
+      "type": "IMPLEMENTATION",
+      "title": "Extract and template runbooks",
+      "description": "Create docs/runbooks/, define runbook template (front-matter + sections), migrate performance runbook and any others; update cookbook & dashboard links.",
+      "dependencies": [6],
+      "tags": ["runbooks", "tdd-green"],
+      "confidence_level": "High",
+      "status": "DONE"
+    },
+    {
+      "id": 8,
+      "type": "REFACTORING",
+      "title": "Docs index & scaffolding CLI",
+      "description": "Update docs/README.md with index; add scripts/scaffold-doc.js to auto-generate new doc files with front-matter per schema.",
+      "dependencies": [7],
+      "tags": ["docs", "tooling", "tdd-refactor"],
+      "confidence_level": "High",
+      "status": "DONE"
+    },
+    {
+      "id": 9,
+      "type": "TEST_CREATION",
+      "title": "Stub tests for new content files (exporter, k6, ADR-005)",
+      "description": "Add failing tests checking for existence of exporter recipe, k6 guide, ADR-005 with valid front-matter & minimum headings.",
+      "dependencies": [8],
+      "tags": ["content", "tdd-red"],
+      "confidence_level": "High",
+      "status": "DONE"
+    },
+    {
+      "id": 10,
+      "type": "IMPLEMENTATION",
+      "title": "Add Prometheus exporter best-practices recipe",
+      "description": "Create docs/cookbook/recipe_prometheus_exporter.md covering naming, labels, HELP strings, maintainability principles.",
+      "dependencies": [9],
+      "tags": ["prometheus", "exporter", "tdd-green"],
+      "confidence_level": "High",
+      "status": "DONE"
+    },
+    {
+      "id": 11,
+      "type": "IMPLEMENTATION",
+      "title": "Add k6 load-testing how-to guide",
+      "description": "Create docs/howto/k6_load_testing.md including smoke/soak tests, thresholds, checks, output analysis, compact mode.",
+      "dependencies": [9],
+      "tags": ["k6", "load-testing", "tdd-green"],
+      "confidence_level": "High",
+      "status": "DONE"
+    },
+    {
+      "id": 12,
+      "type": "IMPLEMENTATION",
+      "title": "Author ADR-005 Prometheus Native Histograms adoption",
+      "description": "Draft ADR explaining rationale, design changes, implementation plan, dashboard updates.",
+      "dependencies": [9],
+      "tags": ["adr", "native-histograms", "tdd-green"],
+      "confidence_level": "Medium",
+      "status": "DONE"
+    },
+    {
+      "id": 13,
+      "type": "REFACTORING",
+      "title": "Final docs cleanup & CI optimisation",
+      "description": "Run markdownlint --fix, regenerate TOCs, ensure lint caching works; all tests green.",
+      "dependencies": [10,11,12],
+      "tags": ["docs", "cleanup", "tdd-refactor"],
+      "confidence_level": "High",
+      "status": "DONE"
+    }
+  ],
+  "success_criteria": [
+    "All markdown files conform to front-matter schema; Jest docs tests pass",
+    "Lint & schema checks run in <10s incremental mode on CI",
+    "Runbooks exist in docs/runbooks/ and linked from dashboards",
+    "Exporter recipe, k6 guide, ADR-005 committed with valid schema",
+    "docs/README.md index updated; scaffold script available",
+    "Global event counter incremented per completed task"
+  ]
+} 

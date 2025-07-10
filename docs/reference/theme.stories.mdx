@@ -1,0 +1,98 @@
+
+import { Meta, ColorPalette, ColorItem, Typeset } from '@storybook/blocks';
+import { Fragment } from 'react';
+
+<Meta title="Reference/Theme" />
+
+# Modern Thames Blueprint Theme
+
+This document outlines the visual identity for the CityPee application, codenamed "Modern Thames Blueprint." It provides a canonical reference for colors, typography, spacing, and radii to ensure a consistent and professional user experience.
+
+## Color Palette
+
+The palette is designed for high contrast and accessibility, inspired by the functional aesthetic of architectural blueprints and modern London infrastructure.
+
+### Primary Colors
+<ColorPalette>
+  <ColorItem
+    title="Primary"
+    subtitle="Used for primary calls-to-action and interactive elements."
+    colors={{ Primary: 'hsl(var(--primary))', 'Foreground': 'hsl(var(--primary-foreground))' }}
+  />
+  <ColorItem
+    title="Secondary"
+    subtitle="Used for secondary buttons and less prominent interactive elements."
+    colors={{ Secondary: 'hsl(var(--secondary))', 'Foreground': 'hsl(var(--secondary-foreground))' }}
+  />
+  <ColorItem
+    title="Destructive"
+    subtitle="Used for actions that delete data or have significant consequences."
+    colors={{ Destructive: 'hsl(var(--destructive))', 'Foreground': 'hsl(var(--destructive-foreground))' }}
+  />
+</ColorPalette>
+
+### Neutral Colors
+<ColorPalette>
+  <ColorItem
+    title="Background"
+    subtitle="The main background color for pages and components."
+    colors={{ Background: 'hsl(var(--background))', 'Foreground': 'hsl(var(--foreground))' }}
+  />
+  <ColorItem
+    title="Card / Popover"
+    subtitle="Background color for elevated surfaces like cards and popovers."
+    colors={{ Card: 'hsl(var(--card))', 'Popover': 'hsl(var(--popover))' }}
+  />
+    <ColorItem
+    title="Muted"
+    subtitle="For supplementary text and non-interactive elements."
+    colors={{ Muted: 'hsl(var(--muted))', 'Foreground': 'hsl(var(--muted-foreground))' }}
+  />
+</ColorPalette>
+
+### Interactive Element Colors
+<ColorPalette>
+  <ColorItem
+    title="Border"
+    subtitle="Default border color for components."
+    colors={{ Border: 'hsl(var(--border))' }}
+  />
+  <ColorItem
+    title="Input"
+    subtitle="Default background color for input fields."
+    colors={{ Input: 'hsl(var(--input))' }}
+  />
+    <ColorItem
+    title="Ring"
+    subtitle="Focus indicator color."
+    colors={{ Ring: 'hsl(var(--ring))' }}
+  />
+</ColorPalette>
+
+
+## Radii
+
+The theme uses a minimal border-radius for a sharp, modern, architectural look.
+
+<div style={{ display: 'flex', gap: '1rem' }}>
+  <div style={{
+    width: '100px',
+    height: '100px',
+    borderRadius: 'var(--radius)',
+    backgroundColor: 'hsl(var(--primary))',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'hsl(var(--primary-foreground))'
+  }}>
+    --radius
+  </div>
+</div>
+<br/>
+*Current value: `0.25rem`*
+
+## Typography
+
+The font stack prioritizes modern, highly-legible system UI fonts.
+
+<Typeset fontSizes={[12, 14, 16, 20, 24, 32, 40]} sampleText="The quick brown fox jumps over the lazy dog" /> 

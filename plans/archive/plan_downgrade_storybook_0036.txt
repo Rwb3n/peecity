@@ -1,0 +1,90 @@
+{
+  "id": "downgrade_storybook_0036",
+  "goal": "Downgrade all @storybook/* packages from the unstable v9 to the latest stable v8 release. This will unblock UI integration testing by enabling the installation and use of the official, compatible @storybook/test-runner.",
+  "linked_issue": null,
+  "analysis": {
+    "problem_summary": "The project uses Storybook v9, a pre-release version for which no compatible testing ecosystem exists (e.g., @storybook/test-runner). This has HALTED the TDD workflow for UI components, as stories cannot be tested in an integrated fashion.",
+    "affected_files": [
+      "package.json",
+      "yarn.lock",
+      ".storybook/main.js",
+      ".storybook/preview.js"
+    ],
+    "requirements": [
+      "All '@storybook/*' packages must be downgraded to the latest stable major version 8.",
+      "The official '@storybook/test-runner' package must be installed at a version compatible with Storybook v8.",
+      "The Storybook development server must successfully boot after the downgrade.",
+      "The core APIs of the new test-runner must be importable in a Jest environment."
+    ],
+    "assumptions": [
+      "The latest stable Storybook v8 release will not have significant breaking API changes that affect our current stories and configuration.",
+      "The `@storybook/test-runner` will provide the necessary functionality to replace the deprecated testing patterns."
+    ]
+  },
+  "user_stories": [
+    {
+      "id": "AS001",
+      "title": "As a developer, I need the project to use a stable version of Storybook so that I can use its official testing tools and unblock the UI development workflow.",
+      "acceptance_criteria": [
+        "The `package.json` file reflects Storybook v8 dependencies.",
+        "The `@storybook/test-runner` dependency is present in `package.json`.",
+        "`npm install` or `yarn install` completes successfully.",
+        "The `storybook dev` command successfully starts the local Storybook server.",
+        "A Jest test can successfully import from `@storybook/test-runner`."
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "downgrade_dependency_test_create",
+      "type": "TEST_CREATION",
+      "description": "Create a new Jest test file `tests/config/storybook_version_test.js` that reads `package.json` and asserts that all `@storybook/*` dependencies have version numbers starting with `^8.`. This test will initially fail, proving the downgrade is required.",
+      "dependencies": [],
+      "confidence_level": "High",
+      "self_critique": "This test is simple and has no external dependencies. It directly verifies the target state of the package file.",
+      "validation_criteria": [
+        "The test file `tests/config/storybook_version_test.js` is created.",
+        "When run, the test MUST FAIL with an assertion error indicating the version is `^9.x.x`, not `^8.x.x`."
+      ]
+    },
+    {
+      "id": "downgrade_dependency_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Modify `package.json` to downgrade all `@storybook/*` packages to `^8.6.14`. Concurrently, add `@storybook/test-runner` at `^0.19.0`. Execute the package manager's install command to apply changes.",
+      "dependencies": ["downgrade_dependency_test_create"],
+      "confidence_level": "Medium",
+      "self_critique": "Dependency changes can have wide-ranging side effects. While the immediate goal is to make the version test pass, this could break the Storybook server itself, which is why a subsequent boot test is essential. The versions are chosen based on the latest stable releases identified during the investigation.",
+      "validation_criteria": [
+        "The test `tests/config/storybook_version_test.js` MUST now PASS.",
+        "The `package-lock.json` or `yarn.lock` file must be updated.",
+        "The package manager install must complete with exit code 0."
+      ]
+    },
+    {
+      "id": "storybook_boot_smoke_test",
+      "type": "TEST_CREATION",
+      "description": "Create a smoke test script `tests/config/storybook_boot_test.js` that launches the `storybook dev` server as a child process, waits for a reasonable time (e.g., 45 seconds), and checks its stdout for the 'Storybook.*started' success message. The test fails if the message doesn't appear or the process exits with an error.",
+      "dependencies": ["downgrade_dependency_impl"],
+      "confidence_level": "High",
+      "self_critique": "This is a robust smoke test. It doesn't verify story content but provides strong confidence that the core configuration and server are not broken by the downgrade.",
+      "validation_criteria": [
+        "The test file `tests/config/storybook_boot_test.js` is created.",
+        "When run, the test MUST PASS, indicating the dev server started successfully."
+      ]
+    },
+    {
+      "id": "test_runner_import_test",
+      "type": "TEST_CREATION",
+      "description": "Create a final validation test `tests/config/test_runner_import_test.js` that simply imports `@storybook/test-runner` and asserts that the imported object is not null. This confirms the package is correctly installed and accessible within the Jest environment.",
+      "dependencies": ["downgrade_dependency_impl"],
+      "confidence_level": "High",
+      "self_critique": "A simple but effective test to confirm the primary goal—making the test-runner available—has been achieved.",
+      "validation_criteria": [
+        "The test file `tests/config/test_runner_import_test.js` is created.",
+        "When run, the test MUST PASS."
+      ]
+    }
+  ],
+  "status": "PENDING",
+  "v": 1
+} 

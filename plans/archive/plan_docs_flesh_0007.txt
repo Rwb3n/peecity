@@ -1,0 +1,80 @@
+{
+  "id": "docs_flesh_0007",
+  "goal": "Replace placeholder content in frontend UI spec and roadmap docs with comprehensive, developer-focused information, ensuring no placeholders remain.",
+  "user_stories": [
+    {
+      "id": "DX002",
+      "title": "As a developer, I want fully detailed documentation so I never encounter placeholder stubs during onboarding.",
+      "acceptance_criteria": [
+        "No document in docs/ contains placeholder markers such as 'Content relocated', 'Content migrated', or '*Content archived*' (except within docs/archive/).",
+        "docs/explanations/frontend-ui-spec.md contains ≥ 200 words and clear section headings.",
+        "docs/reference/roadmap.md contains a time-phased roadmap table covering at least 3 future phases.",
+        "All docs pass lint test and new placeholder check test."
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "placeholder_doc_test_create",
+      "type": "TEST_CREATION",
+      "description": "Add failing Jest test (tests/docs/placeholder_check_test.js) that fails if any markdown in docs/ (excluding archive/) includes placeholder phrases ('Content relocated', 'Content migrated', 'placeholder', '*Content archived*') or is shorter than 30 lines. Fails currently.",
+      "user_story_ref": "DX002",
+      "dependencies": [],
+      "external_dependencies": ["Jest"],
+      "confidence_level": "High",
+      "confidence_justification": "Simple regex scan and line count.",
+      "self_critique": "Line count threshold might false-flag intentionally short docs; we pick 30 lines as safe.",
+      "validation_expectations": {
+        "red_phase": "Test fails due to placeholders in two docs.",
+        "test_runtime": "< 2 seconds"
+      },
+      "acceptance_criteria": [
+        "placeholder_check_test.js exists and fails initially"
+      ],
+      "status": "COMPLETED"
+    },
+    {
+      "id": "docs_flesh_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Write full content for docs/explanations/frontend-ui-spec.md (covering component naming, breakpoints, design tokens mapping) and docs/reference/roadmap.md (phased roadmap). Ensure both docs ≥ 200 words, remove placeholder lines. Update any links. Make tests pass.",
+      "user_story_ref": "DX002",
+      "dependencies": ["placeholder_doc_test_create"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Writing content requires synthesis; risk of missing coverage.",
+      "self_critique": "May overrun word targets; keep concise.",
+      "validation_expectations": {
+        "green_phase": "placeholder_check_test.js passes",
+        "manual_verification": "Docs read well and are lint-clean"
+      },
+      "acceptance_criteria": [
+        "Both docs exceed 200 words, include headings",
+        "Placeholder markers removed",
+        "All tests pass"
+      ],
+      "status": "COMPLETED"
+    },
+    {
+      "id": "docs_flesh_refactor",
+      "type": "REFACTORING",
+      "description": "Polish newly written docs: add diagram snippets if helpful, run markdown-link-check, spellcheck, and ensure docs index references new sections.",
+      "user_story_ref": "DX002",
+      "dependencies": ["docs_flesh_impl"],
+      "external_dependencies": ["markdown-link-check", "cspell"],
+      "confidence_level": "High",
+      "confidence_justification": "Refactoring text is low-risk.",
+      "self_critique": "Spellcheck dictionaries may flag domain terms.",
+      "validation_expectations": {
+        "refactor_phase": "All tests still pass",
+        "no_regression": "link check clean"
+      },
+      "acceptance_criteria": [
+        "Docs index updated if new headings added",
+        "Spellcheck passes",
+        "Diagrams render (if any)",
+        "All tests continue to pass"
+      ],
+      "status": "COMPLETED"
+    }
+  ]
+} 

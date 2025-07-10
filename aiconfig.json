@@ -1,0 +1,161 @@
+{
+  "_metadata": {
+    "version": "2.0.0",
+    "last_updated": "2025-07-08T07:15:00Z",
+    "schema_validation": "scripts/validate-aiconfig.js",
+    "documentation": "docs/cookbook/recipe_aiconfig_patterns.md"
+  },
+  "architecture": {
+    "type": "AI-driven microservices",
+    "agents": {
+      "ingest-agent": "Fetches and normalizes OSM toilet data via Overpass API",
+      "suggest-agent": "Validates user submissions and manages suggestions.log",
+      "seo-agent": "Generates static borough pages for SEO optimization",
+      "deploy-agent": "Handles build, test, and deployment processes",
+      "monitor-agent": "Weekly data updates and system health monitoring"
+    },
+    "data_format": "GeoJSON",
+    "storage": "Flat file (toilets.geojson) with optional database upgrade path",
+    "deployment": "Vercel with auto-deploy on git push"
+  },
+  "tech_stack": {
+    "runtime": "Node.js 20.11.1 LTS",
+    "frontend": {
+      "framework": "Next.js 14.3 (App Router)",
+      "ui": "React 18.2.0, TypeScript 5.4.x",
+      "styling": "TailwindCSS 3.4.x, shadcn/ui 0.1.x",
+      "mapping": "React-Leaflet 4.3.x with Leaflet 1.9.x clustering",
+      "state_management": "React Query 4.x, Zustand 4.x",
+      "forms": "React Hook Form 7.x",
+      "animations": "framer-motion 10.x"
+    },
+    "backend": {
+      "api": "Next.js API Route Handlers (v14.3)",
+      "data_source": "OpenStreetMap (Overpass API v0.7.59)"
+    },
+    "testing": {
+      "framework": "Jest 29.7.x",
+      "react_testing": "@testing-library/react 14.2.x",
+      "environment": "jsdom 22.x",
+      "visual_testing": "Storybook 7.x with Chromatic",
+      "user_testing": "@testing-library/user-event 14.x"
+    }
+  },
+  "languages": {
+    "typescript": "5.4.x",
+    "javascript": "ES2023",
+    "shell": "Bash 5.x",
+    "json": "JSON Schema Draft 2020-12"
+  },
+  "development_standards": {
+    "methodology": "Hybrid_AI_OS TDD (Red-Green-Refactor)",
+    "phases": ["ANALYZE", "DIAGNOSE", "BLUEPRINT", "CONSTRUCT", "VALIDATE", "IDLE"],
+    "task_types": ["TEST_CREATION", "IMPLEMENTATION", "REFACTORING", "DIAGNOSTIC_TEST_CREATION", "EPIC"],
+    "code_style": "ESLint + Next.js config",
+    "commit_convention": "Conventional commits",
+    "principles": ["DRY", "KISS", "SOLID"]
+  },
+  "project_structure": {
+    "src": "Application source code",
+    "tests": "Test files with *_test.js pattern",
+    "docs": "Documentation and specifications",
+    "plans": "Task plans (plan_*.txt)",
+    "issues": "Issue tracking (issue_*.txt)",
+    "status": "Task status reports (*.md)",
+    "agents": "AI agent manifests",
+    "data": "Generated datasets (toilets.geojson)",
+    "scripts": "Orchestration scripts",
+    "templates": "Scaffold templates"
+  },
+  "testing": {
+    "runner": "jest",
+    "config": "jest.config.js",
+    "setup": "jest.setup.js",
+    "test_pattern": "*_test.js",
+    "test_directory": "tests/",
+    "coverage": "jest --coverage",
+    "watch": "jest --watch",
+    "commands": {
+      "test": "npm run test",
+      "test_watch": "npm run test:watch",
+      "test_coverage": "npm run test:coverage",
+      "storybook": "npm run storybook",
+      "build_storybook": "npm run build-storybook",
+      "chromatic": "npm run chromatic",
+      "test_visual": "npm run storybook",
+      "test_accessibility": "npm run storybook && npx storybook extract --output-dir .storybook-test && npx a11y-checker .storybook-test",
+      "test_chromatic": "npm run chromatic"
+    }
+  },
+  "validated_patterns": {
+    "cookbook_location": "docs/cookbook/",
+    "recipe_pattern": "recipe_*.md",
+    "tdd_cycle": "RED (failing test) -> GREEN (implementation) -> REFACTOR (cleanup)",
+    "epic_management": {
+      "master_plan": "plan_0003.txt",
+      "child_plan_pattern": "plan_*.txt",
+      "epic_task_type": "EPIC",
+      "epic_fields": ["plan_ref", "status"]
+    },
+    "atomic_design": {
+      "hierarchy": ["atoms", "molecules", "organisms", "templates", "pages"],
+      "component_structure": "src/components/{level}/{ComponentName}/",
+      "story_pattern": "*.stories.tsx",
+      "test_pattern": "*_test.tsx",
+      "design_system": "shadcn/ui with TailwindCSS integration and class-variance-authority for variant management",
+      "typescript_required": true,
+      "accessibility_standard": "WCAG 2.1 AA"
+    },
+    "mobile_first": {
+      "breakpoints": ["xs: 320px", "sm: 640px", "md: 768px", "lg: 1024px", "xl: 1280px"],
+      "touch_targets": "minimum 44px x 44px",
+      "performance": "< 3s load on 3G mobile",
+      "ergonomics": {
+        "thumb_zones": ["easy: bottom 75% center 60%", "moderate: top 25% center", "difficult: corners"],
+        "primary_actions": "bottom-right or bottom-center",
+        "secondary_actions": "top-left or slide-in menus",
+        "one_handed_priority": "high",
+        "gesture_patterns": {
+          "swipe_navigation": "horizontal swipe for page transitions, vertical for content scrolling",
+          "touch_feedback": "visual and haptic feedback for all interactive elements"
+        }
+      }
+    },
+    "visual_testing": {
+      "storybook_config": ".storybook/main.ts",
+      "chromatic_threshold": 0.2,
+      "viewport_testing": ["mobile1", "tablet", "desktop"],
+      "accessibility_testing": "addon-a11y with WCAG 2.1 AA"
+    },
+    "cookbook_integration": {
+      "atomic_components": "docs/cookbook/recipe_atomic_components.md - Comprehensive patterns for shadcn/ui component development",
+      "storybook_setup": "docs/cookbook/recipe_storybook_setup.md - Visual testing and development workflow patterns", 
+      "shadcn_integration": "docs/cookbook/recipe_shadcn_integration.md - Design system integration with TailwindCSS and variant management",
+      "aiconfig_patterns": "docs/cookbook/recipe_aiconfig_patterns.md - Configuration management and optimization patterns"
+    },
+    "osm_data_integration": {
+      "property_count": 120,
+      "schema_coverage": "systematic analysis reveals 120 unique OSM properties across 1,042 toilet locations",
+      "data_format": "GeoJSON with string-based property values following OSM conventions",
+      "validation_approach": "comprehensive property mapping with enum validation for standardized fields"
+    },
+    "performance_targets": {
+      "local": {
+        "minimal": 15,
+        "full": 20,
+        "config": 25,
+        "cached": 1
+      },
+      "ci": {
+        "minimal": 20,
+        "full": 30,
+        "config": 30,
+        "cached": 2
+      },
+      "version": "2.0",
+      "rationale": "v2: Adjusted from 10ms based on empirical variance analysis (ADR-004)",
+      "last_updated": "2025-07-07"
+    }
+  },
+  "g": 156
+}

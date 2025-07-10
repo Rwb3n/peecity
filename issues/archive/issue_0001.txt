@@ -1,0 +1,15 @@
+{
+  "id": "0001",
+  "type": "CLARIFICATION_NEEDED",
+  "title": "aiconfig.json missing",
+  "description": "Hybrid_AI_OS requires the primary configuration file aiconfig.json for any analysis or task planning, but it is not present in the repository.",
+  "assumptions": [
+    "The project should include an aiconfig.json file defining architecture, testing standards, and the global event counter (g).",
+    "The absence of this file prevents conformance to mandated workflows (ANALYZE, BLUEPRINT, etc.)."
+  ],
+  "clarifying_questions": [
+    "Could you provide the aiconfig.json file or confirm its intended location within the repository?",
+    "If aiconfig.json is not yet created, would you like me to scaffold a minimal version based on project docs?"
+  ],
+  "created_at": "2025-07-04T00:00:00Z"
+} 

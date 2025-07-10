@@ -1,0 +1,33 @@
+{
+  "id": "monitor_agent",
+  "goal": "Deliver monitor-agent for weekly refresh & summary email.",
+  "tasks": [
+    {
+      "id": "monitor_test",
+      "type": "TEST_CREATION",
+      "description": "Failing tests for cron schedule and email diff summary.",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "sinon", "nodemailer-mock"],
+      "confidence_level": "High",
+      "confidence_justification": "Cron can be simulated."
+    },
+    {
+      "id": "monitor_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Implement monitor-agent logic.",
+      "dependencies": ["monitor_test"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "node-cron mature."
+    },
+    {
+      "id": "monitor_refactor",
+      "type": "REFACTORING",
+      "description": "Refactor for modular alert channels.",
+      "dependencies": ["monitor_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Alert strategies may expand."
+    }
+  ]
+} 

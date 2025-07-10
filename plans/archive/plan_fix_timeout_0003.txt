@@ -1,0 +1,27 @@
+{
+  "id": "fix_timeout_bug_0003",
+  "goal": "Add robust request cancellation and accurate timeout handling to Overpass utility so diagnostic test passes.",
+  "related_issue": "0003",
+  "depends_on_plan": "plan_diagnose_0003.txt",
+  "tasks": [
+    {
+      "id": "timeout_fix_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Refactor `makeRequest` to use `AbortController` and call `req.destroy()` on timeout. Ensure it cleans up sockets and returns proper Error with 'timeout' keyword. Update retry logic to avoid duplicate hanging sockets. Include artifact annotation @doc refs docs/engineering-spec.md#timeout-handling.",
+      "dependencies": [],
+      "external_dependencies": ["abort-controller@^3"],
+      "confidence_level": "High",
+      "confidence_justification": "Node 20 supports AbortController natively; change is localised.",
+      "status": "DONE"
+    },
+    {
+      "id": "timeout_fix_refactor",
+      "type": "REFACTORING",
+      "description": "Refactor Overpass utility to extract HTTP layer into `src/utils/http.ts`, add unit tests for AbortController path, update documentation in `docs/cookbook/recipe_overpass_fetch.md`. Ensure all tests (including diagnostic) remain green and ESLint passes.",
+      "dependencies": ["timeout_fix_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Refactor risk moderate but covered by tests and diagnostics." 
+    }
+  ]
+} 

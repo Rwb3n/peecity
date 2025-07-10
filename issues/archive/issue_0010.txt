@@ -1,0 +1,91 @@
+{
+  "id": "0010",
+  "type": "ENHANCEMENT",
+  "title": "Suggest API schema expansion roadmap for OSM property completeness",
+  "severity": "MEDIUM",
+  "component": "suggest-agent API routes",
+  "discovered_date": "2025-07-06",
+  "discovered_during": "config_impl task schema analysis",
+  "description": "Current suggest API accepts 9 properties but OSM data contains 104 unique properties with significant user value. API enhancement roadmap needed to systematically expand property support while maintaining usability and performance.",
+
+  "enhancement_scope": {
+    "current_api_properties": 9,
+    "total_osm_properties": 104,
+    "high_value_additions": 15,
+    "specialized_properties": 80,
+    "performance_target": "maintain < 100ms response time with expanded validation"
+  },
+
+  "phased_enhancement_plan": {
+    "phase_1_core_expansion": {
+      "properties": ["male", "female", "unisex", "toilets:disposal", "level", "building"],
+      "rationale": "High frequency (100+ occurrences each) with significant user value",
+      "effort_estimate": "2-3 development cycles",
+      "validation_complexity": "Medium - mostly enum validation"
+    },
+    "phase_2_facility_details": {
+      "properties": ["toilets:handwashing", "toilets:position", "operator", "check_date"],
+      "rationale": "Moderate frequency (50-100 occurrences) with facility management value",
+      "effort_estimate": "1-2 development cycles",
+      "validation_complexity": "Low - string/date validation"
+    },
+    "phase_3_payment_systems": {
+      "properties": ["charge", "payment:cash", "payment:contactless", "payment:credit_cards"],
+      "rationale": "Payment information critical for user planning",
+      "effort_estimate": "2-3 development cycles", 
+      "validation_complexity": "High - monetary format standardization needed"
+    },
+    "phase_4_accessibility_enhancement": {
+      "properties": ["wheelchair:description", "changing_table:location", "changing_table:adult"],
+      "rationale": "Enhanced accessibility information for inclusive design",
+      "effort_estimate": "1-2 development cycles",
+      "validation_complexity": "Medium - text validation with guidelines"
+    }
+  },
+
+  "api_design_considerations": {
+    "backward_compatibility": "Existing 9-property API must remain functional",
+    "request_flexibility": "Users should not be required to submit all 104 properties",
+    "response_consistency": "Maintain consistent JSON response format",
+    "validation_performance": "Incremental validation complexity acceptable",
+    "documentation_clarity": "Clear property categorization (required/optional/specialized)"
+  },
+
+  "implementation_requirements": {
+    "schema_versioning": "API versioning strategy for property expansion",
+    "validation_service_expansion": "ValidationService enhancement for each phase",
+    "database_migration": "Data storage implications for expanded properties",
+    "testing_strategy": "Comprehensive test coverage for each property addition",
+    "documentation_updates": "API documentation updates for each phase"
+  },
+
+  "user_experience_impact": {
+    "submission_complexity": "Balance between completeness and usability",
+    "progressive_disclosure": "Advanced properties should be optional/collapsible",
+    "error_messaging": "Clear validation errors for expanded property set",
+    "mobile_optimization": "Expanded forms must remain mobile-friendly"
+  },
+
+  "technical_architecture": {
+    "modular_validation": "Property-specific validation modules",
+    "conditional_fields": "Some properties only relevant when others are set",
+    "enum_management": "Centralized enum definitions for OSM standards", 
+    "type_conversion": "Automatic conversion between OSM and API formats",
+    "performance_monitoring": "Track validation performance impact"
+  },
+
+  "success_metrics": {
+    "property_adoption": "Track usage frequency of newly added properties",
+    "validation_performance": "Maintain response time targets",
+    "error_reduction": "Reduce validation error rates through better UX",
+    "data_completeness": "Increase average properties per submission",
+    "user_satisfaction": "Positive feedback on expanded functionality"
+  },
+
+  "dependencies": [
+    "Resolution of issue_0008 (API documentation updates)",
+    "Resolution of issue_0009 (ValidationService architecture)",
+    "Frontend UI updates to support expanded property set",
+    "Database schema considerations for property storage"
+  ]
+}

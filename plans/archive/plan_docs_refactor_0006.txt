@@ -1,0 +1,84 @@
+{
+  "id": "docs_refactor_0006",
+  "goal": "Consolidate and normalize project documentation into the Diátaxis framework (Tutorials, How-To Guides, Reference, Explanations) while enforcing KISS, DRY, SOLID principles for maximum developer experience.",
+  "user_stories": [
+    {
+      "id": "DX001",
+      "title": "As a developer, I want a single, well-structured documentation hub so I can quickly understand the project without searching across redundant files.",
+      "acceptance_criteria": [
+        "Documentation root contains Diátaxis folders (tutorials/, howto/, reference/, explanations/)",
+        "Each markdown file includes required front-matter: id, title, version, last_updated, category",
+        "README.md in docs/ indexes all docs with links and brief descriptions"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "docs_lint_test_create",
+      "type": "TEST_CREATION",
+      "description": "Create failing Jest test (docs_structure_test.js) that asserts: (1) Each markdown file in docs/ has YAML front-matter with required keys (id, title, version, last_updated, category). (2) Docs reside only in tutorials/, howto/, reference/, explanations/, adr/ or cookbook/. (3) No duplicated titles across docs. Test should fail with current un-normalized docs (RED phase).",
+      "user_story_ref": "DX001",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "js-yaml"],
+      "confidence_level": "High",
+      "confidence_justification": "Parsing YAML front-matter and walking file tree is straightforward.",
+      "self_critique": "Test runtime may increase with many docs. Mitigate by limiting to docs/ subtree and caching file list.",
+      "validation_expectations": {
+        "red_phase": "Test fails because many docs are missing front-matter or in wrong location",
+        "test_runtime": "< 3 seconds"
+      },
+      "acceptance_criteria": [
+        "docs_structure_test.js exists in tests/docs/",
+        "Test fails initially (RED)",
+        "Test output clearly states missing front-matter and invalid paths"
+      ],
+      "status": "COMPLETED"
+    },
+    {
+      "id": "docs_refactor_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Normalize documentation: (1) Merge architecture-spec.md + architecture.md into explanations/architecture.md with ADR retained under adr/ADR-001.md. (2) Merge design-spec.md + design.md into explanations/design.md. (3) Merge engineering-spec.md + engineering.md into explanations/engineering.md. (4) Extract key insights from devlog0-2.md into reference/changelog.md then archive original devlogs under docs/archive/. (5) Add required YAML front-matter to all docs. (6) Create README index and update links. Ensure docs_structure_test.js passes (GREEN phase).",
+      "user_story_ref": "DX001",
+      "dependencies": ["docs_lint_test_create"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Manual content merging could introduce broken links; careful review required.",
+      "self_critique": "Merging may inadvertently lose context; cross-check before deletion.",
+      "validation_expectations": {
+        "green_phase": "docs_structure_test.js passes with no errors",
+        "manual_verification": "Run markdown-link-check to ensure no broken links"
+      },
+      "acceptance_criteria": [
+        "All docs reside in Diátaxis directories or adr/ or cookbook/",
+        "All docs have YAML front-matter with required fields",
+        "README index updated",
+        "No duplicate titles",
+        "docs_structure_test.js passes"
+      ],
+      "status": "COMPLETED"
+    },
+    {
+      "id": "docs_refactor_cleanup",
+      "type": "REFACTORING",
+      "description": "Refactor documentation for DRY: extract repeated legal/licensing text into shared partial, add docs/cookbook/recipe_docs_structure.md describing Diátaxis pattern, update project root README to point to docs index, remove dead links and ensure spellcheck passes.",
+      "user_story_ref": "DX001",
+      "dependencies": ["docs_refactor_impl"],
+      "external_dependencies": ["markdown-link-check", "cspell"],
+      "confidence_level": "High",
+      "confidence_justification": "Refactoring text and adding a recipe is low-risk after structure solidified.",
+      "self_critique": "Spellcheck dictionary may flag domain-specific terms; will add allowlist.",
+      "validation_expectations": {
+        "refactor_phase": "All tests continue passing after cleanup",
+        "no_regression": "docs_structure_test.js still passes"
+      },
+      "acceptance_criteria": [
+        "Shared legal text extracted to docs/reference/licensing.md",
+        "docs/cookbook/recipe_docs_structure.md created (≥ 30 lines)",
+        "Root README updated",
+        "Spellcheck passes (cspell)",
+        "All tests pass"
+      ],
+      "status": "COMPLETED"
+    }
+  ]
+} 

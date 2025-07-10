@@ -1,0 +1,71 @@
+{
+  "id": "plan_enable_tailwind_in_storybook_0042",
+  "name": "Enable Tailwind Processing in Storybook",
+  "description": "Configure @storybook/addon-styling-webpack to properly process Tailwind directives, ensuring utility classes like .bg-primary are generated in Storybook's CSS build",
+  "goal": "Fix the root cause where Tailwind directives (@tailwind) are not being processed, resulting in missing utility classes and components showing no colors",
+  "created_at": "2025-01-10T10:00:00Z",
+  "updated_at": "2025-01-10T10:10:00Z",
+  "epic_id": "epic_frontend_ui",
+  "status": "ACTIVE",
+  "v": 3,
+  "tasks": [
+    {
+      "id": "task_1",
+      "name": "test_tailwind_css_generation",
+      "description": "Create a test that verifies Storybook's CSS build contains Tailwind utility classes. This test should check for the presence of .bg-primary class in the generated CSS, which is currently missing. The test must FAIL initially to confirm the bug exists.",
+      "type": "TEST_CREATION",
+      "status": "DONE",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Test file created: tests/storybook/tailwind_css_generation_test.js",
+        "Test uses a script to build Storybook and check generated CSS",
+        "Test looks for .bg-primary class in .storybook-static CSS files",
+        "Test must FAIL with clear message about missing Tailwind utilities",
+        "Follow existing test patterns using Jest"
+      ],
+      "confidence_level": "High"
+    },
+    {
+      "id": "task_2",
+      "name": "configure_tailwind_addon",
+      "description": "Update .storybook/main.ts to properly configure @storybook/addon-styling-webpack with Tailwind support. Replace the simple string addon reference with a configuration object that explicitly tells the addon to use Tailwind.",
+      "type": "IMPLEMENTATION",
+      "status": "DONE",
+      "dependencies": ["task_1"],
+      "acceptance_criteria": [
+        "Update addon configuration to object format with options",
+        "Add postCss implementation requirement",
+        "Add tailwindConfig path reference",
+        "Remove manual webpackFinal CSS rules (addon handles this)",
+        "Ensure single source of truth remains globals.css",
+        "Test from task_1 must now PASS"
+      ],
+      "confidence_level": "High"
+    },
+    {
+      "id": "task_3",
+      "name": "validate_visual_rendering",
+      "description": "Verify that Storybook now correctly renders component colors by checking both the generated CSS and visual appearance. Run the test suite and manually verify component rendering.",
+      "type": "VALIDATION",
+      "status": "PENDING",
+      "dependencies": ["task_2"],
+      "acceptance_criteria": [
+        "Run test from task_1 - must PASS",
+        "Build Storybook and verify .bg-primary exists in CSS",
+        "Visually verify Button primary shows yellow background",
+        "Visually verify Badge success shows green background",
+        "Visually verify Badge warning shows amber background",
+        "No console errors or warnings about CSS processing"
+      ],
+      "confidence_level": "High"
+    }
+  ],
+  "analysis": {
+    "root_cause": "@storybook/addon-styling-webpack v1.x does not automatically process Tailwind. It provides a generic PostCSS pipeline but requires explicit configuration to include Tailwind processing. Without this configuration, @tailwind directives remain unprocessed, resulting in no utility classes being generated.",
+    "solution": "Configure the addon with explicit PostCSS and Tailwind settings, pointing to the project's tailwind.config.js. This ensures Tailwind processes the CSS and generates all utility classes like .bg-primary, .bg-success, etc.",
+    "risks": [
+      "Removing webpackFinal CSS rules might affect other CSS processing",
+      "Configuration syntax must be exact for addon to recognize options"
+    ]
+  }
+}

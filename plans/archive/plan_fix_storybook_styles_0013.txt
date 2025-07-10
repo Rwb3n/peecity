@@ -1,0 +1,53 @@
+
+{
+  "id": "plan_fix_storybook_styles_0013",
+  "name": "Fix Storybook Visual Styling and Configuration",
+  "description": "This plan addresses a critical bug where atomic components render with incorrect styles in the Storybook environment. The root cause is a misconfigured Storybook build process that fails to correctly apply Tailwind CSS from the global stylesheet. The plan follows the TDD cycle by first creating a failing diagnostic test to verify the bug, then implementing the configuration fix, and finally running the test to validate the resolution.",
+  "epic": "frontend_ui",
+  "status": "PENDING",
+  "confidence_level": "High",
+  "confidence_justification": "The diagnosis has pinpointed a specific, common misconfiguration in Storybook's build process. The fix involves using the official addon designed for this purpose, which is a standard and reliable solution.",
+  "tasks": [
+    {
+      "id": "diagnostic_test_creation",
+      "type": "DIAGNOSTIC_TEST_CREATION",
+      "description": "Create a new test file at `tests/diagnostics/atomic_styles_diag_test.tsx`. This test will render the `Button` component with `variant='primary'` and assert that its computed `background-color` matches the HSL value for `--primary` defined in `src/app/globals.css`. This test must fail to confirm the bug before any fixes are applied.",
+      "dependencies": [],
+      "status": "PENDING",
+      "artifact_path": "tests/diagnostics/atomic_styles_diag_test.tsx",
+      "acceptance_criteria": [
+        "A new test file is created.",
+        "The test uses `@testing-library/react` to render the Button component.",
+        "The test uses `window.getComputedStyle` to get the button's background color.",
+        "The test asserts the color is `rgb(25, 25, 25)` (the RGB equivalent of `hsl(0 0% 9%)`).",
+        "The test fails as expected."
+      ]
+    },
+    {
+      "id": "fix_storybook_config",
+      "type": "IMPLEMENTATION",
+      "description": "Modify the Storybook configuration to correctly process Tailwind CSS. This involves adding the official PostCSS addon and removing the conflicting manual webpack configuration.",
+      "dependencies": ["diagnostic_test_creation"],
+      "status": "PENDING",
+      "artifact_path": ".storybook/main.ts",
+      "acceptance_criteria": [
+        "In `.storybook/main.ts`, add `@storybook/addon-postcss` to the `addons` array.",
+        "In `.storybook/main.ts`, completely remove the `webpackFinal` configuration block that manually adds the `postcss-loader` rule.",
+        "The Storybook instance remains runnable after the changes."
+      ]
+    },
+    {
+      "id": "validate_style_fix",
+      "type": "VALIDATION",
+      "description": "Run the diagnostic test `tests/diagnostics/atomic_styles_diag_test.tsx` to validate that the Storybook configuration fix has resolved the styling issue. The test is expected to pass.",
+      "dependencies": ["fix_storybook_config"],
+      "status": "PENDING",
+      "artifact_path": "tests/diagnostics/atomic_styles_diag_test.tsx",
+      "acceptance_criteria": [
+        "The diagnostic test now passes.",
+        "All other tests in the suite continue to pass."
+      ]
+    }
+  ],
+  "version": 1
+} 

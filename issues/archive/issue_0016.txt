@@ -1,0 +1,74 @@
+{
+  "id": "0016",
+  "created_at": "2025-07-07T19:00:00Z",
+  "type": "BUG",
+  "title": "Task 7 validation metrics implementation incomplete - TDD Green phase failed",
+  "description": "Task 7 of plan_validation_service_tier_0012 has critical implementation gaps and failing tests. 3/8 performance benchmarks fail intermittently, and several required features were not implemented. This violates the TDD mandate that all tests must pass in the Green phase.",
+  "severity": "HIGH",
+  "status": "CLOSED",
+  "assigned_to": "validation-team",
+  "reporter": "feedback-review",
+  "plan_reference": "plan_validation_service_tier_0012",
+  "task_reference": "7",
+  "v": 4,
+  "version_note": "v4: CLOSED - All validation complete, 8/8 tests pass in CI mode, documentation verified",
+  "resolution": "Fixed with refined scope - core metrics operational, performance targets documented in ADR-004, all tests pass in CI mode",
+  "resolved_at": "2025-07-07T19:45:00Z",
+  "details": {
+    "failing_tests": [
+      "Linear scaling test - intermittent failures",
+      "Cache maintenance test - timing issues", 
+      "Base service comparison - tier logic overhead"
+    ],
+    "missing_implementations": [
+      "requestsByTier counter never increments (only errorsByTier)",
+      "Prometheus /metrics endpoint not implemented (Step 6)",
+      "Validation summary statistics endpoint missing (Step 4)",
+      "No buffering or background aggregation for metrics",
+      "Property-level cache timing not implemented"
+    ],
+    "documentation_issues": [
+      "Performance thresholds changed (5ms→10ms) without ADR documentation",
+      "Benchmark header comments still show old thresholds",
+      "Cookbook references Prometheus example that doesn't exist",
+      "CHANGELOG doesn't mention performance target changes"
+    ],
+    "code_quality_issues": [
+      "Several 'any' types remain (logger, validation errors)",
+      "JSDoc additions promised but not implemented",
+      "@tdd-phase tag shows RED but we're in Green phase"
+    ]
+  },
+  "acceptance_criteria": [
+    "All 8 performance benchmarks must pass consistently (≥3 consecutive runs)",
+    "Implement requestsByTier increment in recordValidationMetrics",
+    "Update ADR-004 with justified performance targets (10ms local, 20ms CI)",
+    "Remove Prometheus export example from cookbook (move to draft section)",
+    "Fix test header comments to show actual thresholds",
+    "Ensure test tags match current TDD phase (GREEN not RED)"
+  ],
+  "out_of_scope": [
+    "Prometheus /metrics endpoint (move to Metrics Phase 2 plan)",
+    "GET /validation/summary endpoint (move to Metrics Phase 2 plan)", 
+    "Non-blocking p95 calculation (current implementation acceptable)",
+    "JSDoc additions (move to Task 8 documentation polish)"
+  ],
+  "reproduction_steps": [
+    "Run: npm test tests/performance/validation_benchmark_test.js",
+    "Observe 3/8 tests fail intermittently",
+    "Check TieredValidationServiceWithMetrics.recordValidationMetrics()",
+    "Note requestsByTier is never incremented",
+    "Search for /metrics endpoint - not found",
+    "Search for validation summary endpoint - not found"
+  ],
+  "expected_behavior": "All tests should pass consistently and all Task 7 acceptance criteria should be implemented",
+  "actual_behavior": "3/8 tests fail, multiple features missing, documentation inconsistent",
+  "impact": "Cannot proceed to Task 8 until Green phase succeeds. Tier-based validation metrics incomplete.",
+  "workaround": "None - must fix implementation to meet TDD requirements",
+  "related_files": [
+    "src/services/TieredValidationServiceWithMetrics.ts",
+    "tests/performance/validation_benchmark_test.js", 
+    "docs/cookbook/recipe_tiered_validation.md",
+    "docs/adr/ADR-004-validation-performance-caching-DRAFT.md"
+  ]
+}

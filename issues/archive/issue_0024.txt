@@ -1,0 +1,40 @@
+{
+  "id": "issue_0024",
+  "type": "BUG",
+  "title": "Task 2 Validation Failed: Lint tooling ESM import and schema test failures",
+  "description": "Validation for plan_docs_standardisation_0015 Task 2 failed. Jest encountered an unexpected token due to ESM-only import of markdownlint in both scripts/lint-docs.js and tests/docs/docs_schema_test.js. Consequently, the test suite aborts before executing front-matter schema checks. Additionally, several documentation files (e.g., docs/archive/devlog*.md) still lack the required description field, which will trigger schema validation failures once the import issue is resolved.",
+  "severity": "high",
+  "status": "OPEN",
+  "created_at": "2025-07-09T00:00:00Z",
+  "updated_at": "2025-07-09T00:00:00Z",
+  "v": 1,
+  "g": 98,
+  "affected_files": [
+    "scripts/lint-docs.js",
+    "tests/docs/docs_schema_test.js",
+    "docs/archive/devlog0.md",
+    "docs/archive/devlog1.md",
+    "docs/archive/devlog2.md"
+  ],
+  "error_details": {
+    "message": "ERR_REQUIRE_ESM raised when requiring markdownlint",
+    "symptoms": [
+      "Test suite fails before running schema checks",
+      "Lint CLI crashes with ERR_REQUIRE_ESM"
+    ]
+  },
+  "reproduction_steps": [
+    "Run npm test -- tests/docs/docs_schema_test.js",
+    "Observe SyntaxError: Unexpected token 'export' from markdownlint.exports.mjs",
+    "Run node scripts/lint-docs.js --ci",
+    "Observe ERR_REQUIRE_ESM crash"
+  ],
+  "proposed_solution": [
+    "Refactor scripts/lint-docs.js to use dynamic import(\"markdownlint\") or migrate to ES module syntax with --experimental-vm-modules option in Jest",
+    "Update tests/docs/docs_schema_test.js to import markdownlint dynamically or use markdownlint.sync API",
+    "Add description front-matter field to docs/archive/devlog*.md and any other non-compliant files",
+    "Re-run tests to confirm schema validation passes"
+  ],
+  "priority": "P1",
+  "tags": ["tdd", "documentation", "linting", "esm"]
+} 

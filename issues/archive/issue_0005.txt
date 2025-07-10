@@ -1,0 +1,20 @@
+{
+  "id": "0005",
+  "type": "BUG",
+  "title": "Duplicate detection test failing - 50m proximity check returns 201 instead of 409",
+  "description": "The suggest agent duplicate detection test 'should flag near-duplicate within 50m' is failing. Expected HTTP 409 (duplicate found) but receiving 201 (success). This indicates the duplicate detection algorithm is not properly identifying toilets within the 50-meter threshold.\n\nTest failure details:\n- File: tests/agents/suggest_agent_duplicates_test.js\n- Expected status: 409\n- Actual status: 201\n- This suggests duplicate detection logic in DuplicateService or related utilities may not be working correctly\n\nThis is isolated from the ingest refactor test infrastructure fixes and represents a separate business logic issue.",
+  "linked_plan": "plan_fix_ingest_live_api_bug_0004",
+  "linked_task": "live_api_fix_refactor",
+  "created_at": "2025-07-04T20:00:00Z",
+  "priority": "medium",
+  "technical_context": {
+    "failing_test": "tests/agents/suggest_agent_duplicates_test.js",
+    "expected_behavior": "POST /api/suggest should return 409 when submitting toilet within 50m of existing toilet",
+    "actual_behavior": "POST /api/suggest returns 201 (success) for duplicate submission",
+    "affected_components": [
+      "src/services/duplicateService.ts",
+      "src/utils/geospatial.ts", 
+      "src/app/api/suggest/route.ts"
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "id": "0001",
+  "goal": "Establish the foundational aiconfig.json that serves as the single source of truth for project architecture, testing standards, validated patterns, and the global event counter (g).",
+  "tasks": [
+    {
+      "id": "task_0001",
+      "type": "TEST_CREATION",
+      "description": "Write an initial failing test (located at tests/config/aiconfig_schema_test.js) that asserts the presence of aiconfig.json at the project root and validates that the JSON contains required top-level keys: architecture, tech_stack, development_standards, project_structure, testing, validated_patterns, g (global event counter). The test should parse the file, validate key existence, and ensure g is a non-negative integer.",
+      "dependencies": [],
+      "external_dependencies": [
+        "Node.js (>=18)",
+        "Jest (test runner)"
+      ],
+      "confidence_level": "High",
+      "confidence_justification": "Schema validation tests are straightforward with Jest's JSON parsing capabilities.",
+      "status": "DONE"
+    },
+    {
+      "id": "task_0002",
+      "type": "IMPLEMENTATION",
+      "description": "Create aiconfig.json at the project root containing the minimal required structure to satisfy the schema test. Populate initial values based on docs/architecture-spec.md, design-spec.md, and roadmap.md. Set \"g\" to 0. \n\nEnsure the modified source file contains a valid artifact annotation pointing to docs/architecture-spec.md.",
+      "dependencies": ["task_0001"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Implementation is deterministic; data is sourced directly from existing docs.",
+      "status": "DONE"
+    },
+    {
+      "id": "task_0003",
+      "type": "REFACTORING",
+      "description": "Refactor aiconfig.json to include additional validated pattern references (docs/cookbook/*) and expand the testing configuration to reflect strict TDD workflow parameters (e.g., test file naming conventions, test command). \n\nEnsure the modified source file contains a valid artifact annotation pointing to docs/engineering-spec.md.",
+      "dependencies": ["task_0002"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Future schema evolution could require additional keys; slight risk of mismatch with upcoming needs.",
+      "status": "DONE"
+    }
+  ]
+} 

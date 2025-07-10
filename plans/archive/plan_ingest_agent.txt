@@ -1,0 +1,33 @@
+{
+  "id": "ingest_agent",
+  "goal": "Deliver ingest-agent that fetches and normalizes OSM data into toilets.geojson.",
+  "tasks": [
+    {
+      "id": "ingest_test",
+      "type": "TEST_CREATION",
+      "description": "Write failing tests: mock Overpass API, expect normalized GeoJSON output.",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "nock", "GeoJSON validation lib"],
+      "confidence_level": "High",
+      "confidence_justification": "Mocking enables deterministic tests."
+    },
+    {
+      "id": "ingest_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Create `agents/ingest-agent.json`, `scripts/ingest.js`, and npm script `npm run ingest`.\n1. Fetch OSM data from Overpass API (URL from `.env`).\n2. Normalize to internal GeoJSON schema; output `data/toilets.geojson`.\n3. Ensure `tests/agents/ingest_agent_test.js` now passes (Green phase).\n4. Exit code 0; add retry/back-off (3 attempts) on 429/5xx.\n5. Embed artifact annotation `@doc refs docs/architecture-spec.md#ingest-agent` in each new file.",
+      "dependencies": ["ingest_test"],
+      "external_dependencies": ["node-fetch@^3", "dotenv@^16", "overpass-frontend@^0.7", "geojson-validation@^0.4"],
+      "confidence_level": "High",
+      "confidence_justification": "All implementation steps are deterministic once API is mocked; risks minimal."
+    },
+    {
+      "id": "ingest_refactor",
+      "type": "REFACTORING",
+      "description": "Extract Overpass query logic into `src/utils/overpass.ts` (retry, caching).\nUpdate ingest script to use util. Add unit tests for util; ensure existing ingest tests stay green.\nMaintain ESLint pass and >90% coverage for util. Document util in `docs/cookbook/recipe_overpass_fetch.md`. Include performance benchmark (<10s with cached response).",
+      "dependencies": ["ingest_impl"],
+      "external_dependencies": ["jest@latest", "ts-node@latest"],
+      "confidence_level": "Medium",
+      "confidence_justification": "Refactor might expose edge cases; coverage and tests mitigate risk."
+    }
+  ]
+} 

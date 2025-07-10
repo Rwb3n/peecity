@@ -1,0 +1,79 @@
+{
+  "id": "0018",
+  "created_at": "2025-07-07T15:45:00Z",
+  "type": "BUG",
+  "title": "Task 8 incomplete - optimized service not integrated into production path",
+  "description": "Task 8 created optimized validation service but failed to integrate it into the production code path. The original service is still being used in API routes and benchmarks.",
+  "severity": "HIGH",
+  "status": "OPEN",
+  "assigned_to": "validation-team",
+  "reporter": "feedback-validation",
+  "plan_reference": "plan_validation_service_tier_0012",
+  "task_reference": "8",
+  "v": 3,
+  "version_note": "v3: Issue reopened - 100% coverage requirement not met",
+  "details": {
+    "problems_identified": [
+      "Class name collision: Both services exported class 'TieredValidationService'",
+      "Production path unchanged: API routes still import original service",
+      "Benchmark tests use TieredValidationServiceWithMetrics which wraps original",
+      "No coverage report provided for new code",
+      "Comparison test used synthetic data inflating performance claims"
+    ],
+    "completed_fixes": [
+      "Renamed optimized class to TieredValidationServiceOptimized",
+      "Updated TieredValidationServiceWithMetrics to extend optimized version",
+      "Fixed comparison test to use real tier configuration data",
+      "Added missing methods (ensureConfigLoaded, validateSuggestion, getPropertyInfo)",
+      "Created errorMessages test for coverage"
+    ],
+    "remaining_work": [
+      "Run and attach nyc coverage report showing 100% for new code",
+      "Achieve 100% test coverage for TieredValidationService_optimized.ts",
+      "Achieve 100% test coverage for errorMessages.ts",
+      "Run nyc coverage report and attach to status"
+    ]
+  },
+  "acceptance_criteria": [
+    "Optimized service fully integrated into production code path",
+    "All performance benchmarks pass with optimized service",
+    "Coverage report shows 100% for TieredValidationService_optimized.ts and errorMessages.ts",
+    "Documentation clearly indicates optimized service is production version",
+    "No class name conflicts or ambiguity"
+  ],
+  "update_2025_07_07_16_10": {
+    "status": "Production integration complete but coverage failed",
+    "completed": [
+      "API routes use optimized service",
+      "Benchmarks use optimized service via metrics",
+      "Rollback documentation added",
+      "Performance targets met"
+    ],
+    "blocked_by": [
+      "Coverage requirement: 74.16% < 100% (TieredValidationService_optimized.ts)",
+      "Coverage requirement: 56.33% < 100% (errorMessages.ts)",
+      "Plan v15 explicitly requires 100% coverage for new code"
+    ]
+  },
+  "resolution_path": {
+    "immediate_actions": [
+      "Add comprehensive tests to achieve 100% coverage",
+      "Focus on untested branches: enum errors, range checks, coercion paths",
+      "Run nyc coverage report and verify 100%"
+    ],
+    "validation_steps": [
+      "Verify benchmarks use optimized service",
+      "Confirm 20-50% performance improvement with real data",
+      "Check all tests pass with new implementation"
+    ]
+  },
+  "related_files": [
+    "src/services/TieredValidationService_optimized.ts",
+    "src/services/TieredValidationServiceWithMetrics.ts",
+    "src/utils/errorMessages.ts",
+    "tests/performance/optimization_comparison_test.js",
+    "tests/performance/validation_benchmark_test.js",
+    "src/app/api/suggest/route.ts",
+    "src/app/api/v2/suggest/route.ts"
+  ]
+}

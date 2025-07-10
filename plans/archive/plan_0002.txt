@@ -1,0 +1,175 @@
+{
+  "id": "0002",
+  "goal": "Deliver all V1 initiatives defined in architecture-spec.md and aiconfig.json, following strict TDD (Red-Green-Refactor) across agents, frontend, and infrastructure.",
+  "archived": true,
+  "superseded_by": "plan_0003.txt",
+  "tasks": [
+    {
+      "id": "ingest_test",
+      "type": "TEST_CREATION",
+      "description": "Write failing tests for `ingest-agent`: ensure Overpass API query returns data, JSON normalization produces valid GeoJSON saved to data/toilets.geojson.",
+      "dependencies": [],
+      "external_dependencies": ["Node.js 20", "Jest", "nock (HTTP mocks)", "GeoJSON validation lib"],
+      "confidence_level": "High",
+      "confidence_justification": "Mocking Overpass API enables deterministic tests."
+    },
+    {
+      "id": "ingest_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Implement ingest-agent script and manifest to fetch & normalize OSM data per tests. Include artifact annotation to architecture-spec.md.",
+      "dependencies": ["ingest_test"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Overpass query pattern documented; transformation deterministic."
+    },
+    {
+      "id": "ingest_refactor",
+      "type": "REFACTORING",
+      "description": "Refactor ingest-agent for code clarity and extract reusable Overpass helper utils.",
+      "dependencies": ["ingest_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Potential performance optimizations may require iteration."
+    },
+
+    {
+      "id": "suggest_test",
+      "type": "TEST_CREATION",
+      "description": "Write failing tests for `suggest-agent`: validate user submission schema, duplicate detection, and suggestion logging.",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "supertest"],
+      "confidence_level": "High",
+      "confidence_justification": "Submission validation logic is pure and easily testable."
+    },
+    {
+      "id": "suggest_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Implement suggest-agent API handler and validation logic with artifact annotation.",
+      "dependencies": ["suggest_test", "ingest_impl"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Uses Joi/Schema validation; well-supported."
+    },
+    {
+      "id": "suggest_refactor",
+      "type": "REFACTORING",
+      "description": "Refactor suggest-agent and extract shared validator utils.",
+      "dependencies": ["suggest_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "May need to optimize duplicate detection algorithm."
+    },
+
+    {
+      "id": "seo_test",
+      "type": "TEST_CREATION",
+      "description": "Write failing tests for `seo-agent`: ensure borough pages generated per data file, contains correct metadata.",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "jsdom"],
+      "confidence_level": "High",
+      "confidence_justification": "Static generation can be tested via file snapshots."
+    },
+    {
+      "id": "seo_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Implement seo-agent script to generate static pages & robots.txt updates.",
+      "dependencies": ["seo_test", "ingest_impl"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Generation logic straightforward file output."
+    },
+    {
+      "id": "seo_refactor",
+      "type": "REFACTORING",
+      "description": "Refactor seo-agent codebase, adopt template system.",
+      "dependencies": ["seo_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Template engine selection might change."
+    },
+
+    {
+      "id": "frontend_test",
+      "type": "TEST_CREATION",
+      "description": "Write failing React component tests for map page, clustering, and borough page routing.",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "@testing-library/react", "react-testing-library"],
+      "confidence_level": "High",
+      "confidence_justification": "Component tests follow established patterns."
+    },
+    {
+      "id": "frontend_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Implement Next.js pages/components to satisfy tests, integrate Leaflet map with GeoJSON from ingest-agent output.",
+      "dependencies": ["frontend_test", "ingest_impl"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Next.js & React Leaflet well documented."
+    },
+    {
+      "id": "frontend_refactor",
+      "type": "REFACTORING",
+      "description": "Refactor UI components under atomic design principles and optimize Tailwind CSS usage.",
+      "dependencies": ["frontend_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Design tweaks may require iteration."
+    },
+
+    {
+      "id": "deploy_test",
+      "type": "TEST_CREATION",
+      "description": "Write failing tests/mocks for deploy-agent ensuring CI/CD script triggers build & deploy pipeline on push.",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "shelljs"],
+      "confidence_level": "High",
+      "confidence_justification": "Shell command mocks simple."
+    },
+    {
+      "id": "deploy_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Implement deploy-agent script and GitHub Actions workflow.",
+      "dependencies": ["deploy_test", "frontend_impl"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Workflow YAML deterministic."
+    },
+    {
+      "id": "deploy_refactor",
+      "type": "REFACTORING",
+      "description": "Refactor deployment pipeline and extract reusable steps.",
+      "dependencies": ["deploy_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "CI caching strategies may evolve."
+    },
+
+    {
+      "id": "monitor_test",
+      "type": "TEST_CREATION",
+      "description": "Write failing tests for monitor-agent to ensure scheduled job runs, diffs data, emails summary.",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "sinon", "nodemailer-mock"],
+      "confidence_level": "High",
+      "confidence_justification": "Cron schedule can be simulated."
+    },
+    {
+      "id": "monitor_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Implement monitor-agent with cron scheduling and email report logic.",
+      "dependencies": ["monitor_test", "ingest_impl"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Scheduling libraries mature (node-cron)."
+    },
+    {
+      "id": "monitor_refactor",
+      "type": "REFACTORING",
+      "description": "Refactor monitor-agent for modularity and plugable alert channels.",
+      "dependencies": ["monitor_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Alert channel abstraction might expand."
+    }
+  ]
+} 

@@ -1,0 +1,41 @@
+{
+  "name": "seo-agent",
+  "version": "1.0.0",
+  "description": "Generates static borough pages with SEO metadata and sitemap for improved search engine visibility",
+  "type": "static-generation",
+  "schedule": "on-demand",
+  "dependencies": {
+    "fs": "built-in",
+    "path": "built-in"
+  },
+  "config": {
+    "input_file": "data/toilets.geojson",
+    "output_directory": "src/app/borough",
+    "public_directory": "public",
+    "base_url": "https://citypee.com",
+    "sitemap_path": "public/sitemap.xml",
+    "robots_path": "public/robots.txt"
+  },
+  "environment": {
+    "required": [],
+    "optional": ["BASE_URL"]
+  },
+  "outputs": [
+    {
+      "directory": "src/app/borough",
+      "format": "Next.js Pages",
+      "schema": "React TypeScript"
+    },
+    {
+      "file": "public/sitemap.xml",
+      "format": "XML Sitemap",
+      "schema": "sitemaps.org"
+    },
+    {
+      "file": "public/robots.txt",
+      "format": "robots.txt",
+      "schema": "robots exclusion standard"
+    }
+  ],
+  "documentation": "docs/architecture-spec.md#seo-agent"
+}

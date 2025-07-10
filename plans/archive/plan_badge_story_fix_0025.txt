@@ -1,0 +1,95 @@
+{
+  "id": "badge_story_fix_0025",
+  "goal": "Update Badge Storybook stories to use parent-driven positioning, create visual regression tests, and ensure chromatic baseline for notification badge examples.",
+  "dependencies": {
+    "blocked_by": [],
+    "plan_prerequisites": ["plan_fix_atoms_hardcode_0017", "plan_fix_variants_0024"]
+  },
+  "user_stories": [
+    {
+      "id": "BS001",
+      "title": "As a designer, I want Badge stories to reflect our atomic principles so that documentation is accurate and consistent.",
+      "acceptance_criteria": [
+        "NotificationBadges story positions Badge via parent wrapper, not Badge prop",
+        "Success and Warning variants render with theme tokens",
+        "Chromatic snapshot passes with baseline ≤ 0.2 diff"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "story_test_create",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests in tests/storybook/badge_story_pos_test.js to render NotificationBadges story and assert Badge element uses bg-success etc. Expected RED phase.",
+      "dependencies": [],
+      "external_dependencies": ["jest", "@storybook/testing-react"],
+      "confidence_level": "High",
+      "self_critique": "Storybook testing may require async render; ensure deterministic.",
+      "validation_expectations": {
+        "red_phase": "Test fails due to outdated story code",
+        "test_count": ">=3",
+        "runtime_budget": "<2s"
+      },
+      "status": "FAILED",
+      "failure_reason": "Anti-pattern: Implementation-inspecting tests that read source files instead of rendering stories"
+    },
+    {
+      "id": "badge_story_integration_test_create",
+      "type": "TEST_CREATION",
+      "description": "Create failing integration tests in tests/storybook/badge_story_integration_test.tsx that properly render NotificationBadges & StatusIndicators stories using @storybook/testing-react, query for badge elements, and assert Tailwind classes are applied.",
+      "dependencies": [],
+      "external_dependencies": ["jest", "@storybook/testing-react", "@testing-library/react"],
+      "confidence_level": "High",
+      "self_critique": "Must use proper render() from Storybook testing library for true integration testing.",
+      "validation_expectations": {
+        "red_phase": "Tests fail if stories don't render with expected classes",
+        "test_count": ">=4",
+        "runtime_budget": "<5s"
+      },
+      "status": "FAILED",
+      "failure_reason": "TypeScript syntax in JS file, missing @storybook/testing-react dependency"
+    },
+    {
+      "id": "badge_story_integration_test_fix",
+      "type": "TEST_CREATION",
+      "description": "Fix integration tests by installing @storybook/testing-react dependency and properly importing/rendering actual Storybook stories instead of manually recreating components.",
+      "dependencies": ["badge_story_integration_test_create"],
+      "external_dependencies": ["@storybook/testing-react", "@testing-library/react"],
+      "confidence_level": "Medium",
+      "self_critique": "Dependency installation may be blocked; may need alternative approach.",
+      "validation_expectations": {
+        "red_phase": "Tests properly render stories and fail on missing features",
+        "test_count": ">=4",
+        "runtime_budget": "<5s"
+      },
+      "status": "PENDING"
+    },
+    {
+      "id": "story_impl_update",
+      "type": "IMPLEMENTATION",
+      "description": "Update src/components/atoms/Badge/Badge.stories.tsx NotificationBadges story to wrap Badge with absolute positioned div in parent context. Ensure success/warning variants in story. Update artifact annotations.",
+      "dependencies": ["badge_story_integration_test_fix"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "self_critique": "Visual layout requires manual verification; risk of class typo.",
+      "validation_expectations": {
+        "green_phase": "Story test passes",
+        "chromatic_baseline": "Visual regression baseline created"
+      }
+    },
+    {
+      "id": "story_visual_refactor",
+      "type": "REFACTORING",
+      "description": "Run Chromatic, capture baseline, ensure no visual regression >0.2 diff, clean docs comments.",
+      "dependencies": ["story_impl_update"],
+      "external_dependencies": ["Chromatic"],
+      "confidence_level": "Medium",
+      "self_critique": "Chromatic may need token update; snapshot approval process required.",
+      "validation_expectations": {
+        "refactor_phase": "All story tests pass, Chromatic diff <0.2"
+      }
+    }
+  ],
+  "status": "IN_PROGRESS",
+  "v": 4
+} 

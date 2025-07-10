@@ -1,0 +1,16 @@
+{
+  "id": "0002",
+  "type": "CONFIGURATION_ERROR",
+  "title": "Jest configuration missing prevents test execution",
+  "description": "During validation of task_0001, Jest failed to find any configuration file (jest.config.js|ts|mjs|json). This halted the test run before reaching assertions, violating the TDD workflow.",
+  "steps_to_reproduce": [
+    "Run `npx jest tests/config/aiconfig_schema_test.js`",
+    "Observe error: Could not find a config file based on provided values."
+  ],
+  "expected_behavior": "Jest should execute the newly created test and fail due to missing aiconfig.json, not due to missing Jest config.",
+  "proposed_resolution": "Add minimal jest.config.js exporting `{ testEnvironment: 'node' }` at project root, or include full Jest configuration details in aiconfig.json and mirrored config file.",
+  "related_task": "plan_0001 task_0001",
+  "created_at": "2025-07-04T00:10:00Z",
+  "status": "RESOLVED",
+  "resolution": "Added jest.config.js and updated aiconfig.json; tests pass."
+} 

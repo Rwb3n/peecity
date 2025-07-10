@@ -1,0 +1,35 @@
+{
+  "id": "issue_0027",
+  "type": "BUG",
+  "title": "Remaining documentation files lack schema-compliant front-matter (Task 2)",
+  "description": "After config fixes, schema tests still fail: 32 docs without valid front-matter, 92 missing-field occurrences. Category and markdownlint issues resolved.",
+  "severity": "medium",
+  "status": "CLOSED",
+  "created_at": "2025-07-09T01:20:00Z",
+  "updated_at": "2025-07-09T01:40:00Z",
+  "v": 1,
+  "g": 101,
+  "affected_files": [
+    "docs/adr/ADR-003-core-property-validation.md",
+    "docs/adr/ADR-004-validation-performance-caching.md",
+    "docs/cookbook/*.md",
+    "others per test output"
+  ],
+  "error_details": {
+    "message": "Missing front-matter or required fields (title, description, category, last_updated)",
+    "symptoms": [
+      "Schema validation failures (32)",
+      "Missing-field test failures (92)"
+    ]
+  },
+  "reproduction_steps": [
+    "node --experimental-vm-modules jest tests/docs/docs_schema_test.js --runInBand"
+  ],
+  "proposed_solution": [
+    "Add minimal required front-matter to each failing doc",
+    "Populate description fields",
+    "Ensure last_updated ISO strings"
+  ],
+  "priority": "P2",
+  "tags": ["documentation", "schema", "tdd"]
+} 

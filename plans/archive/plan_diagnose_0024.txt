@@ -1,0 +1,48 @@
+{
+  "id": "diagnose_0024",
+  "goal": "Create failing diagnostic tests that prove success and warning color variants are missing from src/lib/variants.ts and that Badge component does not support them, reproducing issue_0024.",
+  "linked_issue": "0024",
+  "diagnosis_hypotheses": [
+    "Success and warning variants were deleted from colorSchemeVariants object, breaking design system contract.",
+    "Badge component no longer recognizes success and warning variant props, leading to missing styles or runtime errors.",
+    "Theme tokens for success and warning colours are undefined in globals.css causing fallback to black text." 
+  ],
+  "prioritized_hypotheses": [
+    {
+      "id": "H1",
+      "summary": "Deletion of success/warning keys from colorSchemeVariants breaks variant lookups in components." 
+    }
+  ],
+  "tasks": [
+    {
+      "id": "color_variants_diag_test_create",
+      "type": "DIAGNOSTIC_TEST_CREATION",
+      "description": "Write Jest diagnostic test in tests/diagnostics/color_variants_diag_test.js that imports colorSchemeVariants from src/lib/variants.ts and asserts that keys 'success' and 'warning' exist and map to strings containing 'bg-success' and 'bg-warning' theme tokens. Expected to fail (RED).",
+      "dependencies": [],
+      "external_dependencies": ["jest"],
+      "confidence_level": "High",
+      "confidence_justification": "Direct import and key presence check is deterministic and will fail given current code state.",
+      "validation_criteria": [
+        "Test file exists and runs with Jest",
+        "Expect statements check for object keys and theme-token strings, failing under current implementation"
+      ],
+      "status": "DONE"
+    },
+    {
+      "id": "badge_variant_diag_test_create",
+      "type": "DIAGNOSTIC_TEST_CREATION",
+      "description": "Write Jest diagnostic test in tests/diagnostics/badge_variant_diag_test.tsx that renders <Badge variant=\"success\"/> and asserts element has class containing 'bg-success'. Expected to fail due to unsupported variant.",
+      "dependencies": [],
+      "external_dependencies": ["jest", "@testing-library/react"],
+      "confidence_level": "High",
+      "confidence_justification": "Badge currently lacks success variant; rendering will not include expected class causing test failure.",
+      "validation_criteria": [
+        "Test file exists and renders component",
+        "Expect fails because class not present"
+      ],
+      "status": "DONE"
+    }
+  ],
+  "status": "DONE",
+  "v": 2
+}

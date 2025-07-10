@@ -1,0 +1,86 @@
+{
+  "id": "0012",
+  "type": "ENHANCEMENT",
+  "title": "Implement progressive disclosure UI for 120 OSM properties",
+  "description": "Create a user-friendly form interface that progressively reveals property fields based on their tier classification. Core properties always visible, high-frequency in collapsible sections, optional behind advanced toggle, specialized hidden from UI.",
+  "status": "OPEN",
+  "priority": "MEDIUM",
+  "created_at": "2025-07-06T22:00:00Z",
+  "created_by": "system",
+  "severity": "MEDIUM",
+  "depends_on": ["0011"],
+  "estimated_effort": "L",
+  "context": {
+    "plan_reference": "plan_property_prioritization_0011",
+    "related_issues": ["0011"],
+    "documentation": [
+      "docs/reference/property-prioritization.md",
+      "docs/cookbook/recipe_tiered_validation.md"
+    ]
+  },
+  "requirements": [
+    "Create ToiletForm component with tier-based field grouping",
+    "Core fields (8) always visible at top of form",
+    "High-frequency fields (16) in 'More Details' collapsible section (open by default)",
+    "Optional fields (17) hidden behind 'Advanced Options' toggle",
+    "Specialized fields (81) not shown in UI (API-only)",
+    "Form validation integrated with tier-based ValidationService",
+    "Mobile-responsive design with appropriate touch targets",
+    "Accessible with proper ARIA labels and keyboard navigation"
+  ],
+  "ui_specifications": {
+    "components": {
+      "ToiletForm": "Main form container with tier-based sections",
+      "CoreFieldsSection": "Always visible essential fields",
+      "HighFrequencyAccordion": "Collapsible section for common fields",
+      "OptionalFieldsToggle": "Advanced options with show/hide toggle",
+      "FormField": "Reusable field component with tier-aware styling"
+    },
+    "field_types": {
+      "boolean": "Toggle switches for yes/no properties",
+      "enum": "Select dropdowns with predefined options",
+      "monetary": "Number input with £ prefix",
+      "string": "Text inputs with appropriate validation",
+      "date": "Date pickers for temporal fields"
+    },
+    "visual_hierarchy": {
+      "core": "Full width, prominent labels, required indicators",
+      "high_frequency": "Grouped in logical sections (facilities, access, payment)",
+      "optional": "Compact layout, smaller text, subdued styling"
+    }
+  },
+  "implementation_approach": {
+    "phase1": "Create FormField component with tier prop",
+    "phase2": "Build section components (Core, HighFreq, Optional)",
+    "phase3": "Implement ToiletForm with progressive disclosure",
+    "phase4": "Add form state management and validation",
+    "phase5": "Create Storybook stories for each tier section"
+  },
+  "acceptance_criteria": [
+    "Form displays all core properties without scrolling on mobile",
+    "High-frequency fields accessible with single tap/click",
+    "Optional fields hidden by default but easily discoverable",
+    "Form submission includes only provided values (no empty strings)",
+    "Validation errors displayed inline with clear messaging",
+    "Storybook documentation for all form states"
+  ],
+  "technical_notes": {
+    "dependencies": [
+      "src/config/suggestPropertyTiers.json",
+      "shadcn/ui components",
+      "react-hook-form (if not already used)"
+    ],
+    "affected_files": [
+      "src/components/ToiletForm.tsx",
+      "src/components/FormField.tsx",
+      "src/components/[Section]Fields.tsx",
+      "src/stories/ToiletForm.stories.tsx"
+    ],
+    "design_tokens": "Use existing token system for consistent styling"
+  },
+  "references": {
+    "feedback": "docs/feedback/2025-01-06-property-prioritization.md",
+    "tier_config": "src/config/suggestPropertyTiers.json",
+    "ui_example": "docs/cookbook/recipe_tiered_validation.md#ui-component-integration"
+  }
+}

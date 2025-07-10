@@ -1,0 +1,33 @@
+{
+  "id": "prune_deprecated_ingest_wrapper",
+  "goal": "Remove deprecated ingest wrapper artifacts and update ingestion tests to use IngestService directly.",
+  "tasks": [
+    {
+      "id": "prune_wrapper_test",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests ensuring deprecated ingest wrapper files (scripts/ingest.ts, agents/ingest-agent.ts) no longer exist.",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "fs"],
+      "confidence_level": "High",
+      "confidence_justification": "Simple file existence checks using fs APIs are deterministic."
+    },
+    {
+      "id": "prune_wrapper_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Remove deprecated wrapper files, update ingest_agent_test.js to import IngestService or ingest-cli, and ensure all ingestion functionality tests pass.",
+      "dependencies": ["prune_wrapper_test"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Updating tests and removing files may uncover hidden dependencies; requires careful search."
+    },
+    {
+      "id": "prune_wrapper_refactor",
+      "type": "REFACTORING",
+      "description": "Clean up documentation, package.json scripts, and any references to deprecated ingest wrapper files.",
+      "dependencies": ["prune_wrapper_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Documentation and configuration references might be scattered across repo."
+    }
+  ]
+} 

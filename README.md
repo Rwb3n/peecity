@@ -68,7 +68,7 @@ node scripts/scaffold-doc.js --category cookbook --title "Recipe Title" --descri
 ├── tests/               # Test files (*_test.js pattern)
 ├── docs/                # Documentation and specifications
 │   └── cookbook/       # Reusable implementation patterns
-├── plans/               # Task plans (plan_*.txt) 
+├── plans/               # Task plans (plan_*.txt)
 ├── status/              # Task status reports (*.md)
 ├── agents/              # AI agent manifests
 ├── scripts/             # Orchestration and utility scripts
@@ -111,7 +111,7 @@ CI flow: unit tests → epic integration tests (`tests/integration/<epic>/`) →
 | Ingest-agent | ✅ COMPLETE | TypeScript script + reusable utility | Mock Overpass; GeoJSON validation; retry logic; caching |
 | Suggest-agent | ✅ COMPLETE | Next.js API with optimized tier-based validation (120 properties) | v1/v2 endpoints; 4-tier validation; 99%+ test coverage; performance optimized |
 | SEO-agent | ✅ COMPLETE | Node script generates static pages | Snapshot borough HTML; page count; meta tags; template validation |
-| Frontend-UI | 🔄 IN PROGRESS | Next.js map & detail pages + atomic design system | Map renders markers; routing; axe accessibility; component testing |
+| Frontend-UI | 🔄 IN PROGRESS | Storybook infrastructure complete, atomic components in TDD development | Map renders markers; routing; axe accessibility; component testing |
 | Deploy-pipeline | ⏳ PENDING | GitHub Actions + deploy-agent | Dry-run verifies steps; missing artifacts fail; env matrix |
 | Monitor-agent | ✅ COMPLETE | node-cron weekly monitoring with pluggable alerts | Discord webhooks; metrics collection; GitHub Actions integration |
 
@@ -156,8 +156,49 @@ CI flow: unit tests → epic integration tests (`tests/integration/<epic>/`) →
   - GitHub Actions workflow for Monday 02:00 UTC execution
   - Cross-platform CLI integration with proper error handling
   - Service-oriented architecture with dependency injection patterns
-- 🔄 **Frontend UI**: Storybook infrastructure complete, atomic components in TDD development
+- 🔄 **Frontend UI**: Core atomic components (`Button`, `Input`, `Icon`, `Badge`) are implemented and tested. A new "Modern Thames Blueprint" visual theme has been applied. Storybook is fully configured. A known bug with `Badge` component positioning remains.
 - ⏳ **Deploy Agent**: CI/CD pipeline and automation
+
+## Testing Patterns
+
+### Dependency Injection for React Hooks
+
+When Jest module mocking becomes intractable (especially with React hooks and ES modules), use dependency injection:
+
+```typescript
+// Component accepts hook as optional prop with default
+interface SearchBarProps {
+  // ... other props
+  useGeolocationHook?: typeof useGeolocation
+}
+
+export function SearchBar({
+  useGeolocationHook = useGeolocation,
+  ...props
+}: SearchBarProps) {
+  const { loading, error, requestLocation } = useGeolocationHook()
+  // ... component logic
+}
+
+// Test passes mock implementation directly
+test('should handle loading state', () => {
+  const mockHook = () => ({
+    loading: true,
+    error: null,
+    requestLocation: jest.fn()
+  })
+  render(<SearchBar useGeolocationHook={mockHook} />)
+  // ... assertions
+})
+```
+
+**Benefits**:
+- Bypasses Jest module mocking issues entirely
+- Makes dependencies explicit and testable
+- No changes to production usage (default value)
+- Improves component architecture
+
+This pattern was discovered after 60+ attempts to fix Jest mocking issues with the SearchBar component.
 
 ## API Usage
 
@@ -260,7 +301,7 @@ GeoJSON toilet data structure:
 ```json
 {
   "id": "string",
-  "name": "string", 
+  "name": "string",
   "lat": "number",
   "lng": "number",
   "hours": "string",
@@ -284,4 +325,4 @@ For detailed development guidance, see `CLAUDE.md`.
 
 ## 📚 Documentation
 
-For full project documentation, see [`docs/README.md`](docs/README.md).# peecity
+For full project documentation, see [`docs/README.md`](docs/README.md).

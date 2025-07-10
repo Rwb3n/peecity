@@ -1,0 +1,50 @@
+{
+  "id": "fix_storybook_preview_0038",
+  "goal": "Ensure Storybook properly loads globals.css to provide CSS variable definitions for theme colors, fixing the missing background colors on Button and Badge components.",
+  "linked_issue": null,
+  "analysis": {
+    "problem_summary": "Button and Badge components in Storybook have no background colors because the CSS variables (--primary, --success, etc.) are undefined. While preview.js already imports globals.css, it may not be processed correctly or in the right order.",
+    "affected_files": [
+      ".storybook/preview.js",
+      "src/app/globals.css"
+    ],
+    "requirements": [
+      "CSS variables must be available in Storybook preview",
+      "Background colors must render on all variant buttons and badges",
+      "The import must be processed before component rendering"
+    ],
+    "assumptions": [
+      "The import exists but may need to be moved or reinforced",
+      "PostCSS/Tailwind processing may need explicit configuration"
+    ]
+  },
+  "user_stories": [
+    {
+      "id": "FSP001",
+      "title": "As a developer, I need Storybook to display components with their proper theme colors so I can visually verify component states.",
+      "acceptance_criteria": [
+        "Button primary variant shows yellow background",
+        "Badge success variant shows green background",
+        "Badge warning variant shows amber background",
+        "All CSS variables from globals.css are available"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "verify_and_fix_preview",
+      "type": "IMPLEMENTATION",
+      "description": "Verify preview.js has the globals.css import at the very top of the file. Add explicit style injection if needed. Consider adding a style tag directly to ensure CSS variables are available.",
+      "dependencies": [],
+      "confidence_level": "High",
+      "self_critique": "The import already exists, so we may need a more forceful approach to ensure CSS is loaded.",
+      "validation_criteria": [
+        "preview.js has globals.css import as first line",
+        "Visual verification shows colored backgrounds",
+        "CSS variables are accessible in browser DevTools"
+      ]
+    }
+  ],
+  "status": "PENDING",
+  "v": 1
+}

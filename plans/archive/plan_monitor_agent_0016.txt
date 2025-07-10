@@ -1,0 +1,62 @@
+{
+  "id": "plan_monitor_agent_0016",
+  "name": "Monitor Agent – weekly ingest refresh & health summary to Discord",
+  "goal": "Provide an automated GitHub Actions–based monitor agent that runs weekly, triggers ingest refresh, analyses key metrics, and posts a concise summary to a Discord webhook.",
+  "created_at": "2025-07-09T19:00:00Z",
+  "updated_at": "2025-07-09T19:00:00Z",
+  "v": 1,
+  "g": 113,
+  "phase": "BLUEPRINT",
+  "epic": false,
+  "type": "PLAN",
+  "status": "DONE",
+  "dependencies": {
+    "prerequisite_plans": ["plan_docs_standardisation_0015", "plan_metrics_export_0013"],
+    "libraries": ["node-cron@3.0.2", "node-fetch@3.3.2"],
+    "environment_variables": ["DISCORD_WEBHOOK_URL"]
+  },
+  "tasks": [
+    {
+      "id": 0,
+      "type": "TEST_CREATION",
+      "title": "Failing tests for scheduled run & Discord summary",
+      "description": "Write Jest tests (tests/agents/monitor_agent_test.js) that: (1) Mock timers to simulate Monday 02:00 UTC and assert that monitor-agent triggers; (2) Mock ingest-agent invocation; (3) Intercept outbound Discord webhook via nock and expect payload fields (week, newToilets, removedToilets, suggestSubmissions, errorRate, p95Latency). Tests should fail because monitor-agent does not yet exist.",
+      "dependencies": [],
+      "tags": ["monitor", "tdd-red"],
+      "confidence_level": "High",
+      "confidence_justification": "Simulated cron & webhook mocking is straightforward in Jest.",
+      "status": "DONE"
+    },
+    {
+      "id": 1,
+      "type": "IMPLEMENTATION",
+      "title": "Implement monitor-agent logic & GitHub Actions workflow",
+      "description": "Add runtime dependency node-cron to package.json; implement src/services/MonitorService.ts encapsulating core logic: (a) invoke IngestService.refresh(); (b) scrape either /api/validation/summary (preferred JSON) or /api/metrics (Prometheus text) to compute errorRate & p95Latency; (c) diff toilets.geojson vs snapshot in data/monitor-cache; (d) parse suggestions.log for last-week submissions; (e) build Markdown summary; (f) publish to Discord via webhook util. Provide thin CLI wrapper scripts/monitor-agent.ts that wires MonitorService and returns exit code. Add .github/workflows/monitor.yml cron job (Monday 02:00 UTC). Ensure tests from Task 0 pass.",
+      "dependencies": [0],
+      "tags": ["monitor", "tdd-green"],
+      "confidence_level": "High",
+      "confidence_justification": "Implementation reuses mature libraries; edge cases minimal.",
+      "status": "DONE"
+    },
+    {
+      "id": 2,
+      "type": "REFACTORING",
+      "title": "Refactor for modular alert channels & metrics selection",
+      "description": "Extract alertSender interface allowing future Slack/email integrations; parameterise metrics list; document cookbook pattern. Ensure all tests and lint pass.",
+      "dependencies": [1],
+      "tags": ["monitor", "tdd-refactor"],
+      "confidence_level": "Medium",
+      "confidence_justification": "Abstracting alert channels adds modest complexity; risk of over-engineering mitigated by YAGNI review.",
+      "status": "DONE"
+    }
+  ],
+  "success_criteria": [
+    "GitHub Actions workflow runs every Monday without failure",
+    "ingest refresh completes and toilets.geojson updated when changes detected",
+    "Discord webhook message contains expected metrics keys and passes tests",
+    "Prometheus scrape correctly reports errorRate & p95Latency in summary",
+    "Code passes lint, unit tests, and has ≥ 85% coverage for MonitorService module",
+    "No unmet peer-dependency warnings after dependency additions"
+  ],
+  "self_critique": "Dependency additions and architectural alignment reduce risk of future refactors, but introduce additional surface (MonitorService abstraction). Cron schedule correctness will be fully mocked in tests to avoid flakiness."
+} 

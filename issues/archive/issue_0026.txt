@@ -1,0 +1,36 @@
+{
+  "id": "issue_0026",
+  "type": "CONFIGURATION_ERROR",
+  "title": "Jest still blocked by invalid VM modules config and Windows env syntax",
+  "description": "Validation stopped because test script uses Unix-style NODE_OPTIONS export and jest.config.js lists .mjs in extensionsToTreatAsEsm, violating Jest rules. This blocks Task 2 validation.",
+  "severity": "high",
+  "status": "OPEN",
+  "created_at": "2025-07-09T01:00:00Z",
+  "updated_at": "2025-07-09T01:00:00Z",
+  "v": 1,
+  "g": 100,
+  "affected_files": [
+    "package.json",
+    "jest.config.js"
+  ],
+  "error_details": {
+    "message": "NODE_OPTIONS not recognized in Windows; <extensionsToTreatAsEsm> includes .mjs which Jest disallows",
+    "symptoms": [
+      "npm test fails: NODE_OPTIONS not recognized",
+      "Jest Validation Error: .mjs always treated as ESM"
+    ]
+  },
+  "reproduction_steps": [
+    "Run npm test on Windows",
+    "Observe failure to set NODE_OPTIONS and subsequent test halt",
+    "Run Node with --experimental-vm-modules and jest; observe validation error"
+  ],
+  "proposed_solution": [
+    "Replace script with cross-env NODE_OPTIONS=--experimental-vm-modules jest ...",
+    "Or add 'set NODE_OPTIONS=...' for Windows cross-platform",
+    "Remove .mjs from extensionsToTreatAsEsm in jest.config.js or omit the entire option",
+    "Confirm tests run and schema passes"
+  ],
+  "priority": "P1",
+  "tags": ["jest", "windows", "esm", "tdd"]
+} 

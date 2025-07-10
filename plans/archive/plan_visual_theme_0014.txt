@@ -1,0 +1,68 @@
+
+{
+  "id": "plan_visual_theme_0014",
+  "name": "Implement 'Modern Thames Blueprint' Visual Theme",
+  "description": "This plan establishes a new, cohesive visual identity for the application. It involves defining a new color palette, standardizing spacing and radii, fixing icon rendering, and creating a style guide in Storybook. The goal is to create a professional, modern, and accessible user interface that aligns with the project's objective.",
+  "epic": "frontend_ui",
+  "status": "DONE",
+  "confidence_level": "High",
+  "confidence_justification": "The plan addresses well-defined, common frontend development tasks. The changes are primarily isolated to CSS variables and specific component fixes, which are low-risk and highly testable visually via Storybook.",
+  "tasks": [
+    {
+      "id": "define_theme_variables",
+      "type": "IMPLEMENTATION",
+      "description": "Update `src/app/globals.css` with the new color palette, spacing, and radii values for the 'Modern Thames Blueprint' theme. This will define the visual foundation for the entire application.",
+      "dependencies": [],
+      "status": "DONE",
+      "artifact_path": "src/app/globals.css",
+      "acceptance_criteria": [
+        "The `--background` and `--foreground` variables are updated for both light and dark modes.",
+        "A new 'Safety Yellow' is defined for `--primary`.",
+        "A new slate blue is defined for `--secondary`.",
+        "The `--radius` variable is updated to create a sharper, more modern border-radius."
+      ]
+    },
+    {
+      "id": "fix_icon_rendering",
+      "type": "IMPLEMENTATION",
+      "description": "Diagnose and fix the rendering issue with `lucide-react` icons within the atom components (e.g., Button, Icon). This may involve correcting prop passing, class names, or SVG rendering attributes to ensure icons display correctly and consistently.",
+      "dependencies": ["define_theme_variables"],
+      "status": "DONE",
+      "artifact_path": "src/components/atoms/",
+      "acceptance_criteria": [
+        "Icons are visible in the `Button` and `Icon` components in Storybook.",
+        "Icons correctly inherit color from their parent elements.",
+        "The fix is robust and applies to all icon usage."
+      ]
+    },
+    {
+      "id": "create_swatch_documentation",
+      "type": "IMPLEMENTATION",
+      "description": "Create a new Storybook documentation page at `docs/reference/theme.stories.mdx`. This page will serve as a visual style guide, displaying swatches for all theme colors, examples of spacing units, and border radii values. This provides a canonical reference for developers.",
+      "dependencies": ["define_theme_variables"],
+      "status": "DONE",
+      "artifact_path": "docs/reference/theme.stories.mdx",
+      "acceptance_criteria": [
+        "A new MDX story file is created.",
+        "The story displays a grid of all theme colors with their variable names.",
+        "The story visually demonstrates the spacing and radii scales.",
+        "The page is accessible in the Storybook sidebar under 'Reference'."
+      ]
+    },
+    {
+      "id": "validate_theme_application",
+      "type": "VALIDATION",
+      "description": "Manually review all existing atomic components (Button, Badge, Input, Icon) in Storybook to confirm that the new 'Modern Thames Blueprint' theme has been applied correctly and cohesively. This includes checking colors, radii, and icon visibility.",
+      "dependencies": ["fix_icon_rendering", "create_swatch_documentation"],
+      "status": "DONE",
+      "artifact_path": "src/components/atoms/",
+      "acceptance_criteria": [
+        "Primary buttons use the new 'Safety Yellow' color.",
+        "Components have the new, sharper border-radius.",
+        "Icons are visible and correctly styled.",
+        "The overall visual appearance is consistent and professional."
+      ]
+    }
+  ],
+  "version": 2
+} 

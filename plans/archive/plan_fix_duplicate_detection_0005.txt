@@ -1,0 +1,38 @@
+{
+  "id": "fix_duplicate_detection_0005", 
+  "goal": "Fix the duplicate detection function signature bug where DuplicateService passes object {lat, lng} instead of individual parameters to findNearestToilet(), causing silent failure in distance calculations",
+  "linked_issue": "0005",
+  "linked_diagnostic_plan": "diagnose_0005",
+  "evidence": "Diagnostic tests confirm bug: isDuplicate returns false for toilets within 50m, nearestDistance returns undefined instead of calculated distance",
+  "root_cause": "In DuplicateService.ts line 87-90, findNearestToilet() receives {lat, lng} object as first parameter instead of individual lat, lng number parameters",
+  "tasks": [
+    {
+      "id": "duplicate_detection_test_creation",
+      "type": "TEST_CREATION",
+      "description": "Create comprehensive failing test for DuplicateService.checkDuplicate() that validates correct duplicate detection behavior within 50m threshold and proper distance calculations. This test will initially fail due to the function signature bug.",
+      "dependencies": [],
+      "external_dependencies": ["diagnostic tests confirm bug reproduction"],
+      "confidence_level": "High", 
+      "confidence_justification": "Clear test requirements based on confirmed bug behavior from diagnostic tests. Test will verify both duplicate detection and distance calculation accuracy."
+    },
+    {
+      "id": "duplicate_detection_implementation",
+      "type": "IMPLEMENTATION",
+      "description": "Fix the function signature bug in DuplicateService.checkDuplicate() by changing the findNearestToilet() call from passing object {lat: request.lat, lng: request.lng} to individual parameters request.lat, request.lng. This is a surgical fix to the parameter passing issue.",
+      "dependencies": ["duplicate_detection_test_creation"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Minimal change with clear target: fix single function call parameter passing. No complex logic changes required.",
+      "status": "COMPLETED"
+    },
+    {
+      "id": "duplicate_detection_refactor",
+      "type": "REFACTORING", 
+      "description": "Add TypeScript strict parameter validation, improve error handling for edge cases, and add JSDoc documentation for the corrected function signature. Consider adding unit tests for the geospatial utility functions.",
+      "dependencies": ["duplicate_detection_implementation"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Refactoring touches multiple files and adds type safety. Risk of minor regressions in error handling paths."
+    }
+  ]
+}

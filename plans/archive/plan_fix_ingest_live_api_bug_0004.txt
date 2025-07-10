@@ -1,0 +1,26 @@
+{
+  "id": "fix_ingest_live_api_bug_0004",
+  "goal": "Resolve live Overpass API connectivity failure so IngestService.ingest() succeeds.",
+  "linked_issue": "0004",
+  "tasks": [
+    {
+      "id": "live_api_fix_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Modify HTTP utility and IngestService to include configurable User-Agent header and improved error handling (TLS agent + retry on ECONNRESET). Ensure service can connect to production Overpass API.",
+      "dependencies": ["ingest_live_api_diag_test"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Network code changes may introduce edge cases; need careful integration with existing retry logic."
+    },
+    {
+      "id": "live_api_fix_refactor",
+      "type": "REFACTORING",
+      "description": "Clean up duplicated timeout logic, update docs and README to cover new config options.",
+      "dependencies": ["live_api_fix_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Refactor touches utils/http and docs; moderate risk of minor regressions.",
+      "status": "COMPLETED"
+    }
+  ]
+} 

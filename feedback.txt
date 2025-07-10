@@ -1,0 +1,29 @@
+Ran tool
+
+CRITICAL VALIDATION SUMMARY  
+
+• preview.tsx has already been renamed to preview.ts – confirmed.  
+• globals.css is imported first.  
+• Background colour utilities (bg-primary / bg-success / bg-warning) are still missing from compiled Storybook assets.  
+
+Root cause now: Tailwind never receives our `tailwind.config.js` during Storybook build. The addon **“@storybook/addon-styling-webpack”** overrides PostCSS processing and ignores external Tailwind config, so only default palette utilities get emitted (blue-500 etc.), not our custom colours.
+
+Fix strategy:  
+1. Remove `@storybook/addon-styling-webpack` from the `addons` array in `.storybook/main.ts`.  
+2. In `webpackFinal`, inject a straightforward CSS rule:
+
+```
+config.module!.rules.push({
+  test: /\.css$/,
+  use: [
+    'style-loader',
+    { loader: 'css-loader', options: { importLoaders: 1 } },
+    { loader: 'postcss-loader' }          // postcss.config.js already points to Tailwind
+  ],
+  include: path.resolve(rootDir, '../'),
+});
+```
+
+3. Re-run `npm run build-storybook` and verify that `storybook-static/` CSS now contains `.bg-primary`, `.bg-success`, `.bg-warning`.
+
+This change re-enables Tailwind’s normal pipeline with our custom theme, restoring colour variants without touching any atom code.

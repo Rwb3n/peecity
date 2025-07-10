@@ -1,0 +1,24 @@
+{
+  "id": "0006",
+  "type": "CLARIFICATION_NEEDED",
+  "title": "Clarify Documentation Framework and Consolidation Strategy for Docs Tidy-Up",
+  "created_at": "2025-07-06T00:00:00Z",
+  "description": "The user requested to tidy and normalize multiple documentation files (architecture-spec.md, architecture.md, design-spec.md, design.md, devlog0.md, devlog1.md, engineering.md, devlog2.md, engineering-spec.md) based on \"clear, gold standard principle frameworks for documentation\" and to consolidate and prune where appropriate. To proceed, we need clarity on the exact documentation framework, consolidation scope, and acceptance criteria.",
+  "assumptions": [
+    "A1: A single, industry-recognized documentation framework (e.g., Diátaxis, C4, or similar) will serve as the canonical structure.",
+    "A2: Redundant or overlapping content between existing files should be merged or removed.",
+    "A3: All documentation will remain under docs/ with consistent naming and versioning.",
+    "A4: Devlogs are historical records; they may be archived rather than integrated into the core docs set.",
+    "A5: ADR files (e.g., architecture.md) will continue to exist as standalone decision records unless instructed otherwise."
+  ],
+  "clarifying_questions": [
+    "Q1: Which specific \"gold standard\" documentation framework should we adopt (e.g., Diátaxis, C4 model, RFC-Style, or another)?",
+    "Q2: Should architecture-spec.md and architecture.md be merged into a single document, or should they remain distinct (spec sheet vs ADR)?",
+    "Q3: Should design-spec.md and design.md be merged, and if so, which sections should be preserved?",
+    "Q4: What is the desired treatment of devlog files (devlog0-2.md)? Archive untouched, summarize into a CHANGELOG, or integrate key points into engineering docs?",
+    "Q5: Are there mandatory sections or metadata (e.g., front-matter, versioning) that each documentation file must include?",
+    "Q6: Are there any compliance or licensing considerations that must be explicitly documented during this consolidation?"
+  ],
+  "status": "RESOLVED",
+  "resolution": "Answered by user. Plan docs_refactor_0006 created to proceed with blueprint."
+} 

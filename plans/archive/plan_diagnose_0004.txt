@@ -1,0 +1,16 @@
+{
+  "id": "diagnose_ingest_live_api_bug_0004",
+  "goal": "Reproduce and isolate ingest live API failure (issue_0004). Create a failing diagnostic test that demonstrates the bug.",
+  "linked_issue": "0004",
+  "tasks": [
+    {
+      "id": "ingest_live_api_diag_test",
+      "type": "DIAGNOSTIC_TEST_CREATION",
+      "description": "Write a Jest integration test that invokes IngestService.ingest() with real Overpass API endpoint (or env override) and expects success. The test should fail, confirming live fetch failure.",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "dotenv"],
+      "confidence_level": "Low",
+      "confidence_justification": "Live network call may introduce flakiness; test must include long timeout and network guard."      
+    }
+  ]
+} 

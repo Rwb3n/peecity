@@ -1,0 +1,81 @@
+{
+  "id": "fix_tailwind_colors_0034",
+  "goal": "Add missing success and warning color definitions to Tailwind theme and ensure Storybook picks up these classes, resolving issue_0034.",
+  "linked_issue": "0034",
+  "analysis": {
+    "problem_summary": "Tailwind config lacks success/warning colors; Storybook components show missing backgrounds. Additionally, content globs may omit some story files.",
+    "affected_files": [
+      "tailwind.config.js",
+      "src/app/globals.css",
+      ".storybook/preview.js"
+    ],
+    "requirements": [
+      "Add success/warning keys to theme.extend.colors referencing CSS variables",
+      "Optionally extend content globs to include stories",      "Ensure Jest diagnostic test proves keys exist"
+    ],
+    "assumptions": [
+      "No other tooling (PostCSS) needs change",
+      "Colour tokens already defined in globals.css"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "tailwind_colors_diag_test_create",
+      "type": "DIAGNOSTIC_TEST_CREATION",
+      "description": "Write Jest diagnostic test in tests/config/tailwind_colors_diag_test.js that imports tailwind.config.js and asserts theme.extend.colors contains success and warning keys each with DEFAULT and foreground sub‐keys.",
+      "dependencies": [],
+      "external_dependencies": ["jest"],
+      "confidence_level": "High",
+      "confidence_justification": "Config object import is deterministic; test will fail until keys added.",
+      "validation_criteria": [
+        "Test file exists and runs with Jest",
+        "Expect statements fail under current config"
+      ],
+      "status": "DONE"
+    },
+    {
+      "id": "tailwind_content_glob_diag_test_create",
+      "type": "DIAGNOSTIC_TEST_CREATION",
+      "description": "Optional: Write Jest diagnostic test in tests/config/tailwind_content_glob_diag_test.js that checks content array includes patterns covering .stories.tsx files. Expected to pass currently but will flag if missing.",
+      "dependencies": [],
+      "external_dependencies": ["jest"],
+      "confidence_level": "Medium",
+      "confidence_justification": "Helps prevent future regressions.",
+      "validation_criteria": [
+        "Test passes unless glob missing",
+        "Acts as guard against future config edits"
+      ],
+      "status": "DONE"
+    },
+    {
+      "id": "impl_tailwind_colors_fix",
+      "type": "IMPLEMENTATION",
+      "description": "Add success and warning colour objects to theme.extend.colors and optionally extend content globs. Ensure classes bg-success, text-success-foreground, etc., generate.",
+      "dependencies": ["tailwind_colors_diag_test_create"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Straightforward config edit.",
+      "validation_criteria": [
+        "Diagnostic test passes",
+        "Tailwind build (npm run build-storybook) includes success/warning classes"
+      ],
+      "status": "DONE"
+    },
+    {
+      "id": "storybook_visual_verification",
+      "type": "REFACTORING",
+      "description": "Run Storybook build and visually verify colours. Update any background defaults for contrast if needed. No code changes beyond docs/story backgrounds.",
+      "dependencies": ["impl_tailwind_colors_fix"],
+      "external_dependencies": ["chromatic"],
+      "confidence_level": "Medium",
+      "confidence_justification": "Visual verification may need adjustment thresholds.",
+      "validation_criteria": [
+        "Chromatic snapshot diff < 0.2",
+        "All tests continue to pass"
+      ],
+      "status": "PENDING"
+    }
+  ],
+  "status": "IN_PROGRESS",
+  "v": 2
+} 

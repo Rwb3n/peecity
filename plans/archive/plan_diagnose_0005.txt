@@ -1,0 +1,23 @@
+{
+  "id": "diagnose_0005",
+  "goal": "Create failing diagnostic test to isolate and validate the duplicate detection function signature bug identified in issue 0005",
+  "linked_issue": "0005",
+  "diagnosis_hypothesis": "DuplicateService.checkDuplicate() passes object {lat, lng} to findNearestToilet() which expects individual lat, lng number parameters, causing function signature mismatch and silent failure in distance calculations",
+  "tasks": [
+    {
+      "id": "diagnostic_unit_test",
+      "type": "DIAGNOSTIC_TEST_CREATION", 
+      "description": "Create isolated unit test for DuplicateService.checkDuplicate() that directly tests the duplicate detection logic with known toilet data and coordinates within 50m threshold. This test should fail due to the function signature mismatch bug, proving the hypothesis that parameters are incorrectly passed to findNearestToilet().",
+      "dependencies": [],
+      "external_dependencies": ["existing diagnostic test confirmed bug reproduction"],
+      "confidence_level": "High",
+      "confidence_justification": "Function signature analysis clearly shows object being passed where individual parameters expected. Unit test will directly isolate this component failure.",
+      "validation_criteria": [
+        "Test MUST fail with duplicate not detected (isDuplicate: false)",
+        "Test should demonstrate that 50m proximity toilets return distance: Infinity", 
+        "Test validates that function receives wrong parameter types",
+        "Test confirms silent failure in findNearestToilet parameter handling"
+      ]
+    }
+  ]
+}

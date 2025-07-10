@@ -1,0 +1,15 @@
+{
+  "id": "issue_0032",
+  "type": "BUG",
+  "title": "Missing front-matter in recipe_monitor_agent_patterns.md causes docs_structure_test failure",
+  "description": "The refactoring task introduced docs/cookbook/recipe_monitor_agent_patterns.md without YAML front-matter, breaking docs structure tests.",
+  "severity": "low",
+  "status": "OPEN",
+  "created_at": "2025-07-09T21:45:00Z",
+  "updated_at": "2025-07-09T21:45:00Z",
+  "v": 1,
+  "g": 122,
+  "affected_files": ["docs/cookbook/recipe_monitor_agent_patterns.md"],
+  "error_details": {"test":"tests/docs/docs_structure_test.js"},
+  "proposed_solution": ["Add required YAML front-matter block with title, description, category='cookbook', last_updated ISO string"]
+} 

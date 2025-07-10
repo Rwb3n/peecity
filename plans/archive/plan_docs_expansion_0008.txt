@@ -1,0 +1,63 @@
+{
+  "id": "docs_expansion_0008",
+  "goal": "Populate Tutorials and How-To Guides folders with initial high-value content and enforce presence via tests.",
+  "user_stories": [
+    {
+      "id": "DX003",
+      "title": "As a new contributor, I want hands-on tutorials and problem-oriented guides so I can become productive quickly without reading every spec.",
+      "acceptance_criteria": [
+        "Each Diátaxis folder (tutorials/, howto/, reference/, explanations/) contains ≥ 1 markdown file of at least 30 lines.",
+        "Tutorial 1 clearly walks through local setup and first ingest run (≥ 200 words).",
+        "How-To Guide 1 explains diagnosing and fixing a failing Jest test (≥ 200 words).",
+        "Automated test enforces folder-population rule."
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "diataxis_presence_test_create",
+      "type": "TEST_CREATION",
+      "description": "Create Jest test (tests/docs/diataxis_presence_test.js) that fails if any core Diátaxis folder lacks at least one markdown file ≥ 30 lines. Should fail initially.",
+      "user_story_ref": "DX003",
+      "dependencies": [],
+      "external_dependencies": ["Jest"],
+      "confidence_level": "High",
+      "self_critique": "Simple directory walk; low risk.",
+      "validation_expectations": { "red_phase": "Test fails because tutorials/ and howto/ are empty." },
+      "acceptance_criteria": ["Test file exists and fails initially" ]
+    },
+    {
+      "id": "tutorial_getting_started_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Write docs/tutorials/Getting-Started-Locally.md (≥ 200 words) covering repo clone, npm install, dev server, Storybook, Jest. Ensure diataxis_presence test passes.",
+      "user_story_ref": "DX003",
+      "dependencies": ["diataxis_presence_test_create"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "self_critique": "Content writing may overlook edge cases; review required.",
+      "acceptance_criteria": ["File length ≥ 200 words", "Test passes once both docs done"]
+    },
+    {
+      "id": "howto_fix_failing_test_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Write docs/howto/Fix-a-Failing-Test.md (≥ 200 words) demonstrating debugging RED failures, common errors, jest --watch, snapshot updates.",
+      "user_story_ref": "DX003",
+      "dependencies": ["diataxis_presence_test_create"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "self_critique": "May need screenshots in future; text only for now.",
+      "acceptance_criteria": ["File length ≥ 200 words", "Passes lint and presence test"]
+    },
+    {
+      "id": "docs_expansion_refactor",
+      "type": "REFACTORING",
+      "description": "Update docs/README index with Tutorials & How-To links, run spellcheck, link-check, and ensure tests remain green.",
+      "user_story_ref": "DX003",
+      "dependencies": ["tutorial_getting_started_impl", "howto_fix_failing_test_impl"],
+      "external_dependencies": ["markdown-link-check", "cspell"],
+      "confidence_level": "High",
+      "self_critique": "Low-risk textual polish.",
+      "acceptance_criteria": ["Index updated", "Spellcheck passes", "All tests pass"]
+    }
+  ]
+} 

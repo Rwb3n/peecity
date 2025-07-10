@@ -1,0 +1,22 @@
+{
+  "id": "0004",
+  "type": "BUG",
+  "title": "Ingest service/CLI fails live OSM API calls despite connectivity",
+  "description": "When running the ingest CLI (scripts/ingest-cli.ts) or invoking IngestService directly, the process aborts with an error even though the Overpass API endpoint is reachable via curl/browser. Sample data ingestion using local fixtures works, indicating the failure is confined to live network calls.",
+  "file": "scripts/ingest-cli.ts",
+  "line": 0,
+  "impact": "Live data ingestion is blocked, preventing up-to-date dataset generation and downstream SEO agent page builds.",
+  "steps_to_reproduce": [
+    "Set OVERPASS_API_URL to https://overpass-api.de/api/interpreter (or leave default)",
+    "Run: npm run ingest (or node scripts/ingest-cli.ts run)",
+    "Observe error stack trace indicating request failure despite HTTP 200 when tested externally"
+  ],
+  "expected_behavior": "IngestService should fetch data from the Overpass API and produce toilets.geojson without throwing an error when the endpoint is reachable and returns 200.",
+  "current_behavior": "CLI exits with failure; IngestService throws network-related error.",
+  "hypotheses": [
+    "User-agent header missing or blocked by API.",
+    "TLS/HTTPS agent misconfiguration in native HTTP helper.",
+    "Request payload malformed, causing Overpass to return HTTP 400/429 which IngestService interprets as failure."
+  ],
+  "created_at": "2025-07-04T22:50:00Z"
+} 

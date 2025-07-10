@@ -1,0 +1,56 @@
+{
+  "id": "plan_fix_storybook_tailwind_final_0043",
+  "goal": "To permanently resolve the Storybook styling issue by correctly configuring the PostCSS pipeline to process Tailwind CSS, ensuring all component variants render with their theme-based colors, especially the primary color.",
+  "dependencies": {
+    "blocked_by": [],
+    "plan_prerequisites": [
+      "plan_downgrade_storybook_0036"
+    ]
+  },
+  "user_stories": [
+    {
+      "id": "SB-TAILWIND-FIX",
+      "title": "As a developer, I want to see components in Storybook rendered with their correct Tailwind styles so I can visually verify them.",
+      "acceptance_criteria": [
+        "The Badge component's 'Success' story renders with a green background.",
+        "The Button component's 'Primary' story renders with a yellow background.",
+        "The Storybook test suite passes, validating the applied classes."
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "test_create_visual_regression",
+      "type": "TEST_CREATION",
+      "description": "Re-activate the existing Storybook test-runner test (`tests/storybook/badge_story_test.js`) that specifically targets the 'Success' story of the 'Badge' component. This test asserts that the rendered badge element has the correct background color via its CSS classes. This test MUST fail in the current state, re-establishing our RED phase.",
+      "dependencies": [],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "We are certain this test will fail because the styles are not being applied, which is the entire problem we are solving."
+    },
+    {
+      "id": "impl_manual_postcss_config",
+      "type": "IMPLEMENTATION",
+      "description": "Modify `.storybook/main.ts` to correctly and manually configure the '@storybook/addon-styling-webpack' addon. This involves replacing the simple addon registration with the detailed `rules` configuration for PostCSS as specified in the official Storybook documentation. This explicitly tells Webpack how to process `.css` files using `style-loader`, `css-loader`, and `postcss-loader`, ensuring Tailwind directives are compiled.",
+      "dependencies": [
+        "test_create_visual_regression"
+      ],
+      "status": "DONE",
+      "confidence_level": "High",
+      "justification": "This fix follows the explicit manual setup instructions from the official Storybook documentation, which is the most reliable method and avoids any auto-configuration 'magic' that has previously failed."
+    },
+    {
+      "id": "refactor_validate_and_cleanup",
+      "type": "REFACTORING",
+      "description": "1. Run the Storybook test suite (`npm run test-storybook`) and confirm that the `badge_story_test.js` now passes. 2. Visually inspect Storybook by running `npm run storybook` to confirm that Buttons and Badges now have their correct primary, success, and warning colors. 3. Delete any temporary diagnostic test files that are now redundant.",
+      "dependencies": [
+        "impl_manual_postcss_config"
+      ],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "This is the final verification step to ensure the fix is complete and the codebase is left in a clean state."
+    }
+  ],
+  "version": 2,
+  "status": "ACTIVE"
+} 

@@ -1,0 +1,79 @@
+{
+  "id": "0014",
+  "created_at": "2025-07-07T00:45:00Z",
+  "type": "ARCHITECTURE_DECISION",
+  "severity": "HIGH",
+  "component": "suggest-agent/validation",
+  "related_plans": ["plan_validation_service_tier_0012"],
+  "related_issues": ["0011"],
+  "status": "RESOLVED",
+  "title": "Core Property Validation Policy - Strict vs Default Values",
+  "description": "During implementation of TieredValidationService (Task 2 of plan_validation_service_tier_0012), a critical design decision was made that contradicts the original acceptance criteria. The implementation provides default values for missing core properties to maintain v1 API compatibility, while the plan specifies that missing core properties should return 400 errors.",
+  "current_behavior": {
+    "implementation": "Auto-generates defaults for missing core properties",
+    "defaults": {
+      "@id": "node/{timestamp}",
+      "amenity": "toilets",
+      "wheelchair": "no",
+      "access": "yes",
+      "opening_hours": "unknown",
+      "fee": false
+    },
+    "result": "Allows submissions with only lat/lng"
+  },
+  "specified_behavior": {
+    "plan": "Missing core properties (lat/lng) return 400 errors",
+    "expectation": "All 8 core properties must be provided",
+    "result": "Enforces data quality standards"
+  },
+  "impact": {
+    "data_quality": "Default values may not reflect reality",
+    "api_compatibility": "Strict validation would break v1 API clients",
+    "user_experience": "Trade-off between ease of use and data accuracy"
+  },
+  "options": {
+    "option_1": {
+      "name": "Revert to Strict Validation",
+      "changes": [
+        "Remove default value generation",
+        "Return 400 for missing core properties",
+        "Update tests to expect failures"
+      ],
+      "pros": ["Maintains data quality", "Follows original design", "Clear requirements"],
+      "cons": ["Breaks v1 API compatibility", "Higher barrier to entry"]
+    },
+    "option_2": {
+      "name": "Formalize Default Values",
+      "changes": [
+        "Update plan acceptance criteria",
+        "Create ADR documenting decision",
+        "Add default value documentation"
+      ],
+      "pros": ["Maintains v1 compatibility", "Lower barrier to entry", "Gradual migration path"],
+      "cons": ["Compromises data quality", "May introduce bad data"]
+    },
+    "option_3": {
+      "name": "Hybrid Approach",
+      "changes": [
+        "Defaults only for v1 API endpoint",
+        "Strict validation for v2 endpoint",
+        "API version detection logic"
+      ],
+      "pros": ["Best of both worlds", "Clear migration path"],
+      "cons": ["More complex implementation", "Dual validation logic"]
+    }
+  },
+  "recommendation": "Option 3 - Implement a hybrid approach that maintains v1 compatibility while enforcing strict validation for v2 API clients. This provides a clear migration path without compromising data quality for new integrations.",
+  "next_steps": [
+    "Create ADR documenting the decision",
+    "Update plan acceptance criteria if needed",
+    "Implement chosen approach in refactor task"
+  ],
+  "resolution": {
+    "date": "2025-07-07T01:00:00Z",
+    "decision": "Option 3 - Hybrid Approach",
+    "adr": "ADR-003-core-property-validation.md",
+    "plan_updated": "v4",
+    "implementation": "Keep v1 defaults, add v2 strict validation in future task"
+  }
+}

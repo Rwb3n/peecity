@@ -1,0 +1,28 @@
+{
+  "id": "issue_0029",
+  "type": "BUG",
+  "title": "Task 13 Validation Failed: docs_structure_test reporting missing id front-matter and invalid directories",
+  "description": "Re-validation of Task 13 uncovered failures in tests/docs/docs_structure_test.js. 36 documentation files are missing the 'id' front-matter key, and several files reside in invalid directories (feedback/, runbooks/). This contradicts Task 13's completion criteria of all tests passing. Lint tooling passes because 'id' is not required by the JSON schema.",
+  "severity": "high",
+  "status": "CLOSED",
+  "created_at": "2025-07-09T18:15:00Z",
+  "updated_at": "2025-07-09T18:45:00Z",
+  "v": 1,
+  "g": 112,
+  "affected_files": [
+    "tests/docs/docs_structure_test.js",
+    "docs/adr/*.md",
+    "docs/cookbook/*.md",
+    "docs/howto/*.md",
+    "docs/reference/**/*.md",
+    "docs/runbooks/*.md",
+    "docs/feedback/*.md"
+  ],
+  "error_details": {
+    "message": "docs_structure_test.js fails due to missing id and invalid directories",
+    "stats": {
+      "missing_id": 30,
+      "invalid_directory": 6
+    }
+  }
+} 

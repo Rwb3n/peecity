@@ -1,0 +1,90 @@
+{
+  "id": "0013",
+  "type": "ENHANCEMENT",
+  "title": "Enhance property configuration system for runtime flexibility",
+  "description": "Extend the property tier configuration to support runtime modifications, environment-specific overrides, and dynamic tier reassignment based on usage patterns. This enables A/B testing and gradual feature rollout.",
+  "status": "OPEN",
+  "priority": "LOW",
+  "created_at": "2025-07-06T22:00:00Z",
+  "created_by": "system",
+  "severity": "LOW",
+  "depends_on": ["0011"],
+  "estimated_effort": "L",
+  "context": {
+    "plan_reference": "plan_property_prioritization_0011",
+    "related_issues": ["0011", "0012"],
+    "documentation": [
+      "docs/reference/property-prioritization.md#maintenance",
+      "src/config/README.md"
+    ]
+  },
+  "requirements": [
+    "Create PropertyConfigService to manage tier configuration",
+    "Support environment-based overrides (dev/staging/prod)",
+    "Enable runtime tier reassignment without restart",
+    "Add usage analytics to track property frequency",
+    "Implement tier promotion/demotion based on thresholds",
+    "Create admin API endpoints for configuration management",
+    "Add configuration versioning and rollback capability",
+    "Implement caching with configurable TTL"
+  ],
+  "enhancement_features": {
+    "runtime_flexibility": {
+      "hot_reload": "Reload configuration without service restart",
+      "environment_overrides": "Per-environment tier adjustments",
+      "feature_flags": "Toggle property visibility dynamically"
+    },
+    "analytics_integration": {
+      "usage_tracking": "Count property usage in submissions",
+      "tier_recommendations": "Suggest tier changes based on data",
+      "reporting_dashboard": "Visualize property usage patterns"
+    },
+    "configuration_api": {
+      "GET /api/admin/property-config": "Retrieve current configuration",
+      "PUT /api/admin/property-config": "Update configuration",
+      "POST /api/admin/property-config/reload": "Reload from file",
+      "GET /api/admin/property-stats": "Usage statistics"
+    }
+  },
+  "implementation_approach": {
+    "phase1": "Create PropertyConfigService with caching",
+    "phase2": "Add environment override mechanism",
+    "phase3": "Implement usage tracking middleware",
+    "phase4": "Build admin API endpoints",
+    "phase5": "Add configuration versioning",
+    "phase6": "Create monitoring dashboard"
+  },
+  "acceptance_criteria": [
+    "Configuration changes apply without service restart",
+    "Environment overrides work correctly in all environments",
+    "Usage data accurately tracked and queryable",
+    "Admin API secured with proper authentication",
+    "Configuration rollback completes in < 1 second",
+    "No performance impact on suggest API"
+  ],
+  "technical_notes": {
+    "dependencies": [
+      "Redis or similar for distributed caching",
+      "Authentication middleware for admin endpoints",
+      "Analytics storage (PostgreSQL or time-series DB)"
+    ],
+    "affected_files": [
+      "src/services/PropertyConfigService.ts",
+      "src/middleware/propertyUsageTracker.ts",
+      "src/app/api/admin/property-config/route.ts",
+      "src/config/tierOverrides.{env}.json"
+    ],
+    "scalability": "Design for multi-instance deployment with shared cache"
+  },
+  "future_considerations": [
+    "Machine learning for automatic tier optimization",
+    "A/B testing framework for tier experiments",
+    "Integration with feature flag services (LaunchDarkly, etc.)",
+    "GraphQL API for flexible property queries"
+  ],
+  "references": {
+    "current_config": "src/config/suggestPropertyTiers.json",
+    "generator": "scripts/generate_property_tiers.js",
+    "maintenance_docs": "docs/reference/property-prioritization.md#maintenance"
+  }
+}

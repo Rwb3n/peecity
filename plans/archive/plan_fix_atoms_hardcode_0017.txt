@@ -1,0 +1,213 @@
+{
+  "id": "fix_atoms_hardcode_0017",
+  "goal": "Eliminate hard-coded styles and structural violations in existing atomic components (Badge, Input, Icon) by refactoring them to fully comply with docs/cookbook/recipe_atomic_components.md and shared utilities in src/lib/variants.ts, thereby restoring a solid foundation for subsequent molecule development.",
+  "dependencies": {
+    "blocked_by": [],
+    "plan_prerequisites": ["plan_frontend_atoms.txt"]
+  },
+  "user_stories": [
+    {
+      "id": "AS001",
+      "title": "As a frontend developer, I need atomic components that are fully compliant with our design-system utilities so that I can safely compose molecules without re-introducing hard-coding issues.",
+      "acceptance_criteria": [
+        "Badge, Input and Icon components use only shared variant utilities for styling (no inline or literal Tailwind colour classes)",
+        "Components expose no layout-specific props (e.g. Badge.position removed)",
+        "All components are implemented with React.forwardRef and wrapped in React.memo",
+        "Component tests fail when hard-coded style classes are present"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "badge_test_refactor",
+      "type": "TEST_CREATION",
+      "description": "Rewrite Badge component test suite to assert absence of hard-coded classes, enforce shared utilities, validate accessibility and performance patterns. All tests must initially fail (RED).",
+      "component": "Badge",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "@testing-library/react", "@testing-library/user-event"],
+      "confidence_level": "High",
+      "self_critique": "Ensuring tests detect hard-coded utility classes requires precise regex assertions that may be brittle to future refactors.",
+      "validation_expectations": {
+        "red_phase": "At least one test fails because Badge still contains hard-coded classes.",
+        "test_count": ">= 8",
+        "runtime_budget": "< 2s"
+      },
+      "test_files": ["tests/components/atoms/Badge_test.tsx"],
+      "acceptance_criteria": [
+        "Failing assertions when hard-coded classes like bg-green-500 are present",
+        "Tests check for use of shared variant classes via regex",
+        "Accessibility (role, aria, 44px touch target) tests included"
+      ]
+    },
+    {
+      "id": "badge_impl_refactor",
+      "type": "IMPLEMENTATION",
+      "description": "Refactor Badge component to use shared utilities (withFocusRing, withTouchTargets, colorSchemeVariants), remove position prop, add React.memo + forwardRef, update docs & artifact annotations.",
+      "component": "Badge",
+      "dependencies": ["badge_test_refactor"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "self_critique": "Removing the layout prop may require changes in consuming code; risk of breaking UI until molecule layer adjusted.",
+      "validation_expectations": {
+        "green_phase": "All Badge tests pass.",
+        "performance_target": "No additional bundle size; render <16ms"
+      },
+      "implementation_files": [
+        "src/components/atoms/Badge/Badge.tsx"
+      ],
+      "acceptance_criteria": [
+        "Badge uses only shared utilities; zero hard-coded colour classes",
+        "Component exported as React.memo",
+        "ForwardRef implemented",
+        "Artifact annotation updated"
+      ]
+    },
+    {
+      "id": "badge_cleanup_refactor",
+      "type": "REFACTORING",
+      "description": "Polish Badge implementation: remove dead code, improve TypeScript docs, ensure visual regression baseline via Storybook/Chromatic.",
+      "component": "Badge",
+      "dependencies": ["badge_impl_refactor"],
+      "external_dependencies": ["Chromatic"],
+      "confidence_level": "Medium",
+      "self_critique": "Visual regression thresholds may need adjustment; bundle size tracking optional.",
+      "validation_expectations": {
+        "refactor_phase": "All Badge tests keep passing; Chromatic diff <0.2"
+      },
+      "acceptance_criteria": [
+        "No linter errors",
+        "Chromatic snapshot approved",
+        "Docs link present"
+      ]
+    },
+
+    {
+      "id": "input_test_refactor",
+      "type": "TEST_CREATION",
+      "description": "Rewrite Input component test suite to fail on hard-coded error styling and focus/disabled duplicates; enforce shared utilities; ensure accessibility coverage.",
+      "component": "Input",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "@testing-library/react", "@testing-library/user-event"],
+      "confidence_level": "High",
+      "self_critique": "Testing for focus ring via class names may give false positives; consider computedStyle checks.",
+      "validation_expectations": {
+        "red_phase": "At least one test fails due to hard-coded border-red-500 class.",
+        "test_count": ">= 10",
+        "runtime_budget": "< 3s"
+      },
+      "test_files": ["tests/components/atoms/Input_test.tsx"],
+      "acceptance_criteria": [
+        "Hard-coded error colours cause test failure",
+        "Shared utility usage verified",
+        "Accessibility & touch target tests included"
+      ]
+    },
+    {
+      "id": "input_impl_refactor",
+      "type": "IMPLEMENTATION",
+      "description": "Refactor Input component to merge withFocusRing, withDisabledStyles, colorSchemeVariants.destructive instead of hard-coded red-500; wrap in React.memo.",
+      "component": "Input",
+      "dependencies": ["input_test_refactor"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "self_critique": "Ensuring compatibility with form libraries may need additional props passthrough testing.",
+      "validation_expectations": {
+        "green_phase": "All Input tests pass.",
+        "performance_target": "Render <16ms"
+      },
+      "implementation_files": [
+        "src/components/atoms/Input/Input.tsx"
+      ],
+      "acceptance_criteria": [
+        "Input uses only shared utilities; zero hard-coded colours",
+        "React.memo wrap present",
+        "Focus ring via withFocusRing"
+      ]
+    },
+    {
+      "id": "input_cleanup_refactor",
+      "type": "REFACTORING",
+      "description": "Polish Input implementation: unify size variants with withTouchTargets, enhance docs, add Storybook visual tests.",
+      "component": "Input",
+      "dependencies": ["input_impl_refactor"],
+      "external_dependencies": ["Chromatic"],
+      "confidence_level": "Medium",
+      "self_critique": "Ensuring consistent min-height after utility merge requires manual QA.",
+      "validation_expectations": {
+        "refactor_phase": "All Input tests keep passing; Chromatic diff <0.2"
+      },
+      "acceptance_criteria": [
+        "Min-height helper via withTouchTargets",
+        "Docs link present",
+        "Storybook snapshot baseline"
+      ]
+    },
+
+    {
+      "id": "icon_test_refactor",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests for Icon component to enforce use of shared colour utilities (no text-primary etc.), verify accessibility (decorative vs labelled), and performance optimisations.",
+      "component": "Icon",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "@testing-library/react"],
+      "confidence_level": "High",
+      "self_critique": "Colour utility detection tricky; rely on variant prop mapping in tests rather than class introspection.",
+      "validation_expectations": {
+        "red_phase": "Tests fail due to hard-coded text-primary class usage.",
+        "test_count": ">= 6",
+        "runtime_budget": "< 2s"
+      },
+      "test_files": ["tests/components/atoms/Icon_test.tsx"],
+      "acceptance_criteria": [
+        "Tests assert iconVariants uses colorSchemeVariants for text colours",
+        "Accessibility: aria-hidden true when decorative",
+        "React.memo & forwardRef checks"
+      ]
+    },
+    {
+      "id": "icon_impl_refactor",
+      "type": "IMPLEMENTATION",
+      "description": "Refactor Icon component: replace hard-coded text colours with colorSchemeVariants, integrate withFocusRing for focusable icons, wrap export in React.memo.",
+      "component": "Icon",
+      "dependencies": ["icon_test_refactor"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "self_critique": "Ensuring backwards compatibility with existing colour variants may require alias mapping.",
+      "validation_expectations": {
+        "green_phase": "All Icon tests pass."
+      },
+      "implementation_files": [
+        "src/components/atoms/Icon/Icon.tsx"
+      ],
+      "acceptance_criteria": [
+        "Icon uses only shared utilities",
+        "Focus ring support when interactive",
+        "Performance optimisation present"
+      ]
+    },
+    {
+      "id": "icon_cleanup_refactor",
+      "type": "REFACTORING",
+      "description": "Clean up Icon implementation: ensure consistent size variants, update docs, add Storybook snapshot.",
+      "component": "Icon",
+      "dependencies": ["icon_impl_refactor"],
+      "external_dependencies": ["Chromatic"],
+      "confidence_level": "Medium",
+      "self_critique": "Snapshot diffs may require update if icons library version changes.",
+      "validation_expectations": {
+        "refactor_phase": "All Icon tests keep passing; Chromatic diff <0.2"
+      },
+      "acceptance_criteria": [
+        "Docs link present",
+        "Storybook snapshot baseline"
+      ]
+    }
+  ],
+  "artifact_links": {
+    "canonical_docs": "docs/cookbook/recipe_atomic_components.md",
+    "shared_utilities": "src/lib/variants.ts"
+  },
+  "tdd_cycle": "RED -> GREEN -> REFACTOR per component",
+  "plan_version": 1,
+  "v": 1
+} 

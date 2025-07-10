@@ -1,0 +1,47 @@
+{
+  "id": "issue_0015",
+  "created_at": "2025-07-07T10:45:00Z",
+  "type": "DOCUMENTATION_GAP",
+  "severity": "MEDIUM",
+  "title": "Update API documentation for v2 strict validation endpoint",
+  "description": "The v2 suggest API endpoint has been implemented with strict validation (no defaults for core properties) as per ADR-003, but the API documentation has not been updated to reflect this new endpoint.",
+  "priority": "MEDIUM",
+  "status": "CLOSED",
+  "affected_components": [
+    "docs/reference/api/suggest-api.md",
+    "src/app/api/v2/suggest/route.ts"
+  ],
+  "acceptance_criteria": [
+    "docs/reference/api/suggest-api.md updated with v2 endpoint documentation",
+    "Include examples showing strict validation behavior (400 errors for missing core)",
+    "Document all possible 400 error payload structures",
+    "Add versioning notice explaining v1 vs v2 validation differences",
+    "Update coverage test to assert v2 docs presence",
+    "Link to cookbook recipe section 'Using v2 strict validation'"
+  ],
+  "depends_on": ["plan_validation_service_tier_0012_task4"],
+  "references": {
+    "plan": "plans/plan_validation_service_tier_0012.txt",
+    "adr": "docs/adr/ADR-003-core-property-validation.md",
+    "cookbook": "docs/cookbook/recipe_tiered_validation.md"
+  },
+  "notes": [
+    "All technical behavior (routes, validation paths) is now stable after Task 4 completion",
+    "Documentation can proceed in parallel with performance/metrics tasks (Task 6-7)",
+    "Test coverage for v2 is already green, so the contract is frozen and safe to document"
+  ],
+  "resolution": {
+    "date": "2025-07-07T11:00:00Z",
+    "summary": "Updated API documentation with comprehensive v2 endpoint coverage",
+    "changes": [
+      "Added API Versioning section explaining v1 vs v2 philosophy",
+      "Documented key differences table with default behaviors",
+      "Added v2 endpoint examples with all core properties",
+      "Included v2-specific error examples showing tier information",
+      "Updated validation rules section with tier-based system",
+      "Added cookbook recipe section for v2 client implementation",
+      "Updated related documentation links",
+      "Added 2 new coverage tests for v2 documentation"
+    ]
+  }
+}

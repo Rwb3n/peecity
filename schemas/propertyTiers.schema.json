@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Property Tiers Configuration",
+  "description": "Schema for suggestPropertyTiers.json configuration file",
+  "type": "object",
+  "required": ["version", "generated_at", "source", "tiers", "properties"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "tiers": {
+      "type": "object",
+      "required": ["core", "high_frequency", "optional", "specialized"],
+      "properties": {
+        "core": { "$ref": "#/definitions/tierDefinition" },
+        "high_frequency": { "$ref": "#/definitions/tierDefinition" },
+        "optional": { "$ref": "#/definitions/tierDefinition" },
+        "specialized": { "$ref": "#/definitions/tierDefinition" }
+      },
+      "additionalProperties": false
+    },
+    "properties": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9_:@-]+$": { "$ref": "#/definitions/propertyDefinition" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "tierDefinition": {
+      "type": "object",
+      "required": ["description", "ui_behavior", "validation_requirement", "strict_validation", "required"],
+      "properties": {
+        "description": { "type": "string" },
+        "ui_behavior": { "type": "string" },
+        "validation_requirement": { "type": "string" },
+        "strict_validation": { "type": "boolean" },
+        "required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "propertyDefinition": {
+      "type": "object",
+      "required": ["tier", "frequency", "validationType"],
+      "properties": {
+        "tier": {
+          "type": "string",
+          "enum": ["core", "high_frequency", "optional", "specialized"]
+        },
+        "frequency": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "validationType": {
+          "type": "string",
+          "enum": ["string", "boolean", "enum", "monetary", "date", "number"]
+        },
+        "synthetic": {
+          "type": "boolean",
+          "description": "Indicates if property is not from OSM data"
+        },
+        "description": {
+          "type": "string",
+          "description": "Additional description for synthetic properties"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "id": "fix_variants_0024",
+  "goal": "Restore success and warning variants to the shared design system using theme tokens instead of hard-coded colors, ensuring Badge component and other components can properly style these variants.",
+  "linked_issue": "0024",
+  "analysis": {
+    "problem_summary": "During badge_impl_refactor task, success and warning variants were completely removed from colorSchemeVariants instead of being refactored to use theme tokens. This breaks the shared design system contract and leaves Badge component unable to style these variants.",
+    "affected_components": [
+      "src/lib/variants.ts - Missing success/warning entries in colorSchemeVariants",
+      "src/components/atoms/Badge/Badge.tsx - Cannot style success/warning variants",
+      "src/app/globals.css - Missing CSS variables for success/warning theme tokens"
+    ],
+    "requirements": [
+      "Add success/warning CSS variables to globals.css following existing pattern",
+      "Restore success/warning variants in colorSchemeVariants using theme tokens",
+      "Ensure full token trio for each variant (bg-, text-, hover:)",
+      "Maintain consistency with existing design system patterns",
+      "Verify Badge component and any other components can use these variants"
+    ],
+    "assumptions": [
+      "Success color should use green tones similar to the removed hard-coded values",
+      "Warning color should use yellow/amber tones similar to the removed hard-coded values",
+      "Theme tokens should follow the existing pattern: --success, --success-foreground",
+      "Hover states should use opacity modifier pattern (e.g., hover:bg-success/90)"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "test_theme_tokens",
+      "type": "TEST_CREATION",
+      "description": "Create test in tests/theme/theme_tokens_test.js that verifies globals.css contains CSS variables for success and warning colors. Test should check for --success, --success-foreground, --warning, --warning-foreground in both light and dark mode sections. Expected to fail (RED).",
+      "dependencies": [],
+      "external_dependencies": ["jest", "fs"],
+      "confidence_level": "High",
+      "confidence_justification": "Direct file reading and string matching test is deterministic.",
+      "validation_criteria": [
+        "Test file created at tests/theme/theme_tokens_test.js",
+        "Test reads globals.css and checks for theme token presence",
+        "Test fails because tokens are missing"
+      ],
+      "status": "DONE"
+    },
+    {
+      "id": "test_variants_restored",
+      "type": "TEST_CREATION",
+      "description": "Create test in tests/lib/variants_restored_test.js that imports colorSchemeVariants and verifies success and warning keys exist with proper theme-based class strings. Should check for bg-success, text-success-foreground, hover:bg-success/90 patterns. Expected to fail (RED).",
+      "dependencies": [],
+      "external_dependencies": ["jest"],
+      "confidence_level": "High",
+      "confidence_justification": "Direct import and object property checking is deterministic.",
+      "validation_criteria": [
+        "Test file created at tests/lib/variants_restored_test.js",
+        "Test imports colorSchemeVariants and checks for success/warning keys",
+        "Test verifies theme token usage in class strings",
+        "Test fails because variants are missing"
+      ],
+      "status": "DONE"
+    },
+    {
+      "id": "test_badge_integration",
+      "type": "TEST_CREATION",
+      "description": "Create integration test in tests/components/badge_variants_integration_test.tsx that renders Badge with success and warning variants and verifies correct classes are applied. Should test both variants render with theme classes and hover states work. Expected to fail (RED).",
+      "dependencies": [],
+      "external_dependencies": ["jest", "@testing-library/react"],
+      "confidence_level": "High",
+      "confidence_justification": "Component rendering test will fail because variants don't exist yet.",
+      "validation_criteria": [
+        "Test file created at tests/components/badge_variants_integration_test.tsx",
+        "Test renders Badge with success/warning variants",
+        "Test verifies theme-based classes are applied",
+        "Test fails because variants are missing"
+      ],
+      "status": "DONE"
+    },
+    {
+      "id": "impl_theme_tokens",
+      "type": "IMPLEMENTATION",
+      "description": "Add success and warning CSS variables to src/app/globals.css in both light and dark mode sections. Light mode: --success: 142 71% 45% (green), --success-foreground: 0 0% 100% (white), --warning: 48 100% 50% (amber), --warning-foreground: 222 47% 11% (dark). Dark mode: adjust for appropriate contrast.",
+      "dependencies": ["test_theme_tokens"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "CSS variable addition is straightforward with clear color values.",
+      "validation_criteria": [
+        "globals.css updated with success/warning variables",
+        "Variables follow existing HSL format pattern",
+        "Both light and dark mode sections updated",
+        "test_theme_tokens test now passes"
+      ],
+      "status": "READY"
+    },
+    {
+      "id": "impl_variants_restore",
+      "type": "IMPLEMENTATION",
+      "description": "Restore success and warning entries to colorSchemeVariants in src/lib/variants.ts. Add: success: 'bg-success text-success-foreground hover:bg-success/90', warning: 'bg-warning text-warning-foreground hover:bg-warning/90'. Place after destructive entry to maintain alphabetical order.",
+      "dependencies": ["test_variants_restored", "test_badge_integration", "impl_theme_tokens"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Simple object property addition following established pattern.",
+      "validation_criteria": [
+        "colorSchemeVariants updated with success/warning entries",
+        "Entries use theme token classes not hard-coded colors",
+        "Hover states use opacity pattern",
+        "test_variants_restored test now passes",
+        "test_badge_integration test now passes"
+      ],
+      "status": "DONE"
+    },
+    {
+      "id": "refactor_cleanup",
+      "type": "REFACTORING",
+      "description": "Clean up any code formatting, ensure consistent ordering of variants (alphabetical or by semantic grouping), add JSDoc comments for the restored variants if needed, and verify all tests continue to pass. Update artifact annotations if modified.",
+      "dependencies": ["impl_variants_restore"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Minor cleanup tasks with no functional changes.",
+      "validation_criteria": [
+        "Code formatting consistent with project standards",
+        "All tests continue to pass",
+        "No functional changes made",
+        "Documentation updated if necessary"
+      ],
+      "status": "DONE"
+    }
+  ],
+  "validation_summary": {
+    "success_criteria": [
+      "All diagnostic tests from plan_diagnose_0024 now pass",
+      "Badge component supports success/warning variants with theme colors",
+      "Design system maintains consistency with theme tokens",
+      "No hard-coded colors introduced"
+    ],
+    "rollback_plan": "If implementation causes issues, remove added variants and theme tokens to return to current state"
+  },
+  "status": "DONE",
+  "v": 5
+}

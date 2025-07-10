@@ -1,0 +1,38 @@
+{
+  "id": "issue_0025",
+  "type": "BUG",
+  "title": "Re-validation Failure of Task 2: Wide-spread Front-matter Non-compliance & Jest ESM Support Missing",
+  "description": "Second validation of Task 2 shows extensive schema violations and Jest ESM import errors. Lint CLI works under Node, but test suite fails because Jest lacks ESM handling. Additionally, many documentation files still miss required fields or contain disallowed properties.",
+  "severity": "high",
+  "status": "OPEN",
+  "created_at": "2025-07-09T00:30:00Z",
+  "updated_at": "2025-07-09T00:30:00Z",
+  "v": 1,
+  "g": 99,
+  "affected_files": [
+    "tests/docs/docs_schema_test.js",
+    "jest.config.js",
+    "docs/adr/*",
+    "docs/cookbook/*",
+    "docs/explanations/*"
+  ],
+  "error_details": {
+    "message": "Schema failures (39 files), missing required fields (99), invalid category enums (4), Jest unable to import markdownlint async module (ESM).",
+    "symptoms": [
+      "Test suite fails with SyntaxError in markdownlint async module",
+      "Schema validation errors across many documents"
+    ]
+  },
+  "reproduction_steps": [
+    "Run npm test -- tests/docs/docs_schema_test.js",
+    "Observe 4 failed tests with details above"
+  ],
+  "proposed_solution": [
+    "Enable ESM support in Jest (--experimental-vm-modules or jest config transform)",
+    "Add or update front-matter fields per schema; remove disallowed id property or update schema",
+    "Ensure last_updated values are ISO strings",
+    "Update category values to valid enum or adjust schema"
+  ],
+  "priority": "P1",
+  "tags": ["documentation", "schema", "jest", "esm"]
+} 

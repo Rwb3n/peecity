@@ -1,0 +1,651 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2025-07-06T21:44:19.341Z",
+  "source": "data/osm_properties_analysis.json",
+  "tiers": {
+    "core": {
+      "description": "Essential properties that directly impact user decisions",
+      "ui_behavior": "Always visible",
+      "validation_requirement": "Required, strict validation",
+      "strict_validation": true,
+      "required": true
+    },
+    "high_frequency": {
+      "description": "Common properties that enhance user experience",
+      "ui_behavior": "Visible by default in v2",
+      "validation_requirement": "Strict validation when provided",
+      "strict_validation": true,
+      "required": false
+    },
+    "optional": {
+      "description": "Advanced properties for power users",
+      "ui_behavior": "Hidden behind advanced toggle",
+      "validation_requirement": "Validated if provided",
+      "strict_validation": false,
+      "required": false
+    },
+    "specialized": {
+      "description": "Edge case properties for data completeness",
+      "ui_behavior": "Not shown in UI",
+      "validation_requirement": "Basic type checking only",
+      "strict_validation": false,
+      "required": false
+    }
+  },
+  "properties": {
+    "lat": {
+      "tier": "core",
+      "frequency": 1042,
+      "validationType": "number",
+      "synthetic": true,
+      "description": "Latitude coordinate (not an OSM property)"
+    },
+    "lng": {
+      "tier": "core",
+      "frequency": 1042,
+      "validationType": "number",
+      "synthetic": true,
+      "description": "Longitude coordinate (not an OSM property)"
+    },
+    "@id": {
+      "tier": "core",
+      "frequency": 1042,
+      "validationType": "string"
+    },
+    "amenity": {
+      "tier": "core",
+      "frequency": 1042,
+      "validationType": "string"
+    },
+    "wheelchair": {
+      "tier": "core",
+      "frequency": 467,
+      "validationType": "enum"
+    },
+    "access": {
+      "tier": "core",
+      "frequency": 422,
+      "validationType": "enum"
+    },
+    "opening_hours": {
+      "tier": "core",
+      "frequency": 98,
+      "validationType": "string"
+    },
+    "fee": {
+      "tier": "core",
+      "frequency": 528,
+      "validationType": "monetary"
+    },
+    "male": {
+      "tier": "high_frequency",
+      "frequency": 219,
+      "validationType": "boolean"
+    },
+    "female": {
+      "tier": "high_frequency",
+      "frequency": 227,
+      "validationType": "boolean"
+    },
+    "unisex": {
+      "tier": "high_frequency",
+      "frequency": 118,
+      "validationType": "boolean"
+    },
+    "changing_table": {
+      "tier": "high_frequency",
+      "frequency": 201,
+      "validationType": "boolean"
+    },
+    "toilets:disposal": {
+      "tier": "high_frequency",
+      "frequency": 175,
+      "validationType": "enum"
+    },
+    "level": {
+      "tier": "high_frequency",
+      "frequency": 186,
+      "validationType": "number"
+    },
+    "payment:cash": {
+      "tier": "high_frequency",
+      "frequency": 13,
+      "validationType": "string"
+    },
+    "payment:contactless": {
+      "tier": "high_frequency",
+      "frequency": 10,
+      "validationType": "string"
+    },
+    "building": {
+      "tier": "high_frequency",
+      "frequency": 188,
+      "validationType": "string"
+    },
+    "indoor": {
+      "tier": "high_frequency",
+      "frequency": 18,
+      "validationType": "boolean"
+    },
+    "toilets:wheelchair": {
+      "tier": "high_frequency",
+      "frequency": 23,
+      "validationType": "boolean"
+    },
+    "name": {
+      "tier": "high_frequency",
+      "frequency": 69,
+      "validationType": "string"
+    },
+    "operator": {
+      "tier": "high_frequency",
+      "frequency": 79,
+      "validationType": "string"
+    },
+    "toilets:position": {
+      "tier": "high_frequency",
+      "frequency": 50,
+      "validationType": "enum"
+    },
+    "charge": {
+      "tier": "high_frequency",
+      "frequency": 29,
+      "validationType": "monetary"
+    },
+    "source": {
+      "tier": "high_frequency",
+      "frequency": 53,
+      "validationType": "string"
+    },
+    "description": {
+      "tier": "optional",
+      "frequency": 32,
+      "validationType": "string"
+    },
+    "toilets:handwashing": {
+      "tier": "optional",
+      "frequency": 77,
+      "validationType": "boolean"
+    },
+    "layer": {
+      "tier": "optional",
+      "frequency": 15,
+      "validationType": "number"
+    },
+    "roof:shape": {
+      "tier": "optional",
+      "frequency": 16,
+      "validationType": "string"
+    },
+    "roof:colour": {
+      "tier": "optional",
+      "frequency": 3,
+      "validationType": "string"
+    },
+    "entrance": {
+      "tier": "optional",
+      "frequency": 2,
+      "validationType": "enum"
+    },
+    "supervised": {
+      "tier": "optional",
+      "frequency": 9,
+      "validationType": "boolean"
+    },
+    "drinking_water": {
+      "tier": "optional",
+      "frequency": 6,
+      "validationType": "boolean"
+    },
+    "toilets:access": {
+      "tier": "optional",
+      "frequency": 1,
+      "validationType": "enum"
+    },
+    "centralkey": {
+      "tier": "optional",
+      "frequency": 1,
+      "validationType": "enum"
+    },
+    "toilets:menstrual_products": {
+      "tier": "optional",
+      "frequency": 1,
+      "validationType": "boolean"
+    },
+    "height": {
+      "tier": "optional",
+      "frequency": 1,
+      "validationType": "number"
+    },
+    "check_date": {
+      "tier": "optional",
+      "frequency": 182,
+      "validationType": "date"
+    },
+    "building:levels": {
+      "tier": "optional",
+      "frequency": 27,
+      "validationType": "string"
+    },
+    "note": {
+      "tier": "optional",
+      "frequency": 22,
+      "validationType": "string"
+    },
+    "survey:date": {
+      "tier": "optional",
+      "frequency": 13,
+      "validationType": "date"
+    },
+    "created_by": {
+      "tier": "optional",
+      "frequency": 10,
+      "validationType": "string"
+    },
+    "@geometry": {
+      "tier": "specialized",
+      "frequency": 231,
+      "validationType": "string"
+    },
+    "toilets:paper_supplied": {
+      "tier": "specialized",
+      "frequency": 10,
+      "validationType": "string"
+    },
+    "payment:credit_cards": {
+      "tier": "specialized",
+      "frequency": 10,
+      "validationType": "string"
+    },
+    "disabled": {
+      "tier": "specialized",
+      "frequency": 9,
+      "validationType": "string"
+    },
+    "addr:street": {
+      "tier": "specialized",
+      "frequency": 9,
+      "validationType": "string"
+    },
+    "wheelchair:description": {
+      "tier": "specialized",
+      "frequency": 9,
+      "validationType": "string"
+    },
+    "addr:city": {
+      "tier": "specialized",
+      "frequency": 8,
+      "validationType": "string"
+    },
+    "addr:housename": {
+      "tier": "specialized",
+      "frequency": 7,
+      "validationType": "string"
+    },
+    "addr:postcode": {
+      "tier": "specialized",
+      "frequency": 7,
+      "validationType": "string"
+    },
+    "check_date:wheelchair": {
+      "tier": "specialized",
+      "frequency": 7,
+      "validationType": "string"
+    },
+    "changing_table:location": {
+      "tier": "specialized",
+      "frequency": 6,
+      "validationType": "string"
+    },
+    "check_date:opening_hours": {
+      "tier": "specialized",
+      "frequency": 6,
+      "validationType": "string"
+    },
+    "fixme": {
+      "tier": "specialized",
+      "frequency": 6,
+      "validationType": "string"
+    },
+    "portable": {
+      "tier": "specialized",
+      "frequency": 6,
+      "validationType": "string"
+    },
+    "operator:type": {
+      "tier": "specialized",
+      "frequency": 5,
+      "validationType": "string"
+    },
+    "building:colour": {
+      "tier": "specialized",
+      "frequency": 5,
+      "validationType": "string"
+    },
+    "building:part": {
+      "tier": "specialized",
+      "frequency": 5,
+      "validationType": "string"
+    },
+    "area": {
+      "tier": "specialized",
+      "frequency": 5,
+      "validationType": "string"
+    },
+    "payment:coins": {
+      "tier": "specialized",
+      "frequency": 5,
+      "validationType": "string"
+    },
+    "operator:wikidata": {
+      "tier": "specialized",
+      "frequency": 5,
+      "validationType": "string"
+    },
+    "website": {
+      "tier": "specialized",
+      "frequency": 5,
+      "validationType": "string"
+    },
+    "building:material": {
+      "tier": "specialized",
+      "frequency": 4,
+      "validationType": "string"
+    },
+    "payment:debit_cards": {
+      "tier": "specialized",
+      "frequency": 4,
+      "validationType": "string"
+    },
+    "gender_segregated": {
+      "tier": "specialized",
+      "frequency": 4,
+      "validationType": "string"
+    },
+    "addr:housenumber": {
+      "tier": "specialized",
+      "frequency": 4,
+      "validationType": "string"
+    },
+    "addr:unit": {
+      "tier": "specialized",
+      "frequency": 4,
+      "validationType": "string"
+    },
+    "fee:amount": {
+      "tier": "specialized",
+      "frequency": 3,
+      "validationType": "string"
+    },
+    "roof:levels": {
+      "tier": "specialized",
+      "frequency": 3,
+      "validationType": "string"
+    },
+    "payment:apple_pay": {
+      "tier": "specialized",
+      "frequency": 3,
+      "validationType": "string"
+    },
+    "payment:google_pay": {
+      "tier": "specialized",
+      "frequency": 3,
+      "validationType": "string"
+    },
+    "payment:paywave": {
+      "tier": "specialized",
+      "frequency": 3,
+      "validationType": "string"
+    },
+    "shower": {
+      "tier": "specialized",
+      "frequency": 3,
+      "validationType": "string"
+    },
+    "designation": {
+      "tier": "specialized",
+      "frequency": 3,
+      "validationType": "string"
+    },
+    "wikidata": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "contact:phone": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "roof:orientation": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "old_name": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "opening_hours:covid19": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "gender": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "level:ref": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "location": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "payment:american_express": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "payment:mastercard": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "payment:visa": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "toilets": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "toilets:num_chambers": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "capacity": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "hot_water": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "toilets:hands_drying": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "max_age": {
+      "tier": "specialized",
+      "frequency": 2,
+      "validationType": "string"
+    },
+    "historic": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "toilets:hand_drying": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "toilets:hot_water": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "note:opening_hours": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "ref:GB:uprn": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "addr:place": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "currency:GBP": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "currency:others": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "wheelchair:description:en": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "source:description": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "source:male": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "inside": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "check_date:fee": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "roof:height": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "roof:material": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "verified": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "mapillary": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "toilets:scheme": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "locked": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "changing_table:adult": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "fee:note": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "bottle": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "man_made": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "seasonal": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "toilets:supervised": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "child": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "opening_hours:signed": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "composting": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "outdoor_seating": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "payment:visa_debit": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    },
+    "men": {
+      "tier": "specialized",
+      "frequency": 1,
+      "validationType": "string"
+    }
+  }
+}

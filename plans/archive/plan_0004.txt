@@ -1,0 +1,36 @@
+{
+  "id": "0004",
+  "goal": "Refactor suggest-agent test suite to align with newly mandated DRY, KISS, and SOLID principles, introducing helper factories and splitting oversized test files while maintaining Red phase integrity.",
+  "tasks": [
+    {
+      "id": "test_factory_creation",
+      "type": "TEST_CREATION",
+      "description": "Write failing tests for new factory and filesystem helpers: makeValidSuggestion, makeInvalidSuggestion, postSuggest, setupSuggestionTestFilesystem.",
+      "dependencies": [],
+      "external_dependencies": ["Jest"],
+      "confidence_level": "High",
+      "confidence_justification": "Factory behaviour is deterministic and easy to assert.",
+      "status": "DONE"
+    },
+    {
+      "id": "implement_helpers",
+      "type": "IMPLEMENTATION",
+      "description": "Implement tests/helpers/suggestion-factory.js and tests/helpers/fs-test-utils.js to satisfy tests, exposing reusable helpers used by suggest-agent test suites.",
+      "dependencies": ["test_factory_creation"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Helper functions are straight-forward utility code.",
+      "status": "DONE"
+    },
+    {
+      "id": "refactor_suggest_agent_tests",
+      "type": "REFACTORING",
+      "description": "Refactor existing 500-line tests/agents/suggest_agent_test.js into smaller files (validation, duplicates, rate_limit, logging, error_handling, response_format). Replace duplicated literals with new helpers, utilise parameterised tests. Ensure each new file contains an artifact annotation linking to docs/architecture-spec.md#suggest-agent.",
+      "dependencies": ["implement_helpers"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Splitting large test file may introduce import path or state coupling issues; mitigated by retaining identical test coverage.",
+      "status": "DONE"
+    }
+  ]
+} 

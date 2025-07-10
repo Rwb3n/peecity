@@ -1,0 +1,82 @@
+{
+  "id": "fix_storybook_deps_0037",
+  "goal": "Diagnose and fix Storybook v8 package version mismatches that are causing webpack build failures. Ensure all @storybook/* packages are at compatible v8.x versions to resolve the './test is not exported' error.",
+  "linked_issue": null,
+  "analysis": {
+    "problem_summary": "The Storybook build is failing with 'Module not found: Package path ./test is not exported from package storybook'. This indicates version mismatches between Storybook packages after the v9 to v8 downgrade, where some packages are looking for exports that don't exist in v8.",
+    "affected_files": [
+      "package.json",
+      "package-lock.json",
+      "node_modules/@storybook/*"
+    ],
+    "requirements": [
+      "All @storybook/* packages must be at compatible v8.x versions",
+      "@storybook/test package must be at v8.x, not v9.x",
+      "The storybook build command must run without errors",
+      "Test-runner must remain functional after fixes"
+    ],
+    "assumptions": [
+      "@storybook/test package is likely still at v9.x causing the export path error",
+      "Other @storybook/* packages may also have version mismatches",
+      "A clean install after fixing versions will resolve the issue"
+    ]
+  },
+  "user_stories": [
+    {
+      "id": "FSD001",
+      "title": "As a developer, I need all Storybook packages at compatible versions so the build process works correctly.",
+      "acceptance_criteria": [
+        "All @storybook/* packages in package.json are at v8.x versions",
+        "npm run storybook starts without webpack errors",
+        "The './test is not exported' error is resolved",
+        "Test-runner functionality is preserved"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "diagnose_version_mismatch_test",
+      "type": "TEST_CREATION",
+      "description": "Create tests/config/storybook_deps_audit_test.js that reads package.json and verifies ALL @storybook/* packages are at compatible v8.x versions (8.6.x range). Special check for @storybook/test which is likely at wrong version. This test must FAIL initially.",
+      "dependencies": [],
+      "confidence_level": "High",
+      "self_critique": "The test must be comprehensive and check all Storybook packages, not just core ones.",
+      "validation_criteria": [
+        "Test file created at tests/config/storybook_deps_audit_test.js",
+        "Test identifies ALL @storybook/* packages",
+        "Test FAILS showing which packages have wrong versions",
+        "Special attention to @storybook/test version"
+      ]
+    },
+    {
+      "id": "fix_package_versions",
+      "type": "IMPLEMENTATION",
+      "description": "Edit package.json to correct all @storybook/* package versions to compatible v8.x versions. @storybook/test should be removed or downgraded to v8.x. Ensure consistency across all Storybook packages.",
+      "dependencies": ["diagnose_version_mismatch_test"],
+      "confidence_level": "Medium",
+      "self_critique": "Must be careful to maintain compatibility between all packages and not introduce new mismatches.",
+      "validation_criteria": [
+        "package.json updated with correct versions",
+        "All @storybook/* packages at v8.x",
+        "@storybook/test handled correctly",
+        "Version audit test now PASSES"
+      ]
+    },
+    {
+      "id": "clean_install_validate",
+      "type": "VALIDATION",
+      "description": "Delete node_modules and package-lock.json, run npm install, verify the audit test passes, and confirm npm run storybook works without webpack errors.",
+      "dependencies": ["fix_package_versions"],
+      "confidence_level": "High",
+      "self_critique": "Clean install is necessary to ensure no cached incompatible versions remain.",
+      "validation_criteria": [
+        "node_modules and package-lock.json deleted",
+        "npm install completes successfully",
+        "Audit test passes",
+        "npm run storybook starts without errors"
+      ]
+    }
+  ],
+  "status": "PENDING",
+  "v": 1
+}

@@ -1,0 +1,65 @@
+{
+  "id": "revert_storybook_css_hack_0039",
+  "goal": "Remove the duplicated and overridden styles from the Storybook environment and rely on the single source of truth, globals.css, while ensuring colors still render correctly.",
+  "linked_issue": null,
+  "analysis": {
+    "problem_summary": "The previous fix introduced anti-patterns: duplicated CSS variables, !important overrides, and unnecessary complexity. The correct solution is to ensure globals.css loads properly without any hacks.",
+    "affected_files": [
+      ".storybook/storybook.css",
+      ".storybook/preview.js"
+    ],
+    "requirements": [
+      "Remove all duplicated CSS variable definitions",
+      "Remove all !important overrides",
+      "Maintain single source of truth in globals.css",
+      "Ensure colors still render correctly"
+    ],
+    "assumptions": [
+      "The original globals.css import should work if properly configured",
+      "No additional CSS files should be needed"
+    ]
+  },
+  "user_stories": [
+    {
+      "id": "RSH001",
+      "title": "As a developer, I need the design system to have a single source of truth for maintainability and consistency.",
+      "acceptance_criteria": [
+        "No duplicated CSS variable definitions",
+        "No !important overrides in the codebase",
+        "Colors render correctly from globals.css alone",
+        "Future theme changes only require updating one file"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "remove_css_hack",
+      "type": "IMPLEMENTATION",
+      "description": "Delete the .storybook/storybook.css file and remove its import from preview.js. Ensure the globals.css import remains at the top of preview.js.",
+      "dependencies": [],
+      "confidence_level": "High",
+      "self_critique": "This is a straightforward cleanup task that removes technical debt.",
+      "validation_criteria": [
+        ".storybook/storybook.css deleted",
+        "storybook.css import removed from preview.js",
+        "globals.css import remains at top of preview.js"
+      ]
+    },
+    {
+      "id": "validate_colors_render",
+      "type": "VALIDATION",
+      "description": "Relaunch Storybook server and visually confirm that background colors on Button and Badge components render correctly using only globals.css.",
+      "dependencies": ["remove_css_hack"],
+      "confidence_level": "High",
+      "self_critique": "Visual validation is required to ensure the clean solution works.",
+      "validation_criteria": [
+        "Storybook server launches without errors",
+        "Button primary variant shows yellow background",
+        "Badge success variant shows green background",
+        "Badge warning variant shows amber background"
+      ]
+    }
+  ],
+  "status": "PENDING",
+  "v": 1
+}

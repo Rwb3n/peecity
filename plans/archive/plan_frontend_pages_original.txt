@@ -1,0 +1,272 @@
+{
+  "id": "frontend_pages",
+  "goal": "Deliver Next.js App Router pages with responsive templates, state management integration, and complete toilet discovery user workflows",
+  "user_stories": [
+    {
+      "id": "US001",
+      "title": "As a mobile user, I want to see a map with toilet locations so I can quickly find the nearest toilet",
+      "acceptance_criteria": [
+        "Home page loads within 3 seconds on 3G mobile",
+        "Complete toilet discovery workflow functional"
+      ]
+    },
+    {
+      "id": "US005",
+      "title": "As a user on slow mobile connection, I want the app to load quickly and work offline so I'm not left stranded",
+      "acceptance_criteria": [
+        "Initial page load under 3 seconds on 3G",
+        "Progressive loading of components and data"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task1",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests for HomeLayout template: responsive design, component composition, mobile navigation, organism integration (MapView, SuggestionModal, FAB), and layout performance",
+      "user_story_ref": "US001, US005",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "@testing-library/react"],
+      "confidence_level": "High",
+      "confidence_justification": "Layout templates are compositional with predictable testing patterns and clear responsive requirements",
+      "validation_expectations": {
+        "red_phase": "HomeLayout template tests fail (component doesn't exist)",
+        "test_count": "Minimum 8 tests covering layout, responsive, composition",
+        "test_runtime": "< 5 seconds for HomeLayout test suite"
+      },
+      "test_files": [
+        "tests/components/templates/HomeLayout_test.tsx"
+      ],
+      "storybook_files": [
+        "src/components/templates/HomeLayout/HomeLayout.stories.tsx"
+      ],
+      "acceptance_criteria": [
+        "Tests verify responsive layout across breakpoints (320px-1280px)",
+        "Component composition with organisms verified",
+        "Mobile navigation patterns tested",
+        "Performance requirements tested",
+        "Safe area handling verified",
+        "All tests fail initially (RED phase requirement)"
+      ]
+    },
+    {
+      "id": "task2",
+      "type": "IMPLEMENTATION",
+      "description": "Implement HomeLayout template with responsive design, mobile-first navigation, organism composition (MapView, SuggestionModal, FloatingActionButton), and performance optimization",
+      "user_story_ref": "US001, US005",
+      "dependencies": ["task1"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Layout implementation follows established responsive design patterns with clear composition requirements",
+      "validation_expectations": {
+        "green_phase": "All HomeLayout tests pass",
+        "responsive_verified": "Layout works correctly across all breakpoints",
+        "composition_functional": "All organism components integrate properly"
+      },
+      "implementation_files": [
+        "src/components/templates/HomeLayout/HomeLayout.tsx",
+        "src/components/templates/HomeLayout/index.ts",
+        "src/components/templates/index.ts"
+      ],
+      "acceptance_criteria": [
+        "HomeLayout responsive across breakpoints (320px-1280px)",
+        "Mobile-first navigation optimized for thumb access",
+        "Proper composition of MapView, SuggestionModal, FAB",
+        "Safe area handling for modern mobile devices",
+        "Performance optimized for 3G mobile loading",
+        "All HomeLayout tests pass (GREEN phase requirement)",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task3",
+      "type": "REFACTORING",
+      "description": "Optimize HomeLayout for performance, improve responsive behavior, enhance mobile UX patterns, ensure cross-device compatibility, and create layout cookbook patterns",
+      "user_story_ref": "US005",
+      "dependencies": ["task2"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Cross-device compatibility optimization may require iterative testing across different mobile devices and screen sizes",
+      "validation_expectations": {
+        "refactor_phase": "All HomeLayout tests continue passing",
+        "performance_improved": "Layout shift score improved (CLS < 0.1)",
+        "ux_enhanced": "Better touch target spacing and ergonomics"
+      },
+      "acceptance_criteria": [
+        "Optimized viewport handling for different devices",
+        "Improved Core Web Vitals (CLS, LCP)",
+        "Enhanced touch target spacing for ergonomics",
+        "Proper loading states for layout components",
+        "All tests continue passing (REFACTOR phase requirement)",
+        "docs/cookbook/recipe_responsive_layouts.md created",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task4",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests for state management setup: React Query configuration, Zustand store initialization, toilet data hooks, user location state, and cross-component state synchronization",
+      "user_story_ref": "US001",
+      "dependencies": ["task3"],
+      "external_dependencies": ["Jest", "@testing-library/react", "@tanstack/react-query", "zustand"],
+      "confidence_level": "Medium",
+      "confidence_justification": "State management testing involves complex async operations and cross-component interactions which may have timing-sensitive behaviors",
+      "validation_expectations": {
+        "red_phase": "State management tests fail (hooks and stores not implemented)",
+        "test_count": "Minimum 10 tests covering store, hooks, async operations",
+        "test_runtime": "< 8 seconds for state management test suite"
+      },
+      "test_files": [
+        "tests/store/useAppStore_test.tsx",
+        "tests/hooks/useToiletData_test.tsx",
+        "tests/hooks/useUserLocation_test.tsx",
+        "tests/lib/queryClient_test.tsx"
+      ],
+      "acceptance_criteria": [
+        "React Query configuration and error handling tested",
+        "Zustand store state mutations verified",
+        "Toilet data hooks with caching tested",
+        "User location state management verified",
+        "Cross-component state synchronization tested",
+        "All tests fail initially (RED phase requirement)"
+      ]
+    },
+    {
+      "id": "task5",
+      "type": "IMPLEMENTATION",
+      "description": "Implement state management with React Query for server state, Zustand for client state, toilet data hooks, user location management, and cross-component synchronization",
+      "user_story_ref": "US001",
+      "dependencies": ["task4"],
+      "external_dependencies": ["@tanstack/react-query", "zustand"],
+      "confidence_level": "Medium", 
+      "confidence_justification": "State management implementation requires careful coordination of async operations and may need iterative refinement for optimal performance",
+      "validation_expectations": {
+        "green_phase": "All state management tests pass",
+        "data_flow_verified": "Toilet data flows correctly from API to components",
+        "persistence_functional": "User preferences persist across sessions"
+      },
+      "implementation_files": [
+        "src/store/useAppStore.ts",
+        "src/lib/queryClient.ts",
+        "src/hooks/useToiletData.ts",
+        "src/hooks/useUserLocation.ts"
+      ],
+      "acceptance_criteria": [
+        "React Query configured with proper caching and error handling",
+        "Zustand store managing UI and user preference state",
+        "Toilet data hooks with stale-while-revalidate strategy",
+        "User location management with permission handling",
+        "Cross-component state synchronization functional",
+        "All state management tests pass (GREEN phase requirement)",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task6",
+      "type": "REFACTORING",
+      "description": "Optimize state management for performance, implement proper error boundaries, enhance caching strategies, improve devtools integration, and create state management patterns",
+      "user_story_ref": "US005",
+      "dependencies": ["task5"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "State management optimization may reveal performance bottlenecks that require iterative solutions and testing",
+      "validation_expectations": {
+        "refactor_phase": "All state management tests continue passing",
+        "performance_improved": "State updates don't cause unnecessary re-renders",
+        "caching_optimized": "Efficient data caching reduces API calls"
+      },
+      "acceptance_criteria": [
+        "Performance-optimized state updates and selectors",
+        "Comprehensive error boundaries for async operations",
+        "Enhanced caching strategies for better UX",
+        "Devtools integration for debugging",
+        "All tests continue passing (REFACTOR phase requirement)",
+        "docs/cookbook/recipe_state_management.md created",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task7",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests for Next.js home page: App Router integration, SSR/CSR behavior, meta tags, performance requirements, and complete user workflow end-to-end testing",
+      "user_story_ref": "US001, US005",
+      "dependencies": ["task6"],
+      "external_dependencies": ["Jest", "@testing-library/react", "next", "nock"],
+      "confidence_level": "Medium",
+      "confidence_justification": "End-to-end page testing involves multiple integrated systems and may have timing-sensitive interactions with Next.js App Router",
+      "validation_expectations": {
+        "red_phase": "Home page tests fail (page not implemented)",
+        "test_count": "Minimum 12 tests covering SSR, CSR, workflow, performance",
+        "test_runtime": "< 15 seconds for complete page test suite"
+      },
+      "test_files": [
+        "tests/pages/home_page_test.tsx",
+        "tests/integration/toilet_discovery_flow_test.tsx"
+      ],
+      "acceptance_criteria": [
+        "Next.js App Router integration tested",
+        "SSR and CSR behavior verified",
+        "Meta tags and SEO elements tested",
+        "Performance requirements verified (< 3s load)",
+        "Complete toilet discovery workflow tested end-to-end",
+        "All tests fail initially (RED phase requirement)"
+      ]
+    },
+    {
+      "id": "task8",
+      "type": "IMPLEMENTATION",
+      "description": "Implement Next.js home page with App Router, proper meta tags, state management integration, HomeLayout composition, and complete toilet discovery workflow",
+      "user_story_ref": "US001, US005",
+      "dependencies": ["task7"],
+      "external_dependencies": ["next"],
+      "confidence_level": "Medium",
+      "confidence_justification": "Page implementation requires coordination of multiple systems (Next.js, state, components) which may have framework-specific behaviors",
+      "validation_expectations": {
+        "green_phase": "All home page tests pass",
+        "ssr_functional": "Server-side rendering works correctly",
+        "workflow_complete": "Full toilet discovery workflow functional"
+      },
+      "implementation_files": [
+        "src/app/page.tsx",
+        "src/app/layout.tsx",
+        "src/app/globals.css"
+      ],
+      "acceptance_criteria": [
+        "Home page implemented with Next.js App Router",
+        "Proper meta tags for SEO and social sharing",
+        "State management integration functional",
+        "HomeLayout properly composed with all organisms",
+        "Complete toilet discovery workflow working",
+        "Performance target met (< 3s load on 3G)",
+        "All home page tests pass (GREEN phase requirement)",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task9",
+      "type": "REFACTORING",
+      "description": "Optimize home page for production, implement proper SEO, add error boundaries, enhance performance monitoring, ensure accessibility compliance, and prepare for deployment",
+      "user_story_ref": "US005",
+      "dependencies": ["task8"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Production optimization and SEO implementation may require iterative tuning to achieve target performance metrics",
+      "validation_expectations": {
+        "refactor_phase": "All home page tests continue passing",
+        "seo_optimized": "Perfect Lighthouse SEO score",
+        "performance_targets": "All Core Web Vitals meet thresholds"
+      },
+      "acceptance_criteria": [
+        "SEO optimization with comprehensive meta tags",
+        "Error boundaries for production robustness",
+        "Performance monitoring and analytics integration",
+        "Bundle optimization and code splitting",
+        "Full accessibility compliance verified",
+        "All Core Web Vitals targets met",
+        "All tests continue passing (REFACTOR phase requirement)",
+        "docs/cookbook/recipe_nextjs_optimization.md created",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    }
+  ]
+}

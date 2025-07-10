@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Modern Thames Blueprint - Light Mode */
+  --background: 0 0% 98%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  /* Safety Yellow - High contrast primary */
+  --primary: 51 100% 50%;
+  --primary-foreground: 222 47% 11%;
+  /* Slate Blue - Professional secondary */
+  --secondary: 215 25% 27%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 214 32% 91%;
+  --muted-foreground: 215 20% 46%;
+  --accent: 217 19% 82%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  /* Success - Green tone for positive states */
+  --success: 142 71% 45%;
+  --success-foreground: 0 0% 100%;
+  /* Warning - Amber tone for caution states */
+  --warning: 48 100% 50%;
+  --warning-foreground: 222 47% 11%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 51 100% 50%;
+  /* Sharper, more modern border radius */
+  --radius: 0.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Modern Thames Blueprint - Dark Mode */
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 15%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 15%;
+    --popover-foreground: 210 40% 98%;
+    /* Safety Yellow - Maintained for high contrast */
+    --primary: 51 100% 50%;
+    --primary-foreground: 222 47% 11%;
+    /* Slate Blue - Lighter for dark mode */
+    --secondary: 217 33% 70%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 217 33% 25%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 25%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 63% 40%;
+    --destructive-foreground: 210 40% 98%;
+    /* Success - Adjusted for dark mode contrast */
+    --success: 142 50% 35%;
+    --success-foreground: 210 40% 98%;
+    /* Warning - Adjusted for dark mode */
+    --warning: 48 90% 40%;
+    --warning-foreground: 210 40% 98%;
+    --border: 217 33% 25%;
+    --input: 217 33% 25%;
+    --ring: 51 100% 50%;
+  }
+}
+
+body {
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

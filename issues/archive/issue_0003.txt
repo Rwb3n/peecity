@@ -1,0 +1,19 @@
+{
+  "id": "0003",
+  "type": "BUG",
+  "title": "Overpass utility timeout test skipped due to nock limitation",
+  "description": "The test `it.skip('should handle network timeouts')` in `tests/utils/overpass_test.js` is skipped because nock does not properly simulate native Node.js HTTP timeouts. This leaves our retry/timeout logic unverified.",
+  "file": "tests/utils/overpass_test.js",
+  "line": 140,
+  "impact": "Timeout handling could regress without detection, lowering reliability of ingest-agent during network instability.",
+  "steps_to_reproduce": [
+    "Run Jest; notice skipped test with TODO comment."
+  ],
+  "expected_behavior": "Test should reliably simulate a timeout and assert that `queryOverpass` throws a timeout error and retries according to config.",
+  "current_behavior": "Test cannot simulate timeout; marked as skipped.",
+  "hypotheses": [
+    "Nock lacks support for low-level socket timeout emulation, thus request never triggers Node.js timeout handler.",
+    "Timeout config in `queryOverpass` relies on AbortController; test not triggering abort."
+  ],
+  "created_at": "2025-07-04T15:25:00Z"
+} 

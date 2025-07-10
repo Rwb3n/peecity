@@ -1,0 +1,17 @@
+{
+  "id": "diagnose_timeout_bug_0003",
+  "goal": "Validate inability to simulate network timeout in Overpass utility tests and find alternative mocking strategy.",
+  "related_issue": "0003",
+  "tasks": [
+    {
+      "id": "timeout_diag_test_create",
+      "type": "DIAGNOSTIC_TEST_CREATION",
+      "description": "Write a failing test using alternative mock (e.g., `fetch-mock` with AbortController) or real HTTP server that forces timeout, expecting `queryOverpass` to throw timeout error within configured limit.",
+      "status": "DONE",
+      "dependencies": [],
+      "external_dependencies": ["fetch-mock@^9", "express@^4"],
+      "confidence_level": "High",
+      "confidence_justification": "Alternative mocks known to support AbortController timeouts."
+    }
+  ]
+} 

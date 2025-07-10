@@ -1,0 +1,36 @@
+{
+  "id": "seo_agent",
+  "goal": "Deliver seo-agent for generating static borough pages and SEO artifacts.",
+  "tasks": [
+    {
+      "id": "seo_test",
+      "type": "TEST_CREATION",
+      "description": "Failing tests: pages generated, metadata correctness.",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "jsdom"],
+      "confidence_level": "High",
+      "confidence_justification": "Snapshot tests straightforward.",
+      "status": "DONE"
+    },
+    {
+      "id": "seo_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Implement seo-agent script to generate static pages.",
+      "dependencies": ["seo_test"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "File generation deterministic.",
+      "status": "DONE"
+    },
+    {
+      "id": "seo_refactor",
+      "type": "REFACTORING",
+      "description": "Refactor template system.",
+      "dependencies": ["seo_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Template engine selection may evolve.",
+      "status": "DONE"
+    }
+  ]
+} 

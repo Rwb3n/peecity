@@ -1,0 +1,71 @@
+{
+  "id": "fix_storybook_tailwind_0035",
+  "goal": "Configure Storybook's build pipeline to properly process Tailwind CSS directives, ensuring utility classes like .bg-primary are generated.",
+  "linked_issue": "0035",
+  "analysis": {
+    "problem_summary": "Storybook is not running Tailwind/PostCSS compilation. The @tailwind directives in globals.css remain unprocessed, so no utility classes are generated.",
+    "affected_files": [
+      ".storybook/main.ts",
+      "postcss.config.js"
+    ],
+    "requirements": [
+      "Configure webpackFinal to process CSS through PostCSS/Tailwind",
+      "Ensure postcss.config.js is properly referenced",
+      "Verify .bg-primary utility class is generated in build output"
+    ],
+    "assumptions": [
+      "Using webpack builder (not Vite)",
+      "postcss.config.js is correctly configured",
+      "No additional PostCSS plugins needed"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "storybook_css_diag_test_create",
+      "type": "DIAGNOSTIC_TEST_CREATION",
+      "description": "Create script tests/storybook/tailwind_build_diag_test.js that builds Storybook and searches output for .bg-primary utility class. Expected to fail initially.",
+      "dependencies": [],
+      "external_dependencies": ["jest", "shelljs"],
+      "confidence_level": "High",
+      "confidence_justification": "Diagnostic will prove Tailwind utilities are missing from build.",
+      "validation_criteria": [
+        "Script builds Storybook in CI mode",
+        "Searches for .bg-primary in output CSS",
+        "Test fails (no utility found)"
+      ],
+      "status": "DONE"
+    },
+    {
+      "id": "impl_storybook_webpack_config",
+      "type": "IMPLEMENTATION",
+      "description": "Add webpackFinal configuration to .storybook/main.ts that configures CSS processing through PostCSS loader with proper Tailwind setup.",
+      "dependencies": ["storybook_css_diag_test_create"],
+      "external_dependencies": ["postcss-loader", "css-loader", "style-loader"],
+      "confidence_level": "High",
+      "confidence_justification": "Well-documented webpack configuration pattern.",
+      "validation_criteria": [
+        "Diagnostic test passes",
+        "Tailwind utilities present in build output",
+        "Storybook builds without errors"
+      ],
+      "status": "DONE"
+    },
+    {
+      "id": "verify_visual_rendering",
+      "type": "REFACTORING",
+      "description": "Run Storybook locally, verify Badge components render with proper background colors. Update any documentation if needed.",
+      "dependencies": ["impl_storybook_webpack_config"],
+      "external_dependencies": ["chromatic"],
+      "confidence_level": "High",
+      "confidence_justification": "Visual verification straightforward once build is fixed.",
+      "validation_criteria": [
+        "Badge colors visible in Storybook",
+        "All component tests still pass",
+        "No visual regressions"
+      ],
+      "status": "DONE"
+    }
+  ],
+  "status": "COMPLETE",
+  "v": 3
+}

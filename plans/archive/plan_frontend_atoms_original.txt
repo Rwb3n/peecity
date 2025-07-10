@@ -1,0 +1,265 @@
+{
+  "id": "frontend_atoms",
+  "goal": "Deliver atomic design Level 1 components (Button, Input, Icon, Badge) with Storybook visual testing, mobile ergonomics, and WCAG 2.1 AA compliance",
+  "user_stories": [
+    {
+      "id": "US004",
+      "title": "As a user with accessibility needs, I want the interface to be fully accessible so I can navigate independently",
+      "acceptance_criteria": [
+        "WCAG 2.1 AA compliance verified",
+        "Full keyboard navigation support", 
+        "Screen reader compatibility with proper ARIA labels",
+        "Touch targets minimum 44px with 48px preferred"
+      ]
+    },
+    {
+      "id": "INFRA",
+      "title": "As a developer, I want proper development infrastructure so I can build and test components effectively",
+      "acceptance_criteria": [
+        "Storybook configured with visual testing",
+        "TailwindCSS integration functional",
+        "Atomic design patterns documented",
+        "Project configuration validated"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "storybook_test_create",
+      "type": "TEST_CREATION",
+      "description": "Create failing test for Storybook setup verification with TailwindCSS import - test should expect npm run storybook to exit with code 0, serve stories without errors, and verify Tailwind tokens are properly imported in preview",
+      "user_story_ref": "INFRA",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "child_process"],
+      "confidence_level": "High", 
+      "confidence_justification": "Simple process execution test with clear pass/fail criteria",
+      "self_critique": "While process spawning is straightforward, Storybook startup time varies by system. May need timeout handling for slower environments.",
+      "validation_expectations": {
+        "red_phase": "Test fails because Storybook not yet installed/configured",
+        "test_runtime": "< 10 seconds",
+        "exit_criteria": "Process spawn test throws error or returns non-zero exit code",
+        "tailwind_check": "Verify Tailwind tokens imported in .storybook/preview.js"
+      },
+      "acceptance_criteria": [
+        "Test spawns `npm run storybook` process",
+        "Expects process to exit with code 0", 
+        "Verifies TailwindCSS tokens are imported in Storybook preview",
+        "Test fails initially (RED phase requirement)"
+      ]
+    },
+    {
+      "id": "task2", 
+      "type": "IMPLEMENTATION",
+      "description": "Install and configure Storybook 7.x with Next.js, TailwindCSS, a11y addon, and viewport testing. Configure .storybook/main.ts with atomic design story organization. Ensure test passes.",
+      "user_story_ref": "Infrastructure",
+      "dependencies": ["task1"],
+      "external_dependencies": [
+        "@storybook/nextjs@^7.6.3",
+        "@storybook/addon-essentials@^7.6.3",
+        "@storybook/addon-a11y@^7.6.3",
+        "@storybook/addon-viewport@^7.6.3"
+      ],
+      "confidence_level": "High",
+      "confidence_justification": "Standard Storybook installation with established Next.js integration patterns",
+      "validation_expectations": {
+        "green_phase": "Storybook setup test now passes",
+        "manual_verification": "npm run storybook serves on localhost:6006",
+        "performance_target": "Storybook starts within 30 seconds"
+      },
+      "acceptance_criteria": [
+        "Storybook 7.x installed and configured",
+        ".storybook/main.ts configured for Next.js and TailwindCSS",
+        "Accessibility addon active with WCAG 2.1 AA rules",
+        "Viewport addon configured for mobile-first testing",
+        "npm run storybook command works without errors",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task3",
+      "type": "REFACTORING", 
+      "description": "Optimize Storybook configuration for performance, add atomic design story organization, configure Chromatic integration, and create reusable story templates",
+      "user_story_ref": "Infrastructure",
+      "dependencies": ["task2"],
+      "external_dependencies": ["chromatic"],
+      "confidence_level": "High",
+      "confidence_justification": "Configuration optimization follows established Storybook best practices",
+      "validation_expectations": {
+        "refactor_phase": "All tests continue to pass after optimization",
+        "performance_improvement": "Storybook build time reduced by 20%",
+        "no_regression": "Existing functionality remains intact"
+      },
+      "acceptance_criteria": [
+        "Story organization follows atomic design hierarchy",
+        "Chromatic configured with 0.2 threshold",
+        "Reusable story templates created for atoms/molecules/organisms",
+        "Performance optimizations applied",
+        "docs/cookbook/recipe_storybook_setup.md created with patterns",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task4",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests for Button, Input, Icon, Badge atomic components with mobile ergonomics (44px+ touch targets), accessibility (ARIA), variants, and Storybook story rendering",
+      "user_story_ref": "US004", 
+      "dependencies": ["task3"],
+      "external_dependencies": ["Jest", "@testing-library/react", "@testing-library/user-event"],
+      "confidence_level": "High",
+      "confidence_justification": "Atomic component testing follows well-established patterns with clear behavioral expectations",
+      "validation_expectations": {
+        "red_phase": "All 4 atom component tests fail (components don't exist)",
+        "test_count": "Minimum 6 tests per component (24 total)",
+        "test_runtime": "< 5 seconds for full atom test suite"
+      },
+      "test_files": [
+        "tests/components/atoms/Button_test.tsx",
+        "tests/components/atoms/Input_test.tsx",
+        "tests/components/atoms/Icon_test.tsx", 
+        "tests/components/atoms/Badge_test.tsx"
+      ],
+      "storybook_files": [
+        "src/components/atoms/Button/Button.stories.tsx",
+        "src/components/atoms/Input/Input.stories.tsx", 
+        "src/components/atoms/Icon/Icon.stories.tsx",
+        "src/components/atoms/Badge/Badge.stories.tsx"
+      ],
+      "acceptance_criteria": [
+        "Tests verify component rendering with all variants",
+        "Touch target size validation (minimum 44px)",
+        "Accessibility attributes tested (ARIA labels, roles)",
+        "Keyboard navigation tested",
+        "Storybook story files created but fail to render",
+        "All tests fail initially (RED phase requirement)"
+      ]
+    },
+    {
+      "id": "task5",
+      "type": "IMPLEMENTATION",
+      "description": "Implement Button, Input, Icon, Badge atomic components using shadcn/ui base with TailwindCSS, mobile-first ergonomics, TypeScript interfaces, and complete Storybook stories",
+      "user_story_ref": "US004",
+      "dependencies": ["task4"],
+      "external_dependencies": ["shadcn/ui", "class-variance-authority", "lucide-react", "clsx"],
+      "confidence_level": "High",
+      "confidence_justification": "Implementation uses proven shadcn/ui patterns with comprehensive specifications",
+      "validation_expectations": {
+        "green_phase": "All atom component tests pass",
+        "storybook_verification": "All 4 component stories render without errors",
+        "performance_target": "Component bundle < 10KB gzipped per atom"
+      },
+      "implementation_files": [
+        "src/components/atoms/Button/Button.tsx",
+        "src/components/atoms/Button/index.ts",
+        "src/components/atoms/Input/Input.tsx", 
+        "src/components/atoms/Input/index.ts",
+        "src/components/atoms/Icon/Icon.tsx",
+        "src/components/atoms/Icon/index.ts",
+        "src/components/atoms/Badge/Badge.tsx",
+        "src/components/atoms/Badge/index.ts",
+        "src/components/atoms/index.ts"
+      ],
+      "acceptance_criteria": [
+        "All 4 atomic components implemented with TypeScript interfaces",
+        "Touch targets meet 44px minimum (48px preferred)",
+        "All component variants and sizes supported",
+        "WCAG 2.1 AA compliance verified",
+        "Storybook stories render all variants",
+        "All atom tests pass (GREEN phase requirement)",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task6",
+      "type": "REFACTORING",
+      "description": "Optimize atomic components for performance, extract common variant patterns, enhance TypeScript documentation, improve Storybook interaction tests, and create cookbook patterns",
+      "user_story_ref": "US004",
+      "dependencies": ["task5"],
+      "external_dependencies": [],
+      "confidence_level": "High", 
+      "confidence_justification": "Refactoring well-tested components with established optimization patterns",
+      "validation_expectations": {
+        "refactor_phase": "All tests continue passing after optimization",
+        "performance_improvement": "Bundle size reduced by 15% through tree-shaking",
+        "no_regression": "Component functionality unchanged"
+      },
+      "acceptance_criteria": [
+        "Common variant patterns extracted to shared utilities",
+        "Components properly memoized for performance",
+        "Comprehensive TypeScript JSDoc documentation",
+        "Storybook interaction tests added for user flows",
+        "docs/cookbook/recipe_atomic_components.md created",
+        "Bundle size optimized through tree-shaking",
+        "All tests continue passing (REFACTOR phase requirement)",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task7",
+      "type": "TEST_CREATION",
+      "description": "Create integration test for aiconfig.json updates - verify Storybook commands, atomic design patterns, and mobile-first configurations are properly documented",
+      "user_story_ref": "Infrastructure",
+      "dependencies": ["task6"],
+      "external_dependencies": ["Jest"],
+      "confidence_level": "High",
+      "confidence_justification": "Configuration validation test with clear JSON schema expectations",
+      "validation_expectations": {
+        "red_phase": "Test fails because aiconfig.json not yet updated with Storybook configs",
+        "schema_validation": "JSON schema compliance verified",
+        "test_runtime": "< 2 seconds"
+      },
+      "acceptance_criteria": [
+        "Test validates aiconfig.json contains Storybook command",
+        "Atomic design patterns documented in validated_patterns",
+        "Mobile-first configurations present",
+        "Test fails initially (RED phase requirement)"
+      ]
+    },
+    {
+      "id": "task8",
+      "type": "IMPLEMENTATION", 
+      "description": "Update aiconfig.json with Storybook commands, Chromatic configuration, atomic design conventions, and mobile-first patterns. Ensure integration test passes.",
+      "user_story_ref": "Infrastructure",
+      "dependencies": ["task7"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Configuration update follows established aiconfig.json schema",
+      "validation_expectations": {
+        "green_phase": "aiconfig.json integration test passes",
+        "schema_compliance": "JSON remains valid after updates",
+        "documentation_updated": "All new patterns documented"
+      },
+      "acceptance_criteria": [
+        "aiconfig.json updated with Storybook commands",
+        "Atomic design patterns added to validated_patterns",
+        "Mobile-first ergonomics documented",
+        "Chromatic configuration specified",
+        "Integration test passes (GREEN phase requirement)",
+        "Global event counter (g) incremented",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task9",
+      "type": "REFACTORING",
+      "description": "Optimize aiconfig.json structure, add comprehensive documentation patterns, create configuration validation scripts, and ensure consistency with project standards",
+      "user_story_ref": "Infrastructure", 
+      "dependencies": ["task8"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Configuration refactoring follows established JSON schema patterns",
+      "validation_expectations": {
+        "refactor_phase": "Configuration tests continue passing",
+        "consistency_check": "All patterns align with existing validated_patterns",
+        "documentation_complete": "Comprehensive pattern documentation available"
+      },
+      "acceptance_criteria": [
+        "aiconfig.json structure optimized for readability",
+        "Configuration validation scripts created",
+        "Pattern documentation comprehensive and consistent",
+        "All integration tests continue passing (REFACTOR phase requirement)",
+        "docs/cookbook/recipe_aiconfig_patterns.md created",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    }
+  ]
+}

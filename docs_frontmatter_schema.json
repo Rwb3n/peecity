@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://citypee.dev/docs_frontmatter_schema.json",
+  "title": "CityPee Documentation Front-matter Schema",
+  "description": "Unified schema for front-matter metadata across all documentation files",
+  "type": "object",
+  "required": ["title", "description", "category", "last_updated"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Human-readable title of the document",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "description": {
+      "type": "string", 
+      "description": "Brief description of the document's purpose and content",
+      "minLength": 10,
+      "maxLength": 500
+    },
+    "category": {
+      "type": "string",
+      "description": "Document category for organization and navigation",
+      "enum": [
+        "cookbook",
+        "adr", 
+        "reference",
+        "howto",
+        "explanation",
+        "feedback",
+        "archive",
+        "runbook",
+        "api"
+      ]
+    },
+    "last_updated": {
+      "type": "string",
+      "description": "ISO 8601 date when document was last modified",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "id": {
+      "type": "string",
+      "description": "Optional document identifier for legacy compatibility",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "tags": {
+      "type": "array",
+      "description": "Optional tags for categorization and searchability",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 30
+      },
+      "uniqueItems": true,
+      "maxItems": 10
+    },
+    "version": {
+      "type": "string",
+      "description": "Document version (semantic versioning recommended)",
+      "pattern": "^(\\d+\\.\\d+(\\.\\d+)?|\\d+)$"
+    },
+    "author": {
+      "type": "string",
+      "description": "Primary author or contributor",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "status": {
+      "type": "string",
+      "description": "Document status for lifecycle management",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "published",
+        "deprecated",
+        "archived"
+      ]
+    },
+    "audience": {
+      "type": "string",
+      "description": "Target audience for the document",
+      "enum": [
+        "developers",
+        "ai-agents",
+        "maintainers",
+        "users",
+        "contributors",
+        "all"
+      ]
+    },
+    "complexity": {
+      "type": "string",
+      "description": "Complexity level for cookbook recipes and technical docs",
+      "enum": [
+        "beginner",
+        "intermediate", 
+        "advanced",
+        "expert"
+      ]
+    },
+    "related_files": {
+      "type": "array",
+      "description": "Related documentation files",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "External dependencies or prerequisites",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "canonical_source": {
+      "type": "string",
+      "description": "Original source file for generated documentation",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "title": "Validation Service API Reference",
+      "description": "Complete API documentation for the validation service including endpoints, parameters, and examples",
+      "category": "reference",
+      "last_updated": "2025-07-08",
+      "tags": ["api", "validation", "reference"],
+      "version": "1.0.0",
+      "author": "Development Team",
+      "status": "published",
+      "audience": "developers"
+    },
+    {
+      "title": "Atomic Component Implementation Recipe",
+      "description": "Step-by-step guide for implementing atomic design components with TypeScript and Storybook",
+      "category": "cookbook",
+      "last_updated": "2025-07-08",
+      "tags": ["components", "typescript", "storybook"],
+      "complexity": "intermediate",
+      "audience": "developers",
+      "dependencies": ["React", "TypeScript", "Storybook"]
+    }
+  ]
+}

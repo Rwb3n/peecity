@@ -1,0 +1,55 @@
+{
+  "id": "docs_suggest_api_0010",
+  "goal": "Provide comprehensive documentation for suggest-agent API covering all 104 OpenStreetMap toilet-related properties and ensure documentation completeness via automated tests.",
+  "user_stories": [
+    {
+      "id": "DX011",
+      "title": "As a contributor, I need full suggest-agent API property schema documentation so I can build integrations accurately and with confidence.",
+      "acceptance_criteria": [
+        "docs/reference/api/suggest-api.md lists and describes all 104 OSM properties including data types, example values, enums, and notes.",
+        "Documentation includes property priority tags (core/high_frequency/optional/specialized).",
+        "At least one example request and response demonstrating full schema usage.",
+        "Automated test enforces presence and completeness of the documentation (≥104 properties)."
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "suggest_api_docs_test_create",
+      "type": "TEST_CREATION",
+      "description": "Write Jest test (tests/docs/suggest_api_docs_coverage_test.js) that fails if docs/reference/api/suggest-api.md is missing or documents fewer than 104 properties. The test should parse the markdown, locate the '### Properties' section or property table, count documented properties, and expect >= 104. This establishes the RED phase.",
+      "user_story_ref": "DX011",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "fs"],
+      "confidence_level": "High",
+      "self_critique": "Counting lines corresponding to properties could be brittle if the formatting changes dramatically. Mitigated by searching for a properties table header and counting subsequent lines until the next heading.",
+      "validation_expectations": { "red_phase": "Test fails initially because documentation is incomplete (currently only 9 properties)." },
+      "acceptance_criteria": ["Test file exists and fails initially"],
+      "status": "DONE"
+    },
+    {
+      "id": "suggest_api_docs_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Update docs/reference/api/suggest-api.md to include a comprehensive property table (104 properties) with data types, allowed values (enum where applicable), example values, priority classification (core/high_frequency/optional/specialized), and conversion notes (boolean 'yes'/'no' mapping, monetary normalization to £X.XX, enum validation hints). The property list MUST be generated programmatically by running a Node.js helper script (scripts/generate_suggest_api_property_list.js) that parses docs/export.geojson, extracts the unique property keys (Set), sorts them, and outputs JSON/CSV/Markdown ready for pasting. Also update CLAUDE.md with a new \"Suggest-Agent Schema v2\" section that documents backward-compatibility: existing 9-property API remains functional as v1, new table marked v2 (progressive enhancement). Include a short \"Data Type Conversion Patterns\" subsection explaining how OSM strings map to API booleans, enums, and currency formats. Ensure suggest_api_docs_coverage_test passes (GREEN phase).",
+      "user_story_ref": "DX011",
+      "dependencies": ["suggest_api_docs_test_create"],
+      "external_dependencies": ["Node.js fs", "path"],
+      "confidence_level": "Medium",
+      "self_critique": "Large manual content addition is error-prone; property enumeration should be scripted or double-checked against export.geojson stats. The new columns introduce additional formatting complexity; tests should confirm both property count and presence of required columns.",
+      "acceptance_criteria": ["Property list complete (>=104 entries) each with Category column and Conversion Notes column", "Coverage test passes", "Backward compatibility section present", "Conversion patterns subsection present"],
+      "status": "DONE"
+    },
+    {
+      "id": "suggest_api_docs_refactor",
+      "type": "REFACTORING",
+      "description": "Polish formatting, add cross-links to relevant docs (CLAUDE.md, ValidationService docs), run spell-check and link-check, and update docs index. Ensure all tests remain green.",
+      "user_story_ref": "DX011",
+      "dependencies": ["suggest_api_docs_impl"],
+      "external_dependencies": ["markdown-link-check", "cspell"],
+      "confidence_level": "High",
+      "self_critique": "Minor textual adjustments – low risk of breaking tests, but link-check may flag external anchors.",
+      "acceptance_criteria": ["Docs index updated", "Spellcheck passes", "All tests pass"],
+      "status": "DONE"
+    }
+  ]
+} 

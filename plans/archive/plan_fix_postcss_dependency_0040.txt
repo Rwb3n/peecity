@@ -1,0 +1,66 @@
+{
+  "id": "fix_postcss_dependency_0040",
+  "goal": "Resolve the @storybook/addon-postcss version incompatibility to restore the Tailwind CSS build pipeline within Storybook, removing all previous workarounds.",
+  "linked_issue": null,
+  "analysis": {
+    "problem_summary": "@storybook/addon-postcss@2.0.0 is incompatible with Storybook 8.6.14, causing Tailwind directives in globals.css to not be processed. This is why utility classes like bg-primary don't generate CSS in Storybook.",
+    "affected_files": [
+      "package.json",
+      "package-lock.json",
+      ".storybook/preview.js"
+    ],
+    "requirements": [
+      "Update @storybook/addon-postcss to v3.x compatible with Storybook 8",
+      "Remove all CSS workarounds and hacks",
+      "Ensure Tailwind CSS processes correctly in Storybook",
+      "No incompatibility warnings during build"
+    ],
+    "assumptions": [
+      "@storybook/addon-postcss v3.x exists and is compatible with Storybook 8",
+      "Clean dependency installation will resolve the issue"
+    ]
+  },
+  "user_stories": [
+    {
+      "id": "FPD001",
+      "title": "As a developer, I need Storybook to process Tailwind CSS correctly so components display with proper styling.",
+      "acceptance_criteria": [
+        "No incompatibility warnings during Storybook build",
+        "Button primary variant shows yellow background",
+        "Badge variants show correct colors (green, amber, etc)",
+        "No CSS hacks or workarounds needed"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "update_postcss_addon",
+      "type": "IMPLEMENTATION",
+      "description": "Update @storybook/addon-postcss from 2.0.0 to ^3.0.0 in package.json. Delete node_modules and package-lock.json, then run npm install to get compatible dependencies.",
+      "dependencies": [],
+      "confidence_level": "High",
+      "self_critique": "Version 3.x should be compatible with Storybook 8 based on the warning message.",
+      "validation_criteria": [
+        "package.json shows @storybook/addon-postcss@^3.0.0",
+        "npm install completes without errors",
+        "No incompatibility warnings in Storybook output"
+      ]
+    },
+    {
+      "id": "verify_clean_solution",
+      "type": "VALIDATION",
+      "description": "Run npm run storybook and verify the build completes without warnings. Check that Button and Badge components show correct background colors without any CSS hacks.",
+      "dependencies": ["update_postcss_addon"],
+      "confidence_level": "High",
+      "self_critique": "Visual verification confirms the PostCSS pipeline is working.",
+      "validation_criteria": [
+        "Storybook builds without incompatibility warnings",
+        "Button primary shows yellow background",
+        "Badge success shows green background",
+        "Badge warning shows amber background"
+      ]
+    }
+  ],
+  "status": "PENDING",
+  "v": 1
+}

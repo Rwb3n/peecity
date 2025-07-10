@@ -1,0 +1,282 @@
+{
+  "id": "frontend_organisms",
+  "goal": "Deliver atomic design Level 3 components (MapView, SuggestionModal, FloatingActionButton) with React-Leaflet integration, state management, and mobile-optimized user workflows",
+  "user_stories": [
+    {
+      "id": "US001",
+      "title": "As a mobile user, I want to see a map with toilet locations so I can quickly find the nearest toilet",
+      "acceptance_criteria": [
+        "Map loads within 3 seconds on 3G mobile",
+        "Shows 1,041+ London toilet markers with clustering",
+        "Map controls positioned in thumb-friendly bottom-right zone"
+      ]
+    },
+    {
+      "id": "US002", 
+      "title": "As a user in a hurry, I want to tap a toilet marker and see essential details so I can decide if it meets my needs",
+      "acceptance_criteria": [
+        "Marker popup integration with map",
+        "Touch-optimized marker interactions"
+      ]
+    },
+    {
+      "id": "US003",
+      "title": "As a community member, I want to suggest missing toilets so others can benefit from my local knowledge",
+      "acceptance_criteria": [
+        "Floating Action Button (FAB) always visible in bottom-right",
+        "FAB opens contribution modal with form fields"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task1",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests for MapView organism: React-Leaflet integration, marker clustering, toilet data rendering, mobile touch interactions, and performance requirements",
+      "user_story_ref": "US001, US002",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "@testing-library/react", "leaflet", "react-leaflet"],
+      "confidence_level": "Medium",
+      "confidence_justification": "MapView testing involves complex third-party library integration (Leaflet) which may have browser-specific testing challenges",
+      "validation_expectations": {
+        "red_phase": "MapView component tests fail (component doesn't exist)",
+        "test_count": "Minimum 12 tests covering map, markers, clustering, touch",
+        "test_runtime": "< 10 seconds for MapView test suite"
+      },
+      "test_files": [
+        "tests/components/organisms/MapView_test.tsx",
+        "tests/components/organisms/MapView_integration_test.tsx"
+      ],
+      "storybook_files": [
+        "src/components/organisms/MapView/MapView.stories.tsx"
+      ],
+      "acceptance_criteria": [
+        "Tests verify React-Leaflet map initialization",
+        "Marker clustering behavior tested",
+        "Touch gesture handling verified",
+        "Performance requirements tested (< 3s load)",
+        "GeoJSON data integration tested",
+        "All tests fail initially (RED phase requirement)"
+      ]
+    },
+    {
+      "id": "task2",
+      "type": "IMPLEMENTATION",
+      "description": "Implement MapView organism with React-Leaflet, marker clustering, real toilet data integration (1,041+ features), mobile-optimized controls, and ergonomic positioning",
+      "user_story_ref": "US001, US002",
+      "dependencies": ["task1"],
+      "external_dependencies": ["react-leaflet", "leaflet", "react-leaflet-markercluster", "@tanstack/react-query"],
+      "confidence_level": "Medium",
+      "confidence_justification": "MapView requires complex integration with mapping library and real GeoJSON data. Performance with 1,000+ markers may need optimization",
+      "validation_expectations": {
+        "green_phase": "All MapView tests pass",
+        "performance_verified": "Map loads with 1,041+ markers within 3 seconds",
+        "clustering_functional": "Marker clustering works at all zoom levels"
+      },
+      "implementation_files": [
+        "src/components/organisms/MapView/MapView.tsx",
+        "src/components/organisms/MapView/index.ts",
+        "src/hooks/useToiletData.ts",
+        "src/hooks/useUserLocation.ts"
+      ],
+      "acceptance_criteria": [
+        "MapView renders with React-Leaflet integration",
+        "Displays 1,041+ London toilet markers from data/toilets.geojson",
+        "Marker clustering prevents overwhelming density",
+        "Map controls positioned in bottom-right thumb zone",
+        "Touch gestures (pan, zoom, tap) work smoothly",
+        "User location displayed with distinctive marker",
+        "All MapView tests pass (GREEN phase requirement)",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task3",
+      "type": "REFACTORING",
+      "description": "Optimize MapView for mobile performance, implement marker virtualization, enhance clustering algorithm, improve memory management, and add comprehensive error handling",
+      "user_story_ref": "US001",
+      "dependencies": ["task2"],
+      "external_dependencies": [],
+      "confidence_level": "Low",
+      "confidence_justification": "Map performance optimization is highly device-dependent and may require extensive testing across different mobile devices. Memory management with large datasets is unpredictable",
+      "validation_expectations": {
+        "refactor_phase": "All MapView tests continue passing",
+        "performance_improved": "Memory usage reduced by 30% with large datasets",
+        "clustering_optimized": "Smooth clustering transitions at all zoom levels"
+      },
+      "acceptance_criteria": [
+        "Marker virtualization implemented for better performance",
+        "Clustering algorithm optimized for mobile devices",
+        "Proper cleanup for Leaflet map instances",
+        "Progressive loading of markers based on viewport",
+        "Enhanced error handling for map loading failures",
+        "All tests continue passing (REFACTOR phase requirement)",
+        "docs/cookbook/recipe_leaflet_optimization.md created",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task4",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests for FloatingActionButton organism: positioning, mobile ergonomics, accessibility, animation states, and contribution modal integration",
+      "user_story_ref": "US003",
+      "dependencies": ["task3"],
+      "external_dependencies": ["Jest", "@testing-library/react", "@testing-library/user-event"],
+      "confidence_level": "High",
+      "confidence_justification": "FloatingActionButton has well-defined behavior patterns and clear positioning requirements",
+      "validation_expectations": {
+        "red_phase": "FloatingActionButton tests fail (component doesn't exist)",
+        "test_count": "Minimum 8 tests covering positioning, accessibility, interactions",
+        "test_runtime": "< 3 seconds for FAB test suite"
+      },
+      "test_files": [
+        "tests/components/organisms/FloatingActionButton_test.tsx"
+      ],
+      "storybook_files": [
+        "src/components/organisms/FloatingActionButton/FloatingActionButton.stories.tsx"
+      ],
+      "acceptance_criteria": [
+        "Tests verify bottom-right positioning with safe area handling",
+        "Mobile ergonomics tested (56px size, thumb accessibility)",
+        "Accessibility compliance verified (ARIA labels, keyboard)",
+        "Animation states and transitions tested",
+        "All tests fail initially (RED phase requirement)"
+      ]
+    },
+    {
+      "id": "task5",
+      "type": "IMPLEMENTATION",
+      "description": "Implement FloatingActionButton organism with Material Design specifications, mobile-optimized positioning, accessibility features, and smooth animations",
+      "user_story_ref": "US003",
+      "dependencies": ["task4"],
+      "external_dependencies": ["framer-motion"],
+      "confidence_level": "High",
+      "confidence_justification": "FloatingActionButton implementation follows established Material Design patterns with clear specifications",
+      "validation_expectations": {
+        "green_phase": "All FloatingActionButton tests pass",
+        "positioning_verified": "FAB positioned correctly across different screen sizes",
+        "accessibility_confirmed": "Full keyboard and screen reader support"
+      },
+      "implementation_files": [
+        "src/components/organisms/FloatingActionButton/FloatingActionButton.tsx",
+        "src/components/organisms/FloatingActionButton/index.ts"
+      ],
+      "acceptance_criteria": [
+        "FAB positioned in bottom-right with 20px margins",
+        "56px size with Material Design elevation",
+        "Safe area insets handled for modern mobile devices",
+        "Smooth animations for show/hide states",
+        "Full accessibility compliance with ARIA attributes",
+        "All FloatingActionButton tests pass (GREEN phase requirement)",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task6",
+      "type": "REFACTORING",
+      "description": "Optimize FloatingActionButton for performance, enhance animations, improve accessibility, add gesture support, and create reusable FAB patterns",
+      "user_story_ref": "US003",
+      "dependencies": ["task5"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "FAB optimization involves well-understood animation and accessibility improvements",
+      "validation_expectations": {
+        "refactor_phase": "All FloatingActionButton tests continue passing",
+        "animation_improved": "Smooth 60fps animations on lower-end devices",
+        "accessibility_enhanced": "Enhanced keyboard shortcuts and gestures"
+      },
+      "acceptance_criteria": [
+        "Performance-optimized animations with GPU acceleration",
+        "Enhanced accessibility with keyboard shortcuts",
+        "Gesture support for swipe-to-hide on mobile",
+        "Reusable FAB patterns extracted",
+        "All tests continue passing (REFACTOR phase requirement)",
+        "docs/cookbook/recipe_floating_action_button.md created",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task7",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests for SuggestionModal organism: modal behavior, form integration, mobile UX, focus management, API integration, and accessibility compliance",
+      "user_story_ref": "US003",
+      "dependencies": ["task6"],
+      "external_dependencies": ["Jest", "@testing-library/react", "@testing-library/user-event", "nock"],
+      "confidence_level": "High",
+      "confidence_justification": "SuggestionModal follows established modal patterns with well-defined accessibility requirements",
+      "validation_expectations": {
+        "red_phase": "SuggestionModal tests fail (component doesn't exist)",
+        "test_count": "Minimum 10 tests covering modal, form, focus, API",
+        "test_runtime": "< 5 seconds for SuggestionModal test suite"
+      },
+      "test_files": [
+        "tests/components/organisms/SuggestionModal_test.tsx"
+      ],
+      "storybook_files": [
+        "src/components/organisms/SuggestionModal/SuggestionModal.stories.tsx"
+      ],
+      "acceptance_criteria": [
+        "Tests verify modal open/close behavior",
+        "Focus management and accessibility tested",
+        "Form integration with ContributionForm verified",
+        "API submission mocked and tested",
+        "Mobile-optimized layout verified",
+        "All tests fail initially (RED phase requirement)"
+      ]
+    },
+    {
+      "id": "task8",
+      "type": "IMPLEMENTATION",
+      "description": "Implement SuggestionModal organism with Radix UI modal primitives, focus management, mobile-optimized layout, ContributionForm integration, and API connectivity",
+      "user_story_ref": "US003",
+      "dependencies": ["task7"],
+      "external_dependencies": ["@radix-ui/react-dialog", "@radix-ui/react-toast"],
+      "confidence_level": "High",
+      "confidence_justification": "SuggestionModal implementation uses proven Radix UI primitives with established accessibility patterns",
+      "validation_expectations": {
+        "green_phase": "All SuggestionModal tests pass",
+        "modal_functional": "Modal opens/closes with proper focus management",
+        "integration_verified": "ContributionForm integration working correctly"
+      },
+      "implementation_files": [
+        "src/components/organisms/SuggestionModal/SuggestionModal.tsx",
+        "src/components/organisms/SuggestionModal/index.ts",
+        "src/components/organisms/index.ts"
+      ],
+      "acceptance_criteria": [
+        "Modal implemented with Radix UI dialog primitives",
+        "Proper focus management and keyboard navigation",
+        "Mobile-optimized layout with thumb-friendly controls",
+        "ContributionForm integration functional",
+        "API submission with toast notifications",
+        "Full WCAG 2.1 AA compliance",
+        "All SuggestionModal tests pass (GREEN phase requirement)",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "task9",
+      "type": "REFACTORING",
+      "description": "Optimize SuggestionModal for mobile performance, enhance error handling, improve form validation UX, add advanced accessibility features, and create modal patterns",
+      "user_story_ref": "US003",
+      "dependencies": ["task8"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Modal refactoring focuses on well-understood UX patterns and accessibility improvements",
+      "validation_expectations": {
+        "refactor_phase": "All SuggestionModal tests continue passing",
+        "performance_optimized": "Modal animations smooth on lower-end devices",
+        "error_handling_robust": "Comprehensive error states and recovery"
+      },
+      "acceptance_criteria": [
+        "Performance-optimized modal animations",
+        "Enhanced error handling with retry mechanisms",
+        "Advanced accessibility features (screen reader announcements)",
+        "Improved form validation with real-time feedback",
+        "All tests continue passing (REFACTOR phase requirement)",
+        "docs/cookbook/recipe_accessible_modals.md created",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    }
+  ]
+}
