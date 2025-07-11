@@ -138,14 +138,12 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
     }
   };
 
-  const handleFormSubmit = async () => {
+  const handleFormSubmit = async (data: ContributionFormData) => {
     setApiError(null); // Clear any previous API errors
     setManualErrors({}); // Clear any previous validation errors
     setIsSubmittingManually(true);
     
     try {
-      const data = getValues();
-      
       // Use manual fee value instead of form value
       const formDataWithFee = {
         ...data,
@@ -186,19 +184,21 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
       // Always use v1 endpoint for now (tests only intercept v1)
       const endpoint = `${baseUrl}/api/suggest`;
       
+      const requestBody = {
+        name: validationResult.data.name,
+        lat: validationResult.data.lat,
+        lng: validationResult.data.lng,
+        hours: validationResult.data.hours === 'custom' ? validationResult.data.customHours : validationResult.data.hours || '',
+        accessible: validationResult.data.accessible,
+        fee: parseFloat(feeValue) || 0,
+      };
+      
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: validationResult.data.name,
-          lat: validationResult.data.lat,
-          lng: validationResult.data.lng,
-          hours: validationResult.data.hours === 'custom' ? validationResult.data.customHours : validationResult.data.hours || '',
-          accessible: validationResult.data.accessible,
-          fee: parseFloat(feeValue) || 0,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const result = await response.json();
@@ -224,10 +224,7 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
     <form
       role="form"
       aria-label="Toilet contribution form"
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleFormSubmit();
-      }}
+      onSubmit={handleSubmit(handleFormSubmit)}
       className={cn('space-y-4', className)}
       noValidate
     >

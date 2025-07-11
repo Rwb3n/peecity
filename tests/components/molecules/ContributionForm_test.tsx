@@ -292,17 +292,11 @@ describe('ContributionForm Component', () => {
     it('should submit form data to API', async () => {
       const user = userEvent.setup();
       
-      // Mock API response
-      const mockScope = nock(API_BASE_URL)
-        .post('/api/suggest', {
-          name: 'API Test Toilet',
-          lat: 51.5074,
-          lng: -0.1278,
-          hours: '24/7',
-          accessible: true,
-          fee: 0,
-        })
-        .reply(201, { success: true, id: 'new-toilet-123' });
+      // Mock fetch globally
+      const mockFetch = jest.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({ success: true, id: 'new-toilet-123' }),
+      } as Response);
       
       render(<ContributionForm location={defaultLocation} onSuccess={mockOnSuccess} />);
       
@@ -316,16 +310,37 @@ describe('ContributionForm Component', () => {
       
       // Wait for API call
       await waitFor(() => {
-        expect(mockScope.isDone()).toBe(true);
+        expect(mockFetch).toHaveBeenCalledWith(
+          'http://localhost:3000/api/suggest',
+          expect.objectContaining({
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: 'API Test Toilet',
+              lat: 51.5074,
+              lng: -0.1278,
+              hours: '24/7',
+              accessible: true,
+              fee: 0,
+            }),
+          })
+        );
         expect(mockOnSuccess).toHaveBeenCalledWith({ success: true, id: 'new-toilet-123' });
       });
+      
+      mockFetch.mockRestore();
     });
 
     it('should handle API errors', async () => {
       const user = userEvent.setup();
-      const mockScope = nock(API_BASE_URL)
-        .post('/api/suggest')
-        .reply(500, { message: 'Internal Server Error' });
+      
+      // Mock fetch to return error response
+      const mockFetch = jest.spyOn(global, 'fetch').mockResolvedValue({
+        ok: false,
+        json: async () => ({ error: 'Internal Server Error' }),
+      } as Response);
 
       render(
         <ContributionForm
@@ -351,14 +366,14 @@ describe('ContributionForm Component', () => {
       });
 
       expect(mockOnSuccess).not.toHaveBeenCalled();
-      expect(mockScope.isDone()).toBe(true);
+      mockFetch.mockRestore();
     });
 
     it('should handle network errors', async () => {
       const user = userEvent.setup();
-      const mockScope = nock(API_BASE_URL)
-        .post('/api/suggest')
-        .replyWithError('Network request failed');
+      
+      // Mock fetch to reject with network error
+      const mockFetch = jest.spyOn(global, 'fetch').mockRejectedValue(new Error('Network request failed'));
 
       render(
         <ContributionForm
@@ -382,6 +397,8 @@ describe('ContributionForm Component', () => {
         expect(alert).toBeInTheDocument();
         expect(within(alert).getByText(/network request failed/i)).toBeInTheDocument();
       });
+      
+      mockFetch.mockRestore();
     });
   });
 
