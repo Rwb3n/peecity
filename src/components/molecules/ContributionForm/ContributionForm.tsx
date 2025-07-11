@@ -72,6 +72,8 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
   initialData,
   className,
 }) => {
+  const [apiError, setApiError] = React.useState<string | null>(null);
+  
   const { 
     register, 
     handleSubmit, 
@@ -102,6 +104,8 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
   const watchHours = watch('hours');
 
   const handleFormSubmit = (data: ContributionFormData) => {
+    setApiError(null); // Clear any previous API errors
+    
     if (onSubmit) {
       onSubmit(data);
       return;
@@ -111,7 +115,8 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
     (async () => {
       try {
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        const endpoint = `${baseUrl}/api/v2/suggest`;
+        // Use v1 endpoint if hours is empty, v2 otherwise
+        const endpoint = data.hours ? `${baseUrl}/api/v2/suggest` : `${baseUrl}/api/suggest`;
         
         const response = await fetch(endpoint, {
         method: 'POST',
@@ -132,7 +137,9 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
 
         onSuccess?.(result);
       } catch (error) {
-        // You can use a state to show API errors in the UI
+        // Display API errors in the UI
+        const errorMessage = error instanceof Error ? error.message : 'Failed to submit suggestion.';
+        setApiError(errorMessage);
         console.error(error);
       }
     })();
@@ -258,29 +265,6 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
           )}
         </div>
       )}
-
-      {/* Fee field */}
-      <div>
-        <label htmlFor="usage-fee" className="block text-sm font-medium mb-1">
-          Usage Fee (£)
-        </label>
-        <Input
-          id="usage-fee"
-          type="number"
-          step="0.01"
-          {...register('fee')}
-          placeholder="e.g., 0.50"
-          disabled={isLoading}
-          aria-invalid={!!errors.fee}
-          aria-describedby={errors.fee ? 'fee-error' : undefined}
-          className="min-h-[44px]"
-        />
-        {errors.fee && (
-          <p id="fee-error" role="alert" className="text-sm text-red-600 mt-1">
-            {errors.fee.message}
-          </p>
-        )}
-      </div>
       
       {/* Features */}
       <fieldset>
@@ -308,6 +292,36 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
           </div>
         </div>
       </fieldset>
+
+      {/* Fee field */}
+      <div>
+        <label htmlFor="usage-fee" className="block text-sm font-medium mb-1">
+          Usage Fee (£)
+        </label>
+        <Input
+          id="usage-fee"
+          type="number"
+          step="0.01"
+          {...register('fee')}
+          placeholder="e.g., 0.50"
+          disabled={isLoading}
+          aria-invalid={!!errors.fee}
+          aria-describedby={errors.fee ? 'fee-error' : undefined}
+          className="min-h-[44px]"
+        />
+        {errors.fee && (
+          <p id="fee-error" role="alert" className="text-sm text-red-600 mt-1">
+            {errors.fee.message}
+          </p>
+        )}
+      </div>
+
+      {/* API Error Display */}
+      {apiError && (
+        <div role="alert" className="text-sm text-red-600 mt-2">
+          {apiError}
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="flex justify-end space-x-2 pt-4">
