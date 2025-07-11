@@ -71,7 +71,8 @@
       "Bash(npx storybook:*)",
       "Bash(killall:*)",
       "Bash(npm ls:*)",
-      "Bash(npm audit:*)"
+      "Bash(npm audit:*)",
+      "Bash(jest --version)"
     ],
     "deny": []
   }

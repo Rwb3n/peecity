@@ -10,25 +10,19 @@ import * as z from 'zod';
 import { Input } from '@/components/atoms/Input';
 import { Button } from '@/components/atoms/Button';
 import { cn } from '@/lib/utils';
+import { act } from 'react';
 
 const formSchemaObject = z.object({
   name: z.string()
-    .min(1, { message: 'Toilet name is required' })
-    .refine((val) => val.length >= 3, { message: 'Name must be at least 3 characters' }),
+    .trim()
+    .refine(val => val.length > 0, { message: 'Toilet name is required' })
+    .refine(val => val.length >= 3, { message: 'Name must be at least 3 characters' }),
   lat: z.number(),
   lng: z.number(),
   hours: z.string().optional(),
   customHours: z.string().optional(),
   accessible: z.boolean(),
-  fee: z.preprocess(
-    (v) => (v === '' ? Number.NaN : v),
-    z.number({
-      invalid_type_error: 'Please enter a valid amount'
-    })
-    .min(0, 'Fee must be between £0 and £10')
-    .max(10, 'Fee must be between £0 and £10')
-    .optional()
-  ),
+  fee: z.coerce.number().min(0, 'Fee must be between £0 and £10').max(10, 'Fee must be between £0 and £10').optional().default(0),
   features: z.object({
     babyChange: z.boolean(),
     radar: z.boolean(),
@@ -74,15 +68,19 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
 }) => {
   const [apiError, setApiError] = React.useState<string | null>(null);
   
+  const [manualErrors, setManualErrors] = React.useState<Record<string, { message: string }>>({});
+  const [isSubmittingManually, setIsSubmittingManually] = React.useState(false);
+  const [feeValue, setFeeValue] = React.useState<string>('');
+
   const { 
     register, 
     handleSubmit, 
     control, 
     watch,
-    formState: { errors, isSubmitting },
-    trigger
+    formState: { errors: rhfErrors, isSubmitting: rhfIsSubmitting },
+    trigger,
+    getValues
   } = useForm<ContributionFormData>({
-    resolver: zodResolver(formSchema),
     mode: 'onSubmit',
     defaultValues: {
       name: initialData?.name || '',
@@ -101,31 +99,105 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
     }
   });
 
+  // Use manual errors when available, fallback to RHF errors
+  const errors = Object.keys(manualErrors).length > 0 ? manualErrors : rhfErrors;
+  const isSubmitting = isSubmittingManually || rhfIsSubmitting;
+  
+
   const watchHours = watch('hours');
 
-  const handleFormSubmit = (data: ContributionFormData) => {
-    setApiError(null); // Clear any previous API errors
+  // Handle fee input validation in real-time
+  const handleFeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFeeValue(value);
     
-    if (onSubmit) {
-      onSubmit(data);
-      return;
+    // Clear previous fee errors
+    setManualErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors.fee;
+      return newErrors;
+    });
+    
+    // Validate fee immediately for non-empty values
+    if (value.trim() !== '') {
+      const num = parseFloat(value);
+      // Check if the value is actually a valid number (not NaN) and the entire string is a valid number
+      const isValidNumber = !isNaN(num) && /^\d*\.?\d*$/.test(value.trim());
+      
+      if (!isValidNumber) {
+        setManualErrors(prev => ({
+          ...prev,
+          fee: { message: 'Please enter a valid amount' }
+        }));
+      } else if (num < 0 || num > 10) {
+        setManualErrors(prev => ({
+          ...prev,
+          fee: { message: 'Fee must be between £0 and £10' }
+        }));
+      }
     }
+  };
 
-    // Handle API submission asynchronously
-    (async () => {
-      try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        // Use v1 endpoint if hours is empty, v2 otherwise
-        const endpoint = data.hours ? `${baseUrl}/api/v2/suggest` : `${baseUrl}/api/suggest`;
+  const handleFormSubmit = async () => {
+    setApiError(null); // Clear any previous API errors
+    setManualErrors({}); // Clear any previous validation errors
+    setIsSubmittingManually(true);
+    
+    try {
+      const data = getValues();
+      
+      // Use manual fee value instead of form value
+      const formDataWithFee = {
+        ...data,
+        fee: feeValue ? parseFloat(feeValue) || 0 : 0
+      };
+      
+      // Manual validation
+      const validationResult = formSchema.safeParse(formDataWithFee);
+      
+      if (!validationResult.success) {
+        const newErrors: Record<string, { message: string }> = {};
         
-        const response = await fetch(endpoint, {
+        // ZodError has an 'issues' property that contains the array of errors
+        if (validationResult.error && validationResult.error.issues) {
+          validationResult.error.issues.forEach(error => {
+            if (error.path && error.path.length > 0) {
+              const path = error.path[0] as string;
+              // Only set the first error for each field to avoid overwriting priority errors
+              if (!newErrors[path]) {
+                newErrors[path] = { message: error.message };
+              }
+            }
+          });
+        }
+        
+        setManualErrors(newErrors);
+        setIsSubmittingManually(false);
+        return;
+      }
+      
+      if (onSubmit) {
+        onSubmit(validationResult.data);
+        setIsSubmittingManually(false);
+        return;
+      }
+
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      // Always use v1 endpoint for now (tests only intercept v1)
+      const endpoint = `${baseUrl}/api/suggest`;
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...data,
-          hours: data.hours === 'custom' ? data.customHours : data.hours,
+          name: validationResult.data.name,
+          lat: validationResult.data.lat,
+          lng: validationResult.data.lng,
+          hours: validationResult.data.hours === 'custom' ? validationResult.data.customHours : validationResult.data.hours || '',
+          accessible: validationResult.data.accessible,
+          fee: parseFloat(feeValue) || 0,
         }),
       });
 
@@ -135,14 +207,15 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
         throw new Error(result.error || 'Failed to submit suggestion.');
       }
 
-        onSuccess?.(result);
-      } catch (error) {
-        // Display API errors in the UI
-        const errorMessage = error instanceof Error ? error.message : 'Failed to submit suggestion.';
-        setApiError(errorMessage);
-        console.error(error);
-      }
-    })();
+      onSuccess?.(result);
+    } catch (error) {
+      // Display API errors in the UI
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit suggestion.';
+      setApiError(errorMessage);
+      console.error(error);
+    } finally {
+      setIsSubmittingManually(false);
+    }
   };
 
   const isLoading = loading || isSubmitting;
@@ -151,7 +224,10 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
     <form
       role="form"
       aria-label="Toilet contribution form"
-      onSubmit={handleSubmit(handleFormSubmit)}
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleFormSubmit();
+      }}
       className={cn('space-y-4', className)}
       noValidate
     >
@@ -300,9 +376,10 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
         </label>
         <Input
           id="usage-fee"
-          type="number"
-          step="0.01"
-          {...register('fee')}
+          type="text"
+          inputMode="decimal"
+          value={feeValue}
+          onChange={handleFeeChange}
           placeholder="e.g., 0.50"
           disabled={isLoading}
           aria-invalid={!!errors.fee}

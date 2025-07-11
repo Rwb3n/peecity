@@ -1,143 +1,107 @@
-Here is what I found after digging into React Hook Form (RHF) behaviour, ARIA error reporting, and the mismatch we are seeing in the current test-suite:
 
-─────────────────────────────────
-1 · How RHF Decides When to Set Errors
-─────────────────────────────────
-RHF’s validation strategy is controlled by the `mode` option passed to `useForm`:
+### Investigation of Failing Tests
 
-• `"onSubmit"` (default)   
-  – Validation runs **only** after an attempted submit.  
-  – If validation fails, `formState.errors` is populated immediately, so
-    `aria-invalid` becomes `true` and error messages render.  
-  – Good fit for “classic” tests that click **Submit** with empty fields
-    and expect errors right away.
+The failures can be broken down into three core mismatches between the test suite and the component.
 
-• `"onChange"`   
-  – Validation runs on every change event.  
-  – **BUT** if a control is never touched it is considered “pristine”;
-    clicking Submit with untouched fields **does not** force another
-    validation pass. RHF simply aborts submission without populating
-    `errors` → the DOM shows `aria-invalid="false"` (exactly what we saw).
+#### 1. Mismatch: Validation Logic (`onSubmit` vs. `onChange`)
 
-• `"onTouched"` / `"onBlur"`   
-  – Similar: validation occurs when a field loses focus after first
-    interaction; untouched fields stay error-free.
+The component is configured to validate when the user clicks submit, but the tests expect errors to appear immediately as the user types. This accounts for the majority of the "Form Validation" failures.
 
-   Reference: https://react-hook-form.com/api/useform/#mode
+*   **Component Code (`ContributionForm.tsx`):**
+    ```typescript
+    // ...
+    const { 
+      // ...
+    } = useForm<ContributionFormData>({
+      mode: 'onSubmit', // <-- This is the key line
+      // ...
+    });
+    // ...
+    ```
+    The `mode: 'onSubmit'` configuration tells `react-hook-form` to delay validation until the `handleSubmit` function is triggered.
 
-Key take-away: **If tests rely on click-Submit-then-see-errors with
-untouched fields, you must use `mode: "onSubmit"` (or explicitly call
-`trigger()` in your submit handler).**
+*   **Failing Test Code (`ContributionForm_test.tsx`):**
+    ```typescript
+    // ...
+    it('should require toilet name', async () => {
+      // ...
+      // No submit action is performed here
+      await waitFor(() => {
+        // This fails because the 'errors' object is still empty
+        expect(screen.getByText(/toilet name is required/i)).toBeInTheDocument(); 
+      });
+      // ...
+    });
+    // ...
+    ```
+    This test, and others like it (`should validate name length`), expect the error message to be present *without* a submit event. Because the component is in `onSubmit` mode, the test times out waiting for an error that will never appear under these conditions.
 
-─────────────────────────────────
-2 · Why `aria-invalid="false"` Appeared
-─────────────────────────────────
-With `mode: "onChange"` every input remained “pristine” because the tests
-never typed in them. RHF silently prevented submission, but since it
-didn’t touch the pristine inputs it also didn’t set `errors` ⇒
-`aria-invalid` stayed `false`, and `<p role="alert">` never rendered.
-That is **expected** RHF behaviour—not a bug.
+#### 2. Mismatch: User Interaction Simulation
 
-─────────────────────────────────
-3 · Recommended Fix Matrix
-─────────────────────────────────
-| Issue observed in tests | RHF/ARIA root cause | Minimal fix (component) |
-|-------------------------|---------------------|-------------------------|
-| Errors don’t appear when Submit is clicked on untouched fields | Validation mode = `"onChange"` | Switch to `mode: "onSubmit"` **OR** keep `"onChange"` and call `trigger()` inside `handleSubmit` to force validation. |
-| `aria-busy` missing on loading button | Attribute simply not added | `<Button … aria-busy={isLoading}>` |
-| Test looks for specific error strings | Zod messages don’t match | Adjust Zod message strings or update tests.|
-| Hours field optional vs required | Schema vs legacy behaviour | Mark `hours` optional *or* update tests to supply a value.|
-| `role="alert"` not found | Error `<p>` lacks role attr | Wrap error `<p>` with `role="alert"`. |
+The tests are attempting to interact with form elements in a way that is inconsistent with their implementation.
 
-─────────────────────────────────
-4 · What Industry Docs Say
-─────────────────────────────────
-• **React Hook Form docs**  
-  Show exactly the mode behaviour described above.
+*   **Component Code (`ContributionForm.tsx`):**
+    The component renders a standard HTML `<select>` element for the "Opening Hours".
+    ```jsx
+    // ...
+    <select {...register('hours')}>
+      <option value="">Select hours...</option>
+      <option value="24/7">24/7</option>
+      // ...
+    </select>
+    // ...
+    ```
 
-• **React 18 `useFormStatus` (+ aria-busy)**  
-  Docs emphasise toggling `disabled` **and** `aria-busy` for accessible
-  loading indicators (see snippet you provided). That justifies adding
-  `aria-busy={isLoading}` to our submit button.
+*   **Failing Test Code (`ContributionForm_test.tsx`):**
+    The test for a valid submission attempts to *type* into this field instead of *selecting* an option.
+    ```typescript
+    // ...
+    it('should allow valid form submission', async () => {
+      // ...
+      const hoursInput = screen.getByLabelText(/opening hours/i);
+      await user.type(hoursInput, '9am - 5pm'); // <-- Incorrect interaction
+      // ...
+    });
+    // ...
+    ```
+    `userEvent.type` on a `<select>` element does not work as it does on an `<input>`. The test must be updated to use `userEvent.selectOptions` to correctly simulate user behavior. This single incorrect interaction causes the form's Zod schema to fail validation (because `hours` is empty), preventing the `mockOnSubmit` function from ever being called and failing the test.
 
-• **WAI-ARIA Form Authoring Practices**  
-  Alert messages for validation errors **must** live in an element with
-  `role="alert"`. This matches the failing accessibility test.
+#### 3. Mismatch: Asynchronous State and Error Handling
 
-─────────────────────────────────
-5 · Implementation Blueprint (if we proceed)
-─────────────────────────────────
-```ts
-// inside useForm(...)
-const {
-  register,
-  handleSubmit,
-  /* … */
-} = useForm<ContributionFormData>({
-  resolver : zodResolver(formSchema),
-  mode     : 'onSubmit',          // <— key change
-  /* defaultValues… */
-});
+The accessibility test for announcing errors fails because it doesn't correctly wait for the asynchronous validation process to complete.
 
-// submit button JSX
-<Button type="submit" disabled={isLoading} aria-busy={isLoading}>
-  {isLoading ? 'Submitting...' : 'Submit'}
-</Button>
+*   **Component Code (`ContributionForm.tsx`):**
+    The entire submission and validation process is asynchronous.
+    ```typescript
+    // ...
+    const handleFormSubmit = async () => {
+      // ...
+      const validationResult = formSchema.safeParse(formDataWithFee);
+      // ...
+      if (!validationResult.success) {
+        // ...
+        setManualErrors(newErrors); // <-- State update is async
+        // ...
+        return;
+      }
+      // ...
+    }
+    // ...
+    ```
 
-// error output example
-{errors.name && (
-  <p role="alert" id="name-error" className="text-sm text-red-600 mt-1">
-    {errors.name.message}
-  </p>
-)}
-```
+*   **Failing Test Code (`ContributionForm_test.tsx`):**
+    The test checks for the error message without properly waiting for the state update that renders it.
+    ```typescript
+    // ...
+    it('should announce form errors to screen readers', async () => {
+      // ...
+      await user.click(submitButton);
 
-And in the Zod schema:
-```ts
-const formSchema = z.object({
-  name : z.string()
-           .min(1,  { message: 'Toilet name is required' })
-           .min(3,  { message: 'Name must be at least 3 characters' }),
-  hours: z.string().optional(),
-  fee  : z.preprocess(
-           (v) => (v === '' ? Number.NaN : v),
-           z.number({
-             invalid_type_error: 'Please enter a valid amount'
-           })
-           .min(0,  'Fee cannot be negative')
-           .max(10, 'Fee must be between £0 and £10')
-         ),
-  /* … */
-});
-```
-This keeps RHF + Zod, surfaces errors immediately after Submit, matches
-the test strings, and satisfies the accessibility assertions.
-
-─────────────────────────────────
-6 · Fallback: Trigger Programmatically
-─────────────────────────────────
-If we insist on `mode: 'onChange'`, add:
-```ts
-const onSubmitHandler = handleSubmit(async (data) => { … });
-const forceValidate = async () => {           // runs when submit clicked
-  const ok = await trigger();                 // <— forces validation pass
-  if (ok) onSubmitHandler();
-};
-```
-But flipping back to `mode: "onSubmit"` is simpler.
-
-─────────────────────────────────
-7 · Conclusion
-─────────────────────────────────
-The cleanest remediation that respects both the test-suite and RHF best
-practice is:
-
-1. Set `mode: "onSubmit"`.  
-2. Add `aria-busy`.  
-3. Align error strings + wrap in `role="alert"`.  
-4. Make `hours` optional (or update tests to set a value).
-
-That should take the failing count from **16 ➝ 0** without abandoning
-React Hook Form or altering the tests heavily.
-
-Let me know if you’d like me to implement this patch.
+      // This check runs immediately, but the error state hasn't been set yet.
+      const errorAlert = screen.getByRole('alert'); 
+      expect(errorAlert).toBeInTheDocument();
+      // ...
+    });
+    // ...
+    ```
+    While the test is an `async` function, the `getByRole('alert')` query runs synchronously after the click. It fails because the error `div` has not been rendered yet. The fix is to use an asynchronous query, like `findByRole('alert')`, which will wait for the element to appear.
