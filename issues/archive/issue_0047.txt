@@ -1,0 +1,29 @@
+{
+    "id": "issue_0047",
+    "version": 1,
+    "type": "BUG",
+    "status": "OPEN",
+    "g_event_created": 171,
+    "g_event_modified": 171,
+    "title": "TDD Validation Failure: MarkerPopup Implementation Failed",
+    "description": "Validation of the 'molecules_implementation' task failed. The implementation of the MarkerPopup component did not result in passing tests, which violates the 'Green' phase of the TDD cycle.",
+    "references": {
+        "plan_id": "plan_frontend_ui_detailed",
+        "task_id": "molecules_implementation",
+        "status_report": "status/plan_frontend_ui_detailed_task_molecules_implementation_status.md",
+        "failing_artifacts": [
+            "src/components/molecules/MarkerPopup/MarkerPopup.tsx",
+            "tests/components/molecules/MarkerPopup_test.tsx"
+        ]
+    },
+    "technical_details": {
+        "summary": "The Jest test suite for molecules failed with 53 failed tests out of 71 total. The root cause appears to be a React rendering error within the MarkerPopup component.",
+        "error_log": "Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports. Check the render method of `Icon`.",
+        "analysis": "The error message consistently points to the `Icon` atom component. It is highly likely that `MarkerPopup.tsx` has an incorrect import statement for the `Icon` component, causing the React renderer to fail. All 53 failed tests are within the `MarkerPopup_test.tsx` suite."
+    },
+    "next_steps": [
+        "Initiate the DIAGNOSE phase for this issue.",
+        "Create a `plan_diagnose_0047.txt` to write a specific, failing test that isolates the Icon import/export issue within MarkerPopup.",
+        "Once the diagnostic test is validated as failing correctly, proceed to create a bug-fix plan."
+    ]
+} 

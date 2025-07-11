@@ -1,0 +1,48 @@
+{
+  "id": "plan_fix_searchbar_tests_0058",
+  "name": "Fix SearchBar Tests and Resolve `act()` Warnings",
+  "description": "A comprehensive plan to refactor `tests/components/molecules/SearchBar_test.tsx` to eliminate `act()` warnings, fix 8 failing tests, and improve overall test stability by correctly handling asynchronous UI updates.",
+  "g": "g_0058",
+  "tasks": [
+    {
+      "id": "refactor_remove_act_wrappers",
+      "name": "Refactor: Remove Incorrect `act()` Wrappers",
+      "type": "REFACTORING",
+      "description": "Go through `tests/components/molecules/SearchBar_test.tsx` and remove all instances of `await act(async () => { ... });` that are wrapping `userEvent` calls (`.type`, `.click`, etc.). These wrappers are redundant and are masking the true asynchronous issues.",
+      "dependencies": [],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "This is a direct and necessary step. The `act` warnings prove the current usage is wrong, and removing them is the first step to a proper fix."
+    },
+    {
+      "id": "refactor_await_state_changes",
+      "name": "Refactor: Stabilize Tests by Awaiting State Changes",
+      "type": "REFACTORING",
+      "description": "In `tests/components/molecules/SearchBar_test.tsx`, after any `userEvent` action that causes a state update (especially `user.type`), add an explicit `waitFor` or `findBy*` assertion to ensure the component has finished re-rendering before the test continues. For example, `await waitFor(() => expect(input).toHaveValue('New Value'));`. This will properly synchronize the test with the component's state and resolve the `act()` warnings.",
+      "dependencies": ["refactor_remove_act_wrappers"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "This is the standard, recommended practice for dealing with asynchronous updates in React Testing Library and directly addresses the root cause of the `act()` warnings."
+    },
+    {
+      "id": "refactor_keyboard_nav_test",
+      "name": "Refactor: Correct Keyboard Navigation Test",
+      "type": "REFACTORING",
+      "description": "Specifically refactor the 'should be keyboard navigable' test in `tests/components/molecules/SearchBar_test.tsx`. Remove the incorrect `act()` call and ensure the `expect(...).toHaveFocus()` assertions happen only after the component has fully stabilized from any preceding `user.type` events.",
+      "dependencies": ["refactor_await_state_changes"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "This test was a known failure point. Applying the new async handling pattern here will fix the bug and serve as a clear example of the correct implementation."
+    },
+    {
+      "id": "final_validation",
+      "name": "Validation: Final Green Suite",
+      "type": "VALIDATION",
+      "description": "Execute the entire molecule test suite via `npm test -- tests/components/molecules/`. Confirm that the command exits with code 0, all 71 tests pass, and there are absolutely no `act()` warnings in the console output.",
+      "dependencies": ["refactor_keyboard_nav_test"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "The fixes are targeted and follow best practices, so a full pass is the expected outcome."
+    }
+  ]
+} 

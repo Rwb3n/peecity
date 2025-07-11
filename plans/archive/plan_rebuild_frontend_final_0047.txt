@@ -1,0 +1,50 @@
+{
+  "id": "plan_rebuild_frontend_final_0047",
+  "name": "Final Corrective Action: Gold Standard Storybook v8 Installation",
+  "description": "A definitive plan to establish a stable Storybook v8 environment, resolving all previous dependency and build issues (issue_0045, issue_0046). This plan purges all previous installations and performs a single, precise installation of a known-good set of v8 packages. It defers the test-runner setup to a future plan to isolate variables and ensure the core build is stable first.",
+  "version": 1,
+  "status": "PENDING",
+  "preceding_plan_id_ref": "plan_fix_storybook_dependency_0046",
+  "tasks": [
+    {
+      "id": "task_1_purge_all",
+      "name": "Purge All Previous Storybook Installations",
+      "description": "Uninstall every '@storybook/*' and 'storybook' package from package.json to ensure a completely clean slate and prevent any residual version conflicts.",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "No packages with the scope '@storybook' or the name 'storybook' exist in the devDependencies of package.json."
+      ],
+      "confidence_level": "High",
+      "justification": "A complete uninstall is the safest way to guarantee no lingering dependency issues."
+    },
+    {
+      "id": "task_2_install_gold_standard",
+      "name": "Install Gold Standard Storybook v8 Packages",
+      "description": "Manually install a specific, known-good set of Storybook v8.1 packages for a Next.js Webpack project. This includes the core, addons, and the correct styling integration package.",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "dependencies": ["task_1_purge_all"],
+      "acceptance_criteria": [
+        "The correct v8.1.x versions of all specified Storybook packages are listed in package.json and installed."
+      ],
+      "confidence_level": "High",
+      "justification": "Using a specific, validated set of package versions is the most direct way to ensure compatibility and avoid the issues encountered previously."
+    },
+    {
+      "id": "task_3_verify_build",
+      "name": "Verify: Successful Storybook Build",
+      "description": "Run the 'build-storybook' command. This command should now complete successfully without any errors, creating the 'storybook-static' directory. This provides the definitive 'Green' signal that the core Storybook infrastructure is stable and correctly configured.",
+      "type": "TEST_CREATION",
+      "status": "PENDING",
+      "dependencies": ["task_2_install_gold_standard"],
+      "acceptance_criteria": [
+        "Running 'npm run build-storybook' completes with exit code 0.",
+        "The 'storybook-static' directory is created in the project root."
+      ],
+      "confidence_level": "High",
+      "justification": "A successful build is a non-ambiguous validation of the entire setup. It proves that all dependencies are compatible and all configuration files are correct. This defers the complexity of the test-runner to a later stage."
+    }
+  ]
+} 

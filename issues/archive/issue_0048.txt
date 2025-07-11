@@ -1,0 +1,34 @@
+{
+    "id": "issue_0048",
+    "version": 1,
+    "type": "BUG",
+    "status": "OPEN",
+    "g_event_created": 172,
+    "g_event_modified": 172,
+    "title": "TDD Re-Validation Failure: MarkerPopup Implementation still incorrect",
+    "description": "After fixing the initial 'Icon' component bug (issue_0047), re-validation of the 'molecules_implementation' task failed again. While many tests now pass, 14 tests related to the MarkerPopup component are still failing.",
+    "references": {
+        "plan_id": "plan_frontend_ui_detailed",
+        "task_id": "molecules_implementation",
+        "status_report": "status/plan_frontend_ui_detailed_task_molecules_implementation_status.md",
+        "previous_issue": "issues/issue_0047.txt",
+        "failing_artifacts": [
+            "src/components/molecules/MarkerPopup/MarkerPopup.tsx",
+            "tests/components/molecules/MarkerPopup_test.tsx"
+        ]
+    },
+    "technical_details": {
+        "summary": "The Jest test suite for MarkerPopup still fails with 14 errors. The failures are centered around missing text content, incorrect button labels/accessibility, and improper keyboard focus management.",
+        "error_log_summary": [
+            "Unable to find text: /Last verified:/",
+            "Unable to find an accessible element with the role \"button\" and name /report issue/i",
+            "expect(element).toHaveFocus() received element with focus <button ...> but expected <button ...>"
+        ],
+        "analysis": "The component's rendered output does not match the test expectations. This could be due to hardcoded strings not matching, ARIA labels being different from what the test queries, or the tab index and focus order of interactive elements being implemented incorrectly. These are not configuration issues but implementation errors in the component logic and structure."
+    },
+    "next_steps": [
+        "Initiate the DIAGNOSE phase for this new issue.",
+        "The developer needs to carefully inspect `MarkerPopup.tsx` and its corresponding test `MarkerPopup_test.tsx` to align the component's output with the test's assertions for text, accessibility, and focus order.",
+        "Create a new `plan_fix_...` to address these specific failures."
+    ]
+} 

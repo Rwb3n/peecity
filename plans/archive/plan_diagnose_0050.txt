@@ -1,0 +1,29 @@
+{
+    "id": "plan_diagnose_0050",
+    "version": 1,
+    "g_event_created": 175,
+    "title": "Diagnose Molecule Component Regressions and Failures",
+    "description": "Create a single, focused diagnostic test file to replicate the persistent and regressive failures in the SearchBar and MarkerPopup components, as detailed in issue_0050.txt. This plan's sole purpose is to prove the root cause hypotheses.",
+    "references": {
+        "issue_id": "issue_0050",
+        "aiconfig": "aiconfig.json"
+    },
+    "tasks": [
+        {
+            "id": "diagnostic_test_creation",
+            "type": "DIAGNOSTIC_TEST_CREATION",
+            "description": "Create a new test file at `tests/diagnostics/molecule_regression_diag_test.tsx`. This file will contain a minimal set of tests that are known to be failing, copied from `SearchBar_test.tsx` and `MarkerPopup_test.tsx`, to provide an isolated environment for debugging and proving the failure hypotheses.",
+            "acceptance_criteria": [
+                "The new file `tests/diagnostics/molecule_regression_diag_test.tsx` is created.",
+                "The file contains ONLY the failing tests for: SearchBar focus order, SearchBar aria-busy attribute, MarkerPopup button text, MarkerPopup compact mode visibility, and MarkerPopup focus order.",
+                "When this new test file is run (`npm test -- tests/diagnostics/molecule_regression_diag_test.tsx`), it MUST fail with the exact same errors as documented in `issue_0050.txt`.",
+                "No other test files are modified.",
+                "No production code is modified."
+            ],
+            "dependencies": [],
+            "confidence_level": "High",
+            "justification": "This is a standard diagnostic procedure. By isolating the failing tests, we can confirm the bug's behavior without the noise of unrelated tests, making the root cause analysis and subsequent fix much more efficient."
+        }
+    ],
+    "self_critique": "This plan is narrowly focused on creating a diagnostic artifact, which is the correct procedure. It rightly avoids any attempt to fix the production code. The success of this plan is entirely dependent on the accurate replication of the failing tests. A potential failure would be if the isolated tests pass, which would invalidate our primary hypothesis and point towards a more complex issue (e.g., test cross-contamination), but this is unlikely given the nature of the errors."
+} 

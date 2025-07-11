@@ -86,7 +86,7 @@ describe('Storybook Setup Verification', () => {
       const dependencies = packageJson.dependencies || {};
       const allDeps = { ...dependencies, ...devDependencies };
 
-      expect(allDeps).toHaveProperty('@storybook/nextjs');
+      expect(allDeps).toHaveProperty('@storybook/nextjs-vite');
       expect(allDeps).toHaveProperty('@storybook/addon-essentials');
       expect(allDeps).toHaveProperty('@storybook/addon-a11y');
       expect(allDeps).toHaveProperty('@storybook/addon-viewport');
@@ -100,8 +100,8 @@ describe('Storybook Setup Verification', () => {
       const dependencies = packageJson.dependencies || {};
       const allDeps = { ...dependencies, ...devDependencies };
 
-      if (allDeps['@storybook/nextjs']) {
-        const version = allDeps['@storybook/nextjs'].replace(/[^0-9.]/g, '');
+      if (allDeps['@storybook/nextjs-vite']) {
+        const version = allDeps['@storybook/nextjs-vite'].replace(/[^0-9.]/g, '');
         const majorVersion = parseInt(version.split('.')[0]);
         expect(majorVersion).toBeGreaterThanOrEqual(7);
       }

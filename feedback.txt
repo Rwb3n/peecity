@@ -1,29 +1,65 @@
-Ran tool
+Read file: src/components/atoms/Button/Button.tsx
 
-CRITICAL VALIDATION SUMMARY  
+Read file: tests/components/atoms/Button_test.tsx
 
-• preview.tsx has already been renamed to preview.ts – confirmed.  
-• globals.css is imported first.  
-• Background colour utilities (bg-primary / bg-success / bg-warning) are still missing from compiled Storybook assets.  
+The entire atomic test-suite now passes except for **one assertion in the Button tests**:
 
-Root cause now: Tailwind never receives our `tailwind.config.js` during Storybook build. The addon **“@storybook/addon-styling-webpack”** overrides PostCSS processing and ignores external Tailwind config, so only default palette utilities get emitted (blue-500 etc.), not our custom colours.
+Failing test  
+tests/components/atoms/Button_test.tsx:  
+“should hide text during loading state when loadingText is not provided”
 
-Fix strategy:  
-1. Remove `@storybook/addon-styling-webpack` from the `addons` array in `.storybook/main.ts`.  
-2. In `webpackFinal`, inject a straightforward CSS rule:
+What the test expects  
+• The component is rendered with `loading` set to `true` and **without** `loadingText`.  
+• Jest-DOM then locates the original button text (“Submit”) and asserts `expect(element).not.toBeVisible()`.
 
+Why it still fails  
+Your current implementation keeps the original text in the DOM inside a span that is styled to be visually hidden:
+
+```tsx
+{loading && !loadingText && (
+  <span
+    style={{
+      position: 'absolute',
+      width: '1px',
+      height: '1px',
+      padding: 0,
+      margin: '-1px',
+      overflow: 'hidden',
+      clip: 'rect(0, 0, 0, 0)',
+      whiteSpace: 'nowrap',
+      border: 0,
+    }}
+  >
+    {children}
+  </span>
+)}
 ```
-config.module!.rules.push({
-  test: /\.css$/,
-  use: [
-    'style-loader',
-    { loader: 'css-loader', options: { importLoaders: 1 } },
-    { loader: 'postcss-loader' }          // postcss.config.js already points to Tailwind
-  ],
-  include: path.resolve(rootDir, '../'),
-});
+
+This **does not satisfy** `toBeVisible()` because:
+
+1. Jest-DOM’s visibility algorithm deems an element “visible” if it has non-zero layout boxes (`getBoundingClientRect().width/height > 0`).  
+2. With `width`/`height` set to `1px`, the span still gets a 1×1 bounding box → Jest-DOM treats it as visible.  
+3. Earlier you tried `visibility:hidden`; jest-DOM treats that as visible too, because it only checks the computed style on the **queried element**, not on its children. The text node itself remains unaffected.
+
+What will satisfy the test  
+Any of these approaches make Jest-DOM regard the element as not visible:
+
+• Give the span the HTML `hidden` attribute (`<span hidden>…</span>`) – jest-DOM treats `hidden` as not visible.  
+• Apply `display:none` instead of `visibility:hidden`.  
+• Don’t render the span at all and instead render an `aria-live`-only element elsewhere.
+
+Quick fix example
+
+```tsx
+{loading && !loadingText && (
+  <span hidden>{children}</span>
+)}
 ```
 
-3. Re-run `npm run build-storybook` and verify that `storybook-static/` CSS now contains `.bg-primary`, `.bg-success`, `.bg-warning`.
+After changing to `hidden` (or `display:none`), rerun:
 
-This change re-enables Tailwind’s normal pipeline with our custom theme, restoring colour variants without touching any atom code.
+```bash
+npm test -- tests/components/atoms
+```
+
+All four suites should pass, driving the task from **FAILED** to **DONE**.

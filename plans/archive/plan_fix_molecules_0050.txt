@@ -1,0 +1,45 @@
+{
+    "id": "plan_fix_molecules_0050",
+    "version": 1,
+    "g_event_created": 176,
+    "title": "Fix Molecule Component Regressions and Failures using Diagnostic Test",
+    "description": "This plan provides the precise steps to fix the SearchBar and MarkerPopup components. The ONLY benchmark for success for the IMPLEMENTATION task is getting the diagnostic test suite (`tests/diagnostics/molecule_regression_diag_test.tsx`) to pass.",
+    "references": {
+        "issue_id": "issue_0050",
+        "diagnostic_plan": "plan_diagnose_0050",
+        "diagnostic_test_file": "tests/diagnostics/molecule_regression_diag_test.tsx"
+    },
+    "tasks": [
+        {
+            "id": "implementation_fix",
+            "type": "IMPLEMENTATION",
+            "description": "Modify SearchBar.tsx and MarkerPopup.tsx to fix the 5 failing tests in the diagnostic suite. The developer MUST read the test assertions carefully and modify the implementation to match the explicit expectations of the tests.",
+            "acceptance_criteria": [
+                "In SearchBar.tsx, the search button MUST be moved after the location button in the JSX to correct the tab order.",
+                "In SearchBar.tsx, the `aria-busy` attribute on the search button should be removed entirely when not loading, instead of being set to 'false'.",
+                "In MarkerPopup.tsx, the 'Report' button text must be changed to 'Report issue' to match the test query.",
+                "In MarkerPopup.tsx, the 'Last verified' section must be wrapped in a conditional check (`!compact && ...`) so it does not render when the `compact` prop is true.",
+                "In MarkerPopup.tsx, the focus order must be corrected by rearranging the action buttons in the JSX to match the test's expected tab flow: Directions, Report, Show More/Less, Close.",
+                "Running `npm test -- tests/diagnostics/molecule_regression_diag_test.tsx` MUST result in all 5 tests passing.",
+                "No other files should be modified."
+            ],
+            "dependencies": [],
+            "confidence_level": "High",
+            "justification": "The diagnostic test has isolated the exact failures. The required changes are now specific and directly address the test assertions. The risk of further regressions is low as we are only targeting the verified failing code paths and using a dedicated test file for validation."
+        },
+        {
+            "id": "final_validation_and_cleanup",
+            "type": "REFACTORING",
+            "description": "After the main implementation is fixed and validated, run the original, full test suites for molecules to ensure no new regressions were introduced. Finally, delete the temporary diagnostic test file.",
+            "acceptance_criteria": [
+                "Running `npm test -- tests/components/molecules/` MUST result in ALL tests passing.",
+                "The diagnostic test file `tests/diagnostics/molecule_regression_diag_test.tsx` MUST be deleted.",
+                "The diagnostic plan file `plans/plan_diagnose_0050.txt` can be archived."
+            ],
+            "dependencies": ["implementation_fix"],
+            "confidence_level": "High",
+            "justification": "This final step ensures that the focused fix did not inadvertently break any of the other 57 related tests that were passing. Cleaning up the diagnostic artifacts is good housekeeping."
+        }
+    ],
+    "self_critique": "This plan is robust because it uses a validated, isolated test case for the primary fix, then confirms the fix against the full test suite. This two-step validation process minimizes risk. A potential failure point would be if the developer again misinterprets the very specific instructions, but the acceptance criteria are written as explicit 'how-to' steps to mitigate this."
+} 

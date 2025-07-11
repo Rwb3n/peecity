@@ -1,0 +1,34 @@
+{
+    "id": "issue_0050",
+    "version": 1,
+    "type": "BUG",
+    "status": "OPEN",
+    "g_event_created": 174,
+    "g_event_modified": 174,
+    "title": "TDD VALIDATION CATASTROPHE: Regressions and Persistent Failures in Molecules Implementation",
+    "description": "The fourth validation attempt for 'molecules_implementation' has failed. The latest fixes have introduced regressions in previously working components (`SearchBar`) and created new bugs in `MarkerPopup`, while failing to fix existing ones. The task is in a worse state than before.",
+    "references": {
+        "plan_id": "plan_frontend_ui_detailed",
+        "task_id": "molecules_implementation",
+        "status_report": "status/plan_frontend_ui_detailed_task_molecules_implementation_status.md",
+        "previous_issue": "issues/issue_0049.txt"
+    },
+    "technical_details": {
+        "summary": "This attempt introduced regressions and did not fix the core issues. There are still 14 failing tests, but their composition has changed, indicating instability.",
+        "error_log_summary": [
+            "REGRESSION (SearchBar): expect(element).toHaveFocus()",
+            "REGRESSION (SearchBar): expect(element).not.toHaveAttribute('aria-busy')",
+            "REGRESSION (MarkerPopup): expect(element).not.toBeInTheDocument() for 'Last verified' in compact mode.",
+            "PERSISTENT (MarkerPopup): Unable to find an accessible element with the role 'button' and name /report issue/i",
+            "PERSISTENT (MarkerPopup): expect(element).toHaveFocus() for keyboard navigation."
+        ],
+        "analysis": "The developer is now engaged in a cycle of 'whack-a-mole' bug fixing, where fixing one issue creates another. This demonstrates a fundamental misunderstanding of the test suite and the required component behavior. The conflicting requirements (e.g., 'Last verified' visibility) suggest the developer is not carefully reading the failing test assertions before implementing changes. CONTINUING THIS APPROACH WILL WASTE RESOURCES AND DESTABILIZE THE CODEBASE FURTHER."
+    },
+    "next_steps": [
+        "**ACTION: HALT. DO NOT ATTEMPT ANOTHER FIX.**",
+        "**ACTION: The project MUST now enter the DIAGNOSE phase for this issue.**",
+        "Create a `plan_diagnose_0050.txt` with the single goal of creating a new test file, `tests/diagnostics/molecule_regression_diag_test.tsx`.",
+        "This new diagnostic test must *only* contain the specific, minimal tests that are currently failing from both `SearchBar_test.tsx` and `MarkerPopup_test.tsx` to create an isolated, repeatable environment for analysis.",
+        "No production code is to be touched until that diagnostic plan is successfully validated."
+    ]
+} 

@@ -1,0 +1,35 @@
+{
+    "id": "issue_0049",
+    "version": 1,
+    "type": "BUG",
+    "status": "OPEN",
+    "g_event_created": 173,
+    "g_event_modified": 173,
+    "title": "TDD Re-Validation Failure (Attempt 3): MarkerPopup Implementation Failures Persist",
+    "description": "This is the third failed validation attempt for the 'molecules_implementation' task. The fixes applied after the second failure (issue_0048) had no effect, and the exact same 14 tests are still failing.",
+    "references": {
+        "plan_id": "plan_frontend_ui_detailed",
+        "task_id": "molecules_implementation",
+        "status_report": "status/plan_frontend_ui_detailed_task_molecules_implementation_status.md",
+        "previous_issue": "issues/issue_0048.txt",
+        "failing_artifacts": [
+            "src/components/molecules/MarkerPopup/MarkerPopup.tsx",
+            "tests/components/molecules/MarkerPopup_test.tsx"
+        ]
+    },
+    "technical_details": {
+        "summary": "The test results are identical to the previous failure. The core problems remain unresolved.",
+        "error_log_summary": [
+            "Unable to find text: /Last verified:/",
+            "Unable to find an accessible element with the role \"button\" and name /report issue/i",
+            "expect(element).toHaveFocus() received element with focus <button ...> but expected <button ...>"
+        ],
+        "analysis": "The fixes applied were clearly incorrect or incomplete. The developer is likely misunderstanding the test requirements or the component's behavior. A simple text change was not the solution. The root cause lies in the component's JSX structure, the props being passed, or the logic that determines what is rendered. The focus management issue suggests the DOM order or element properties are not what the accessibility test expects."
+    },
+    "next_steps": [
+        "HALT further blind fix attempts.",
+        "A senior developer or a different AI agent should be assigned to DIAGNOSE this issue.",
+        "The diagnosis must involve stepping through the component's rendering logic and the test execution side-by-side to understand the exact mismatch.",
+        "Do not create a new `plan_fix_...` until a `plan_diagnose_...` has been successfully executed and validated to prove the root cause."
+    ]
+} 

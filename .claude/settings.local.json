@@ -69,7 +69,9 @@
       "Bash(npm uninstall:*)",
       "Bash(pkill:*)",
       "Bash(npx storybook:*)",
-      "Bash(killall:*)"
+      "Bash(killall:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm audit:*)"
     ],
     "deny": []
   }

@@ -1,0 +1,30 @@
+{
+    "id": "issue_0052",
+    "version": 1,
+    "type": "CONFIGURATION_ERROR",
+    "status": "OPEN",
+    "g_event_created": 178,
+    "g_event_modified": 178,
+    "title": "CRITICAL FAILURE: Process Breakdown in Molecule Fix Implementation",
+    "description": "Multiple attempts to fix 3 remaining test failures have failed with identical errors. The instructions provided in `issue_0051` and `plan_fix_molecules_0050` are not being executed correctly. The process has broken down.",
+    "references": {
+        "plan_id": "plan_fix_molecules_0050",
+        "task_id": "implementation_fix",
+        "status_report": "status/plan_fix_molecules_0050_task_implementation_fix_status.md",
+        "previous_issue": "issues/issue_0051.txt",
+        "diagnostic_test_file": "tests/diagnostics/molecule_regression_diag_test.tsx"
+    },
+    "technical_details": {
+        "summary": "The same 3 tests for keyboard focus order and button text continue to fail, indicating the JSX elements are not being reordered and the button text is not being changed as specified in the plans.",
+        "analysis": "The root cause is no longer a bug in the code but a failure in the process execution. The AI agent responsible for implementation is unable to follow explicit, file-specific instructions to modify the JSX structure. Continuing to create new plans will not solve this. The process itself is the point of failure."
+    },
+    "next_steps": [
+        "**ACTION: HALT ALL AUTOMATED FIX ATTEMPTS.**",
+        "**ACTION: ESCALATE TO HUMAN SUPERVISION.**",
+        "A human developer must manually open the following files and perform the specified actions:",
+        "1. Open `src/components/molecules/SearchBar/SearchBar.tsx` and physically move the `<Button... type='submit'>` block to be *after* the `showLocationButton` block.",
+        "2. Open `src/components/molecules/MarkerPopup/MarkerPopup.tsx` and change the button's visible text from `Report` to `Report issue`.",
+        "3. In `src/components/molecules/MarkerPopup/MarkerPopup.tsx`, reorder the action buttons and the expandable section so their physical order in the file is: 'Directions', 'Report', 'Share', then 'Show more/less'.",
+        "Once these manual changes are saved, the `final_validation_and_cleanup` task from `plan_fix_molecules_0050.txt` can be attempted."
+    ]
+} 

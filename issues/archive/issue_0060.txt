@@ -1,0 +1,27 @@
+{
+  "id": "issue_0060",
+  "name": "Unresolvable Critical Test Failure Loop in SearchBar",
+  "description": "This issue represents a catastrophic failure of the automated diagnostic and repair process. After three failed attempts (`plan_fix_searchbar_tests_0058`, `plan_fix_searchbar_async_tests_0059`), the `SearchBar` component's test suite (`tests/components/molecules/SearchBar_test.tsx`) remains in a critical failure state. The same 8 tests consistently fail with the same `act()` warnings, indicating a deep, unresolvable race condition that is beyond the system's current capabilities to diagnose. The core problem appears to be an intractable asynchronous issue when testing state updates triggered by user events.",
+  "type": "BUG",
+  "g": "g_0060",
+  "status": "OPEN",
+  "severity": "Critical",
+  "reproducibility": "Consistent",
+  "steps_to_reproduce": [
+    "1. Execute `npm test -- tests/components/molecules/`",
+    "2. Observe that the test suite fails with 8 errors in `SearchBar_test.tsx`.",
+    "3. Note the recurring `Warning: An update to SearchBar inside a test was not wrapped in act(...)` despite multiple attempts to fix it."
+  ],
+  "expected_behavior": "The test suite should pass cleanly.",
+  "actual_behavior": "The test suite is in a persistent failure loop.",
+  "impact": {
+    "system": ["The `SearchBar` component cannot be validated, blocking all dependent features.", "The integrity of the TDD workflow is compromised.", "The AI's ability to self-correct on this specific issue is exhausted."],
+    "business": "Requires immediate human intervention from a senior developer to debug the testing framework interaction."
+  },
+  "linked_artifacts": [
+    "plans/plan_fix_searchbar_async_tests_0059.txt",
+    "issues/issue_0059.txt",
+    "tests/components/molecules/SearchBar_test.tsx",
+    "src/components/molecules/SearchBar/SearchBar.tsx"
+  ]
+} 

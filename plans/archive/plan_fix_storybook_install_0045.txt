@@ -1,0 +1,95 @@
+{
+  "id": "plan_fix_storybook_install_0045",
+  "name": "Corrective Action: Reinstall Storybook v8 Manually",
+  "description": "A surgical plan to recover from the failed v9 installation (issue_0045). This plan first completely removes all artifacts of the failed installation, then manually installs and configures the correct, stable v8 versions of Storybook and its dependencies.",
+  "version": 1,
+  "status": "PENDING",
+  "preceding_plan_id_ref": "plan_rebuild_frontend_infra_0044",
+  "tasks": [
+    {
+      "id": "task_1_undo_packages",
+      "name": "Undo: Uninstall Incorrect Packages",
+      "description": "Uninstall all packages installed by the failed 'storybook init' command, including storybook v9, vitest, playwright, and all related addons to clean the dependency tree.",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "All specified packages are removed from package.json and node_modules."
+      ],
+      "confidence_level": "High",
+      "justification": "A straightforward uninstall command. The package list is comprehensive."
+    },
+    {
+      "id": "task_2_undo_files",
+      "name": "Undo: Delete Generated Files and Directories",
+      "description": "Delete the '.storybook' directory, the 'src/stories' directory, 'vitest.config.ts', and 'vitest.shims.d.ts' to remove all filesystem artifacts from the failed installation.",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "dependencies": ["task_1_undo_packages"],
+      "acceptance_criteria": [
+        "The '.storybook' directory no longer exists.",
+        "The 'src/stories' directory no longer exists.",
+        "The 'vitest.config.ts' file no longer exists.",
+        "The 'vitest.shims.d.ts' file no longer exists."
+      ],
+      "confidence_level": "High",
+      "justification": "Simple file deletion operations."
+    },
+    {
+      "id": "task_3_install_correct_packages",
+      "name": "Redo: Install Stable Storybook v8 Packages",
+      "description": "Manually install the correct, stable v8 versions of Storybook for Next.js (Webpack), along with essential addons and the correct styling integration package.",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "dependencies": ["task_2_undo_files"],
+      "acceptance_criteria": [
+        "The correct v8 versions of all specified Storybook packages are listed in package.json and installed."
+      ],
+      "confidence_level": "High",
+      "justification": "Using explicit package versions with npm install is a direct, reliable method that avoids the ambiguity of the 'init' command."
+    },
+    {
+      "id": "task_4_create_main_config",
+      "name": "Redo: Manually Create .storybook/main.ts",
+      "description": "Create the '.storybook/main.ts' file from scratch with the correct configuration for a Next.js v14+ and Tailwind CSS project, including the framework definition and the addon list.",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "dependencies": ["task_3_install_correct_packages"],
+      "acceptance_criteria": [
+        "The file '.storybook/main.ts' exists.",
+        "The configuration correctly references '@storybook/nextjs' and the required addons."
+      ],
+      "confidence_level": "High",
+      "justification": "Manual creation gives full control and ensures the configuration matches the installed dependencies."
+    },
+    {
+      "id": "task_5_create_preview_config",
+      "name": "Redo: Manually Create .storybook/preview.ts",
+      "description": "Create the '.storybook/preview.ts' file from scratch. This file will import the global stylesheet ('../src/app/globals.css') to ensure all stories are rendered with the project's theme.",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "dependencies": ["task_4_create_main_config"],
+      "acceptance_criteria": [
+        "The file '.storybook/preview.ts' exists.",
+        "The file contains an import statement for 'globals.css'."
+      ],
+      "confidence_level": "High",
+      "justification": "A simple configuration file essential for correct visual rendering."
+    },
+    {
+      "id": "task_6_verify_with_failing_test",
+      "name": "Verify: Create Failing Test for Storybook Build",
+      "description": "Re-implement the TDD verification step. Install '@storybook/test-runner', add a 'test-storybook' script to package.json, and run it. The test MUST fail because no stories exist yet, which proves the build/test infrastructure is correctly set up.",
+      "type": "TEST_CREATION",
+      "status": "PENDING",
+      "dependencies": ["task_5_create_preview_config"],
+      "acceptance_criteria": [
+        "The '@storybook/test-runner' is installed.",
+        "A 'test-storybook' script is added to package.json.",
+        "Running the script fails with an error indicating no stories were found."
+      ],
+      "confidence_level": "High",
+      "justification": "This is the 'Red' step that validates the entire preceding setup. A controlled failure is the expected and desired outcome."
+    }
+  ]
+} 

@@ -1,0 +1,70 @@
+{
+  "id": "plan_rebuild_frontend_infra_0044",
+  "name": "Rebuild Frontend Infrastructure: Storybook and Theming",
+  "description": "A precise plan to reinstall and configure Storybook v8, integrate it with the new Tailwind CSS theme, and establish a 'gold standard' foundation for component development. This plan explicitly avoids the dependency and configuration errors from the previous attempt.",
+  "version": 1,
+  "status": "PENDING",
+  "preceding_plan_id_ref": null,
+  "tasks": [
+    {
+      "id": "task_1",
+      "name": "Install Stable Storybook v8 and Dependencies",
+      "description": "Install specific, stable v8 versions of Storybook, its essential addons, and the necessary dependencies for Tailwind CSS integration. This includes '@storybook/addon-styling-webpack' and 'postcss' to prevent previous build failures.",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "All specified npm packages are installed successfully.",
+        "package.json is updated with the correct v8 versions.",
+        "A basic '.storybook' directory is created by the Storybook CLI."
+      ],
+      "confidence_level": "Medium",
+      "justification": "This task is rated 'Medium' because dependency installation, especially with Storybook's complex ecosystem, was a critical failure point previously. Specifying exact stable versions and including all necessary peer dependencies upfront mitigates this risk, but the environment can still cause unexpected issues."
+    },
+    {
+      "id": "task_2",
+      "name": "Create Failing Test for Storybook Build",
+      "description": "Add the '@storybook/test-runner' and create a test script in 'package.json'. The test will be configured to look for a specific, non-existent story ('Theme.stories.tsx'). This test MUST fail, proving that the test runner is operational but that our target story is correctly absent.",
+      "type": "TEST_CREATION",
+      "status": "PENDING",
+      "dependencies": ["task_1"],
+      "acceptance_criteria": [
+        "The '@storybook/test-runner' is installed.",
+        "A 'test-storybook' script is added to package.json.",
+        "Running 'npm run test-storybook' results in a clear failure, stating that no stories were found or the specific story is missing."
+      ],
+      "confidence_level": "High",
+      "justification": "This is a standard 'Red' step in TDD. The expected outcome is a controlled failure, which is straightforward to verify."
+    },
+    {
+      "id": "task_3",
+      "name": "Create Basic Theme Story to Pass Build Test",
+      "description": "Create a placeholder file 'src/stories/Theme.stories.tsx'. This story will not be complex; it will simply render a div with text. Its purpose is to provide a target for the test runner, causing the previously failing test to pass, confirming the Storybook build process is working.",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "dependencies": ["task_2"],
+      "acceptance_criteria": [
+        "The file 'src/stories/Theme.stories.tsx' is created.",
+        "The story renders a simple, non-styled element.",
+        "Running 'npm run test-storybook' now results in a pass."
+      ],
+      "confidence_level": "High",
+      "justification": "This is a standard 'Green' step. The implementation is trivial and directly addresses the failing test."
+    },
+    {
+      "id": "task_4",
+      "name": "Configure Storybook with Tailwind and Theming",
+      "description": "Refactor the Storybook configuration to fully integrate the project's theme. This involves: 1. Configuring '.storybook/main.ts' to use '@storybook/addon-styling-webpack' for Tailwind CSS. 2. Creating '.storybook/preview.ts' to import 'globals.css' and set up decorators for theme switching (light/dark).",
+      "type": "REFACTORING",
+      "status": "PENDING",
+      "dependencies": ["task_3"],
+      "acceptance_criteria": [
+        "The '.storybook/main.ts' file is updated with the correct PostCSS/Webpack configuration.",
+        "The '.storybook/preview.ts' file is created and correctly imports the global stylesheet.",
+        "Running Storybook shows components correctly picking up Tailwind utility classes and CSS variables from the theme."
+      ],
+      "confidence_level": "High",
+      "justification": "This refactoring step applies the lessons learned from the previous attempt in a clean environment. The configuration is now well-understood."
+    }
+  ]
+} 

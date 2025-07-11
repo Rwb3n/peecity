@@ -1,0 +1,43 @@
+{
+    "id": "plan_refactor_button_tests_0054",
+    "version": 1,
+    "g_event_created": 181,
+    "title": "Refactor Brittle MarkerPopup Test Selectors",
+    "description": "Based on the builder agent's report, this plan fixes the brittle tests for the MarkerPopup component. It unifies the selectors for the 'Report' button to use the full, explicit `aria-label`, which is the correct source for the accessible name and removes ambiguity.",
+    "references": {
+        "issue_id": "issue_0052",
+        "diagnostic_test_file": "tests/diagnostics/molecule_regression_diag_test.tsx",
+        "target_component": "src/components/molecules/MarkerPopup/MarkerPopup.tsx"
+    },
+    "tasks": [
+        {
+            "id": "refactor_button_selectors",
+            "type": "REFACTORING",
+            "description": "Modify `tests/diagnostics/molecule_regression_diag_test.tsx`. In both tests that reference the report button (`should render action buttons` and `should be keyboard navigable`), change the query to use the full and explicit aria-label. The new selector should be `{ name: 'Report an issue with this toilet' }`. This removes the brittle regex and aligns the test with ARIA standards.",
+            "acceptance_criteria": [
+                "The `getByRole` query for the report button must be updated in two places in the diagnostic test file.",
+                "The new query must use the exact string from the `aria-label`, not a regular expression."
+            ],
+            "dependencies": [],
+            "status": "PENDING",
+            "confidence_level": "High",
+            "justification": "This is a direct application of the builder agent's correct diagnosis and a best practice for test stability."
+        },
+        {
+            "id": "validate_selector_fix",
+            "type": "VALIDATION",
+            "description": "Run the modified diagnostic test suite (`tests/diagnostics/molecule_regression_diag_test.tsx`). The test for `should render action buttons` should now PASS. The test for `should be keyboard navigable` will still FAIL, but for the correct reason (focus order), not because it can't find the button.",
+            "acceptance_criteria": [
+                "The test suite must be executed.",
+                "The `should render action buttons` test must now pass.",
+                "Only the two focus-related tests should remain as failures in the diagnostic suite."
+            ],
+            "dependencies": [
+                "refactor_button_selectors"
+            ],
+            "status": "PENDING",
+            "confidence_level": "High",
+            "justification": "This validates that the selector problem is solved, cleanly isolating the remaining focus issue."
+        }
+    ]
+} 

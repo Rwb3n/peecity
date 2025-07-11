@@ -1,0 +1,38 @@
+{
+  "id": "plan_fix_storybook_dependency_0046",
+  "name": "Corrective Action: Resolve Storybook Dependency Conflict",
+  "description": "A final, focused plan to resolve the peer dependency conflict documented in issue_0046. This plan upgrades the existing Storybook v8 packages to a compatible version (~8.2.0) and then completes the verification by installing and running the test runner.",
+  "version": 1,
+  "status": "PENDING",
+  "preceding_plan_id_ref": "plan_fix_storybook_install_0045",
+  "tasks": [
+    {
+      "id": "task_1_upgrade_packages",
+      "name": "Upgrade Storybook Packages to v8.2",
+      "description": "Upgrade all 'storybook' and '@storybook/*' packages from ~8.1.0 to ~8.2.0 to satisfy the peer dependency requirements of the test runner.",
+      "type": "IMPLEMENTATION",
+      "status": "PENDING",
+      "dependencies": [],
+      "acceptance_criteria": [
+        "All Storybook-related packages in package.json are updated to '~8.2.0' and installed successfully."
+      ],
+      "confidence_level": "High",
+      "justification": "This is a minor version bump within the same major version, which should be a low-risk, stable upgrade. The target version is explicitly chosen to resolve the known dependency conflict."
+    },
+    {
+      "id": "task_2_install_and_verify_test_runner",
+      "name": "Install and Verify @storybook/test-runner",
+      "description": "Install '@storybook/test-runner', add the 'test-storybook' script to package.json, and run it. The test MUST fail because no stories exist, proving the entire build and test infrastructure is correctly set up.",
+      "type": "TEST_CREATION",
+      "status": "PENDING",
+      "dependencies": ["task_1_upgrade_packages"],
+      "acceptance_criteria": [
+        "The '@storybook/test-runner' package is installed successfully.",
+        "A 'test-storybook' script is added to package.json.",
+        "Running 'npm run test-storybook' fails with an error indicating no stories were found."
+      ],
+      "confidence_level": "High",
+      "justification": "This final 'Red' step provides end-to-end validation of the entire Storybook installation and configuration process."
+    }
+  ]
+} 

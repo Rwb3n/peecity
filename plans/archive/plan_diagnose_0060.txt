@@ -1,0 +1,18 @@
+{
+  "id": "plan_diagnose_0060",
+  "name": "Diagnose SearchBar act() Warning Loop",
+  "description": "This diagnostic plan aims to reproduce and isolate the persistent React act() warnings observed in the SearchBar test suite. A dedicated diagnostic test will intentionally surface the warning by capturing console.error output, thereby providing a reliable Red test for subsequent fixes.",
+  "g": "g_0060",
+  "tasks": [
+    {
+      "id": "diag_capture_act_warning",
+      "name": "Diagnostic Test: Capture act() Warning",
+      "type": "DIAGNOSTIC_TEST_CREATION",
+      "description": "Create a new test file `tests/diagnostics/searchbar_act_warning_diag_test.tsx`. The test should render the SearchBar component, perform a `userEvent.type` and `userEvent.click` on the clear button, and use `jest.spyOn(console, 'error')` to capture errors. The assertion expects at least one console.error containing 'not wrapped in act'. The test should initially FAIL ('Red') because the warning is indeed produced. This isolates the asynchronous act() issue.",
+      "dependencies": [],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "Console warnings have been consistently reported; capturing them directly provides a minimal reproduction and a deterministic failing condition."
+    }
+  ]
+} 

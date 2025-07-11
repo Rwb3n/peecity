@@ -1,0 +1,34 @@
+{
+    "id": "issue_0051",
+    "version": 1,
+    "type": "BUG",
+    "status": "OPEN",
+    "g_event_created": 177,
+    "g_event_modified": 177,
+    "title": "Final Molecules Fix: Persistent Focus Order and Button Text Failures",
+    "description": "After the `implementation_fix` task, 3 of the 5 diagnostic tests are still failing. The fixes for `aria-busy` and compact mode were successful, but the core issues with keyboard navigation (focus order) and button text remain. This requires a final, precise fix.",
+    "references": {
+        "plan_id": "plan_fix_molecules_0050",
+        "task_id": "implementation_fix",
+        "status_report": "status/plan_fix_molecules_0050_task_implementation_fix_status.md",
+        "previous_issue": "issues/issue_0050.txt",
+        "diagnostic_test_file": "tests/diagnostics/molecule_regression_diag_test.tsx"
+    },
+    "technical_details": {
+        "summary": "The developer is failing to follow explicit instructions regarding the visual order of elements in the JSX, which directly controls the keyboard tabbing order. They are also failing to match button text exactly as the test query requires.",
+        "error_log_summary": [
+            "FAILURE: SearchBar - expect(searchButton).toHaveFocus()",
+            "FAILURE: MarkerPopup - Unable to find role='button' with name '/report issue/i'",
+            "FAILURE: MarkerPopup - expect(getByRole('button', { name: /directions/i })).toHaveFocus()"
+        ],
+        "analysis": "The root cause is a failure to modify the component's JSX structure. For focus order to be correct, the order of elements in the code must match the order in the test's `user.tab()` sequence. For the button text, the visible text inside the `<Button>` component must be 'Report issue', not just 'Report'."
+    },
+    "next_steps": [
+        "**ACTION: Create a new plan `plan_final_fix_0051.txt`.**",
+        "The plan will have one IMPLEMENTATION task with hyper-specific instructions.",
+        "**Instruction for SearchBar.tsx**: In the JSX, physically move the entire `showLocationButton` block so it appears *before* the `Search` button block.",
+        "**Instruction for MarkerPopup.tsx**: Change the visible text of the report button from `Report` to `Report issue`.",
+        "**Instruction for MarkerPopup.tsx**: In the JSX, physically reorder the action buttons to be: 1. Directions Button, 2. Report Button, 3. Share Button (if present), and the expandable details button (`Show more/less`) must come *after* these action buttons.",
+        "The only validation criteria will be the successful passing of the diagnostic test suite."
+    ]
+} 

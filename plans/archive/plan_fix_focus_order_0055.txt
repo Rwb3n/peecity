@@ -1,0 +1,57 @@
+{
+    "id": "plan_fix_focus_order_0055",
+    "version": 1,
+    "g_event_created": 182,
+    "title": "Fix Keyboard Navigation (Focus Order) in Molecules",
+    "description": "This plan resolves the final two failing tests related to keyboard navigation in the SearchBar and MarkerPopup components. It includes tasks to first refactor the brittle tests to be reliable, then implement the component fixes.",
+    "references": {
+        "issue_id": "issue_0052",
+        "diagnostic_test_file": "tests/diagnostics/molecule_regression_diag_test.tsx"
+    },
+    "tasks": [
+        {
+            "id": "refactor_focus_tests",
+            "type": "REFACTORING",
+            "description": "Modify `tests/diagnostics/molecule_regression_diag_test.tsx` to make the focus tests robust. 1. In the SearchBar test, type 'test' into the input before tabbing. 2. In the MarkerPopup test, update the assertions to expect the Close button to be focused first, as it appears first in the DOM.",
+            "acceptance_criteria": [
+                "The SearchBar test must call `user.type` on the input field.",
+                "The MarkerPopup test must check for the `Close` button to have focus after the first tab.",
+                "The tests will still fail, but for the correct, verifiable reasons."
+            ],
+            "dependencies": [],
+            "status": "PENDING",
+            "confidence_level": "High",
+            "justification": "This addresses the previously identified test brittleness directly."
+        },
+        {
+            "id": "fix_focus_implementation",
+            "type": "IMPLEMENTATION",
+            "description": "Modify `SearchBar.tsx` and `MarkerPopup.tsx` to ensure the physical order of elements in the JSX matches the expected tab order defined by the newly refactored tests.",
+            "acceptance_criteria": [
+                "All tests in `tests/diagnostics/molecule_regression_diag_test.tsx` must now pass.",
+                "The physical order of buttons and interactive elements in the component files must be changed to match the test expectations."
+            ],
+            "dependencies": [
+                "refactor_focus_tests"
+            ],
+            "status": "PENDING",
+            "confidence_level": "High",
+            "justification": "With reliable tests, the implementation fix is a straightforward reordering of JSX elements."
+        },
+        {
+            "id": "cleanup_and_final_validation",
+            "type": "REFACTORING",
+            "description": "The fixes are complete. Delete the diagnostic test file `tests/diagnostics/molecule_regression_diag_test.tsx`. Finally, run the original, full test suites for the molecules (`tests/components/molecules/SearchBar_test.tsx` and `tests/components/molecules/MarkerPopup_test.tsx`) to ensure the fixes work in the original context and have not introduced regressions.",
+            "acceptance_criteria": [
+                "The diagnostic test file must be deleted.",
+                "The full, original molecule test suites must pass completely."
+            ],
+            "dependencies": [
+                "fix_focus_implementation"
+            ],
+            "status": "PENDING",
+            "confidence_level": "High",
+            "justification": "This is the final verification step to confirm the entire process is complete and correct."
+        }
+    ]
+} 

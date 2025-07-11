@@ -1,0 +1,38 @@
+{
+  "id": "plan_fix_searchbar_act_warning_0061",
+  "name": "Fix SearchBar act() Warnings and Pass Diagnostic Test",
+  "description": "Implement code and test adjustments to eliminate React act() warnings emitted by SearchBar during user interactions, causing the diagnostic test to pass.",
+  "g": "g_0061",
+  "tasks": [
+    {
+      "id": "implement_act_wrappers",
+      "name": "Implementation: Wrap asynchronous interactions in act()",
+      "type": "IMPLEMENTATION",
+      "description": "In `tests/components/molecules/SearchBar_test.tsx`, import `act` from 'react-dom/test-utils' and wrap all `userEvent.type`, `userEvent.click`, and `userEvent.keyboard` calls inside `await act(async () => { /* interaction */ });`. Ensure each affected test awaits the wrapper. This prevents state updates from occurring outside React act, removing warnings.",
+      "dependencies": ["diag_capture_act_warning"],
+      "status": "PENDING",
+      "confidence_level": "Medium",
+      "justification": "While wrapping in act is a well-known resolution, some warnings may stem from library versions; adjustment might require iterative refinement."
+    },
+    {
+      "id": "update_diagnostic_expectation",
+      "name": "Refactor: Flip diagnostic assertion",
+      "type": "REFACTORING",
+      "description": "Once warnings are gone, update `tests/diagnostics/searchbar_act_warning_diag_test.tsx` to expect `hasActWarning` to be `false` (Green state). Remove the `(expected to FAIL)` note in test title.",
+      "dependencies": ["implement_act_wrappers"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "Minor test update to reflect resolved behavior and maintain clarity."    
+    },
+    {
+      "id": "final_validation",
+      "name": "Validation: Molecule tests clean run",
+      "type": "VALIDATION",
+      "description": "Run `npm test -- tests/components/molecules/` and `npm test -- tests/diagnostics/searchbar_act_warning_diag_test.tsx`. Confirm: (a) All tests pass, (b) No console act() warnings in output.",
+      "dependencies": ["update_diagnostic_expectation"],
+      "status": "PENDING",
+      "confidence_level": "Medium",
+      "justification": "Assumes act wrappers fully resolve warnings; validation will confirm across suite."    
+    }
+  ]
+} 

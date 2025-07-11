@@ -1,0 +1,48 @@
+{
+  "id": "plan_fix_searchbar_async_tests_0059",
+  "name": "Fix SearchBar Asynchronous Test Failures",
+  "description": "A targeted plan to resolve the race conditions in `tests/components/molecules/SearchBar_test.tsx` by ensuring tests wait for state updates to complete before making assertions. This will fix the 8 failing tests and eliminate all `act()` warnings.",
+  "g": "g_0059",
+  "tasks": [
+    {
+      "id": "refactor_clear_button_test",
+      "name": "Refactor: Stabilize 'clear input' Test",
+      "type": "REFACTORING",
+      "description": "In `tests/components/molecules/SearchBar_test.tsx`, modify the 'should clear input when clear button is clicked' test. After `await user.click(clearButton)`, add a `waitFor` call to ensure the component has re-rendered before asserting the input's value. The final assertion should be `await waitFor(() => expect(input).toHaveValue(''));`.",
+      "dependencies": [],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "This directly addresses the diagnosed race condition. Waiting for the value to be empty ensures the assertion runs after the state update is complete."
+    },
+    {
+      "id": "refactor_show_clear_button_test",
+      "name": "Refactor: Stabilize 'show clear button' Test",
+      "type": "REFACTORING",
+      "description": "In `tests/components/molecules/SearchBar_test.tsx`, review the 'should show clear button when input has value' test. It correctly uses `findByRole` which has `waitFor` built-in. No changes are likely needed, but this task is to explicitly verify its implementation is robust and consistent with the fix pattern.",
+      "dependencies": ["refactor_clear_button_test"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "Verifying existing correct patterns ensures consistency and prevents regressions. It's a low-effort, high-value check."
+    },
+    {
+      "id": "refactor_keyboard_nav_test",
+      "name": "Refactor: Stabilize Keyboard Navigation Test",
+      "type": "REFACTORING",
+      "description": "In `tests/components/molecules/SearchBar_test.tsx`, modify the 'should be keyboard navigable' test. After `await user.type(input, 'test query');`, add a `waitFor` to ensure the input's value has been updated in the DOM before proceeding with the `tab` events. `await waitFor(() => expect(input).toHaveValue('test query'));` should be added before `await user.tab();`.",
+      "dependencies": ["refactor_show_clear_button_test"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "The keyboard navigation test also fails due to a state update from `user.type` not completing. Adding a `waitFor` here applies the same successful pattern to fix this instability."
+    },
+    {
+      "id": "final_validation",
+      "name": "Validation: Final Green Suite",
+      "type": "VALIDATION",
+      "description": "Execute the entire molecule test suite via `npm test -- tests/components/molecules/`. Confirm that the command exits with code 0, all 71 tests pass, and there are absolutely no `act()` warnings in the console output.",
+      "dependencies": ["refactor_keyboard_nav_test"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "The diagnosis is more precise this time, and the fix is targeted at the specific asynchronous interaction that is causing the failure. The probability of success is very high."
+    }
+  ]
+} 
