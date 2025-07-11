@@ -345,7 +345,6 @@ describe('ContributionForm Component', () => {
       render(
         <ContributionForm
           location={defaultLocation}
-          onSubmit={mockOnSubmit}
           onSuccess={mockOnSuccess}
         />
       );
@@ -378,7 +377,6 @@ describe('ContributionForm Component', () => {
       render(
         <ContributionForm
           location={defaultLocation}
-          onSubmit={mockOnSubmit}
           onSuccess={mockOnSuccess}
         />
       );
@@ -460,16 +458,17 @@ describe('ContributionForm Component', () => {
       // This part can be simplified or made more robust if needed
 
       // Tab to the fee input (after all checkboxes)
-      for (let i = 0; i < 4; i++) {
+      // There are 4 more checkboxes after the accessibility checkbox: baby-change, radar-key, automatic, contactless
+      for (let i = 0; i < 5; i++) {
         await user.tab();
       }
       expect(feeInput).toHaveFocus();
 
       await user.tab();
-      expect(submitButton).toHaveFocus();
+      expect(cancelButton).toHaveFocus();
 
       await user.tab();
-      expect(cancelButton).toHaveFocus();
+      expect(submitButton).toHaveFocus();
     });
   });
 
