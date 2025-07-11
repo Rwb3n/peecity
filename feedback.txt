@@ -1,65 +1,143 @@
-Read file: src/components/atoms/Button/Button.tsx
+Here is what I found after digging into React Hook Form (RHF) behaviour, ARIA error reporting, and the mismatch we are seeing in the current test-suite:
 
-Read file: tests/components/atoms/Button_test.tsx
+─────────────────────────────────
+1 · How RHF Decides When to Set Errors
+─────────────────────────────────
+RHF’s validation strategy is controlled by the `mode` option passed to `useForm`:
 
-The entire atomic test-suite now passes except for **one assertion in the Button tests**:
+• `"onSubmit"` (default)   
+  – Validation runs **only** after an attempted submit.  
+  – If validation fails, `formState.errors` is populated immediately, so
+    `aria-invalid` becomes `true` and error messages render.  
+  – Good fit for “classic” tests that click **Submit** with empty fields
+    and expect errors right away.
 
-Failing test  
-tests/components/atoms/Button_test.tsx:  
-“should hide text during loading state when loadingText is not provided”
+• `"onChange"`   
+  – Validation runs on every change event.  
+  – **BUT** if a control is never touched it is considered “pristine”;
+    clicking Submit with untouched fields **does not** force another
+    validation pass. RHF simply aborts submission without populating
+    `errors` → the DOM shows `aria-invalid="false"` (exactly what we saw).
 
-What the test expects  
-• The component is rendered with `loading` set to `true` and **without** `loadingText`.  
-• Jest-DOM then locates the original button text (“Submit”) and asserts `expect(element).not.toBeVisible()`.
+• `"onTouched"` / `"onBlur"`   
+  – Similar: validation occurs when a field loses focus after first
+    interaction; untouched fields stay error-free.
 
-Why it still fails  
-Your current implementation keeps the original text in the DOM inside a span that is styled to be visually hidden:
+   Reference: https://react-hook-form.com/api/useform/#mode
 
-```tsx
-{loading && !loadingText && (
-  <span
-    style={{
-      position: 'absolute',
-      width: '1px',
-      height: '1px',
-      padding: 0,
-      margin: '-1px',
-      overflow: 'hidden',
-      clip: 'rect(0, 0, 0, 0)',
-      whiteSpace: 'nowrap',
-      border: 0,
-    }}
-  >
-    {children}
-  </span>
+Key take-away: **If tests rely on click-Submit-then-see-errors with
+untouched fields, you must use `mode: "onSubmit"` (or explicitly call
+`trigger()` in your submit handler).**
+
+─────────────────────────────────
+2 · Why `aria-invalid="false"` Appeared
+─────────────────────────────────
+With `mode: "onChange"` every input remained “pristine” because the tests
+never typed in them. RHF silently prevented submission, but since it
+didn’t touch the pristine inputs it also didn’t set `errors` ⇒
+`aria-invalid` stayed `false`, and `<p role="alert">` never rendered.
+That is **expected** RHF behaviour—not a bug.
+
+─────────────────────────────────
+3 · Recommended Fix Matrix
+─────────────────────────────────
+| Issue observed in tests | RHF/ARIA root cause | Minimal fix (component) |
+|-------------------------|---------------------|-------------------------|
+| Errors don’t appear when Submit is clicked on untouched fields | Validation mode = `"onChange"` | Switch to `mode: "onSubmit"` **OR** keep `"onChange"` and call `trigger()` inside `handleSubmit` to force validation. |
+| `aria-busy` missing on loading button | Attribute simply not added | `<Button … aria-busy={isLoading}>` |
+| Test looks for specific error strings | Zod messages don’t match | Adjust Zod message strings or update tests.|
+| Hours field optional vs required | Schema vs legacy behaviour | Mark `hours` optional *or* update tests to supply a value.|
+| `role="alert"` not found | Error `<p>` lacks role attr | Wrap error `<p>` with `role="alert"`. |
+
+─────────────────────────────────
+4 · What Industry Docs Say
+─────────────────────────────────
+• **React Hook Form docs**  
+  Show exactly the mode behaviour described above.
+
+• **React 18 `useFormStatus` (+ aria-busy)**  
+  Docs emphasise toggling `disabled` **and** `aria-busy` for accessible
+  loading indicators (see snippet you provided). That justifies adding
+  `aria-busy={isLoading}` to our submit button.
+
+• **WAI-ARIA Form Authoring Practices**  
+  Alert messages for validation errors **must** live in an element with
+  `role="alert"`. This matches the failing accessibility test.
+
+─────────────────────────────────
+5 · Implementation Blueprint (if we proceed)
+─────────────────────────────────
+```ts
+// inside useForm(...)
+const {
+  register,
+  handleSubmit,
+  /* … */
+} = useForm<ContributionFormData>({
+  resolver : zodResolver(formSchema),
+  mode     : 'onSubmit',          // <— key change
+  /* defaultValues… */
+});
+
+// submit button JSX
+<Button type="submit" disabled={isLoading} aria-busy={isLoading}>
+  {isLoading ? 'Submitting...' : 'Submit'}
+</Button>
+
+// error output example
+{errors.name && (
+  <p role="alert" id="name-error" className="text-sm text-red-600 mt-1">
+    {errors.name.message}
+  </p>
 )}
 ```
 
-This **does not satisfy** `toBeVisible()` because:
-
-1. Jest-DOM’s visibility algorithm deems an element “visible” if it has non-zero layout boxes (`getBoundingClientRect().width/height > 0`).  
-2. With `width`/`height` set to `1px`, the span still gets a 1×1 bounding box → Jest-DOM treats it as visible.  
-3. Earlier you tried `visibility:hidden`; jest-DOM treats that as visible too, because it only checks the computed style on the **queried element**, not on its children. The text node itself remains unaffected.
-
-What will satisfy the test  
-Any of these approaches make Jest-DOM regard the element as not visible:
-
-• Give the span the HTML `hidden` attribute (`<span hidden>…</span>`) – jest-DOM treats `hidden` as not visible.  
-• Apply `display:none` instead of `visibility:hidden`.  
-• Don’t render the span at all and instead render an `aria-live`-only element elsewhere.
-
-Quick fix example
-
-```tsx
-{loading && !loadingText && (
-  <span hidden>{children}</span>
-)}
+And in the Zod schema:
+```ts
+const formSchema = z.object({
+  name : z.string()
+           .min(1,  { message: 'Toilet name is required' })
+           .min(3,  { message: 'Name must be at least 3 characters' }),
+  hours: z.string().optional(),
+  fee  : z.preprocess(
+           (v) => (v === '' ? Number.NaN : v),
+           z.number({
+             invalid_type_error: 'Please enter a valid amount'
+           })
+           .min(0,  'Fee cannot be negative')
+           .max(10, 'Fee must be between £0 and £10')
+         ),
+  /* … */
+});
 ```
+This keeps RHF + Zod, surfaces errors immediately after Submit, matches
+the test strings, and satisfies the accessibility assertions.
 
-After changing to `hidden` (or `display:none`), rerun:
-
-```bash
-npm test -- tests/components/atoms
+─────────────────────────────────
+6 · Fallback: Trigger Programmatically
+─────────────────────────────────
+If we insist on `mode: 'onChange'`, add:
+```ts
+const onSubmitHandler = handleSubmit(async (data) => { … });
+const forceValidate = async () => {           // runs when submit clicked
+  const ok = await trigger();                 // <— forces validation pass
+  if (ok) onSubmitHandler();
+};
 ```
+But flipping back to `mode: "onSubmit"` is simpler.
 
-All four suites should pass, driving the task from **FAILED** to **DONE**.
+─────────────────────────────────
+7 · Conclusion
+─────────────────────────────────
+The cleanest remediation that respects both the test-suite and RHF best
+practice is:
+
+1. Set `mode: "onSubmit"`.  
+2. Add `aria-busy`.  
+3. Align error strings + wrap in `role="alert"`.  
+4. Make `hours` optional (or update tests to set a value).
+
+That should take the failing count from **16 ➝ 0** without abandoning
+React Hook Form or altering the tests heavily.
+
+Let me know if you’d like me to implement this patch.

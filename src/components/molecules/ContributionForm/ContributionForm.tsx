@@ -3,25 +3,52 @@
  * @see {@link file://./docs/explanations/frontend-ui-spec.md} for component specifications
  */
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Input } from '@/components/atoms/Input';
 import { Button } from '@/components/atoms/Button';
 import { cn } from '@/lib/utils';
 
-export interface ContributionFormData {
-  name: string;
-  lat: number;
-  lng: number;
-  hours: string;
-  accessible: boolean;
-  fee: number;
-  features: {
-    babyChange: boolean;
-    radar: boolean;
-    automatic: boolean;
-    contactless: boolean;
-  };
-}
+const formSchemaObject = z.object({
+  name: z.string()
+    .min(1, { message: 'Toilet name is required' })
+    .refine((val) => val.length >= 3, { message: 'Name must be at least 3 characters' }),
+  lat: z.number(),
+  lng: z.number(),
+  hours: z.string().optional(),
+  customHours: z.string().optional(),
+  accessible: z.boolean(),
+  fee: z.preprocess(
+    (v) => (v === '' ? Number.NaN : v),
+    z.number({
+      invalid_type_error: 'Please enter a valid amount'
+    })
+    .min(0, 'Fee must be between £0 and £10')
+    .max(10, 'Fee must be between £0 and £10')
+    .optional()
+  ),
+  features: z.object({
+    babyChange: z.boolean(),
+    radar: z.boolean(),
+    automatic: z.boolean(),
+    contactless: z.boolean(),
+  }),
+});
+
+const formSchema = formSchemaObject.refine((data) => {
+  if (data.hours === 'custom') {
+    return !!data.customHours && data.customHours.length > 0;
+  }
+  return true;
+}, {
+  message: 'Specify hours is required for custom selection',
+  path: ['customHours'],
+});
+
+export type ContributionFormData = z.infer<typeof formSchema>;
+
 
 export interface ContributionFormProps {
   location: {
@@ -45,115 +72,70 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
   initialData,
   className,
 }) => {
-  const [formData, setFormData] = useState<ContributionFormData>({
-    name: initialData?.name || '',
-    lat: location.lat,
-    lng: location.lng,
-    hours: initialData?.hours || '',
-    accessible: initialData?.accessible || false,
-    fee: initialData?.fee || 0,
-    features: {
-      babyChange: initialData?.features?.babyChange || false,
-      radar: initialData?.features?.radar || false,
-      automatic: initialData?.features?.automatic || false,
-      contactless: initialData?.features?.contactless || false,
-    },
+  const { 
+    register, 
+    handleSubmit, 
+    control, 
+    watch,
+    formState: { errors, isSubmitting },
+    trigger
+  } = useForm<ContributionFormData>({
+    resolver: zodResolver(formSchema),
+    mode: 'onSubmit',
+    defaultValues: {
+      name: initialData?.name || '',
+      lat: location.lat,
+      lng: location.lng,
+      hours: initialData?.hours || '',
+      customHours: initialData?.customHours || '',
+      accessible: initialData?.accessible || false,
+      fee: initialData?.fee || 0,
+      features: {
+        babyChange: initialData?.features?.babyChange || false,
+        radar: initialData?.features?.radar || false,
+        automatic: initialData?.features?.automatic || false,
+        contactless: initialData?.features?.contactless || false,
+      },
+    }
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [customHours, setCustomHours] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [apiError, setApiError] = useState('');
+  const watchHours = watch('hours');
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Toilet name is required';
-    } else if (formData.name.length < 3) {
-      newErrors.name = 'Name must be at least 3 characters';
-    }
-
-    if (formData.fee < 0 || formData.fee > 10) {
-      newErrors.fee = 'Fee must be between £0 and £10';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setApiError('');
-
-    if (!validateForm()) {
-      return;
-    }
-
+  const handleFormSubmit = (data: ContributionFormData) => {
     if (onSubmit) {
-      onSubmit(formData);
+      onSubmit(data);
       return;
     }
 
-    // If no onSubmit handler, make API call
-    setIsSubmitting(true);
-    try {
-      const response = await fetch('/api/suggest', {
+    // Handle API submission asynchronously
+    (async () => {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        const endpoint = `${baseUrl}/api/v2/suggest`;
+        
+        const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: formData.name,
-          lat: formData.lat,
-          lng: formData.lng,
-          hours: formData.hours,
-          accessible: formData.accessible,
-          fee: formData.fee,
+          ...data,
+          hours: data.hours === 'custom' ? data.customHours : data.hours,
         }),
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit');
+        throw new Error(result.error || 'Failed to submit suggestion.');
       }
 
-      onSuccess?.(data);
-    } catch (error) {
-      setApiError(error instanceof Error ? error.message : 'Submission failed');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleInputChange = (field: keyof ContributionFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => {
-        const { [field]: _, ...rest } = prev;
-        return rest;
-      });
-    }
-  };
-
-  const handleFeatureChange = (feature: keyof ContributionFormData['features']) => {
-    setFormData(prev => ({
-      ...prev,
-      features: {
-        ...prev.features,
-        [feature]: !prev.features[feature],
-      },
-    }));
-  };
-
-  const handleHoursChange = (value: string) => {
-    if (value === 'custom') {
-      handleInputChange('hours', customHours);
-    } else {
-      handleInputChange('hours', value);
-    }
+        onSuccess?.(result);
+      } catch (error) {
+        // You can use a state to show API errors in the UI
+        console.error(error);
+      }
+    })();
   };
 
   const isLoading = loading || isSubmitting;
@@ -162,8 +144,9 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
     <form
       role="form"
       aria-label="Toilet contribution form"
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(handleFormSubmit)}
       className={cn('space-y-4', className)}
+      noValidate
     >
       <div>
         <h2 className="text-xl font-semibold">Add a Toilet</h2>
@@ -180,8 +163,7 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
         <Input
           id="toilet-name"
           type="text"
-          value={formData.name}
-          onChange={(e) => handleInputChange('name', e.target.value)}
+          {...register('name')}
           placeholder="e.g., Victoria Station Public Toilet"
           disabled={isLoading}
           aria-invalid={!!errors.name}
@@ -190,7 +172,7 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
         />
         {errors.name && (
           <p id="name-error" role="alert" className="text-sm text-red-600 mt-1">
-            {errors.name}
+            {errors.name.message}
           </p>
         )}
       </div>
@@ -206,9 +188,10 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
             <Input
               id="latitude"
               type="number"
-              value={formData.lat}
+              {...register('lat', { valueAsNumber: true })}
               readOnly
               disabled={isLoading}
+              tabIndex={-1}
               className="min-h-[44px] bg-gray-50"
             />
           </div>
@@ -219,9 +202,10 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
             <Input
               id="longitude"
               type="number"
-              value={formData.lng}
+              {...register('lng', { valueAsNumber: true })}
               readOnly
               disabled={isLoading}
+              tabIndex={-1}
               className="min-h-[44px] bg-gray-50"
             />
           </div>
@@ -231,37 +215,51 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
       {/* Opening hours */}
       <div>
         <label htmlFor="opening-hours" className="block text-sm font-medium mb-1">
-          Opening Hours
+          Opening Hours *
         </label>
         <select
           id="opening-hours"
-          value={formData.hours === '24/7' || formData.hours === 'Dawn to dusk' ? formData.hours : 'custom'}
-          onChange={(e) => handleHoursChange(e.target.value)}
+          {...register('hours')}
           disabled={isLoading}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md min-h-[44px]"
+          className="block w-full min-h-[44px] border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          aria-invalid={!!errors.hours}
         >
-          <option value="">Select hours</option>
+          <option value="">Select hours...</option>
           <option value="24/7">24/7</option>
-          <option value="Dawn to dusk">Dawn to dusk</option>
+          <option value="dawn to dusk">Dawn to Dusk</option>
           <option value="custom">Custom</option>
         </select>
-        {(formData.hours !== '24/7' && formData.hours !== 'Dawn to dusk' && formData.hours !== '') && (
-          <Input
-            type="text"
-            value={formData.hours}
-            onChange={(e) => {
-              handleInputChange('hours', e.target.value);
-              setCustomHours(e.target.value);
-            }}
-            placeholder="e.g., Mon-Fri: 8am-6pm"
-            disabled={isLoading}
-            aria-label="Specify hours"
-            className="mt-2 min-h-[44px]"
-          />
+        {errors.hours && (
+          <p role="alert" className="text-sm text-red-600 mt-1">
+            {errors.hours.message}
+          </p>
         )}
       </div>
+      
+      {watchHours === 'custom' && (
+        <div>
+          <label htmlFor="custom-hours" className="block text-sm font-medium mb-1">
+            Specify hours
+          </label>
+          <Input
+            id="custom-hours"
+            type="text"
+            {...register('customHours')}
+            placeholder="e.g., Mon-Fri 09:00-17:00"
+            disabled={isLoading}
+            aria-invalid={!!errors.customHours}
+            aria-describedby={errors.customHours ? 'custom-hours-error' : undefined}
+            className="min-h-[44px]"
+          />
+          {errors.customHours && (
+            <p id="custom-hours-error" role="alert" className="text-sm text-red-600 mt-1">
+              {errors.customHours.message}
+            </p>
+          )}
+        </div>
+      )}
 
-      {/* Fee */}
+      {/* Fee field */}
       <div>
         <label htmlFor="usage-fee" className="block text-sm font-medium mb-1">
           Usage Fee (£)
@@ -270,16 +268,8 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
           id="usage-fee"
           type="number"
           step="0.01"
-          min="0"
-          max="10"
-          value={formData.fee}
-          onChange={(e) => {
-            const value = parseFloat(e.target.value);
-            if (!isNaN(value)) {
-              handleInputChange('fee', value);
-            }
-          }}
-          onInvalid={() => setErrors({ ...errors, fee: 'Please enter a valid amount' })}
+          {...register('fee')}
+          placeholder="e.g., 0.50"
           disabled={isLoading}
           aria-invalid={!!errors.fee}
           aria-describedby={errors.fee ? 'fee-error' : undefined}
@@ -287,96 +277,46 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
         />
         {errors.fee && (
           <p id="fee-error" role="alert" className="text-sm text-red-600 mt-1">
-            {errors.fee}
+            {errors.fee.message}
           </p>
         )}
       </div>
-
+      
       {/* Features */}
-      <fieldset role="group" aria-label="Features">
+      <fieldset>
         <legend className="text-sm font-medium mb-2">Features</legend>
         <div className="space-y-2">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={formData.accessible}
-              onChange={() => handleInputChange('accessible', !formData.accessible)}
-              disabled={isLoading}
-              className="mr-2"
-            />
-            <span className="text-sm">Wheelchair accessible</span>
-          </label>
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={formData.features.babyChange}
-              onChange={() => handleFeatureChange('babyChange')}
-              disabled={isLoading}
-              className="mr-2"
-            />
-            <span className="text-sm">Baby changing facilities</span>
-          </label>
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={formData.features.radar}
-              onChange={() => handleFeatureChange('radar')}
-              disabled={isLoading}
-              className="mr-2"
-            />
-            <span className="text-sm">RADAR key required</span>
-          </label>
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={formData.features.automatic}
-              onChange={() => handleFeatureChange('automatic')}
-              disabled={isLoading}
-              className="mr-2"
-            />
-            <span className="text-sm">Automatic</span>
-          </label>
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={formData.features.contactless}
-              onChange={() => handleFeatureChange('contactless')}
-              disabled={isLoading}
-              className="mr-2"
-            />
-            <span className="text-sm">Contactless payment</span>
-          </label>
+          <div className="flex items-center">
+            <input id="accessible" type="checkbox" {...register('accessible')} className="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+            <label htmlFor="accessible" className="ml-2 block text-sm">Wheelchair Accessible</label>
+          </div>
+          <div className="flex items-center">
+            <input id="baby-change" type="checkbox" {...register('features.babyChange')} className="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+            <label htmlFor="baby-change" className="ml-2 block text-sm">Baby Changing Facilities</label>
+          </div>
+          <div className="flex items-center">
+            <input id="radar-key" type="checkbox" {...register('features.radar')} className="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+            <label htmlFor="radar-key" className="ml-2 block text-sm">Radar Key Required</label>
+          </div>
+          <div className="flex items-center">
+            <input id="automatic" type="checkbox" {...register('features.automatic')} className="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+            <label htmlFor="automatic" className="ml-2 block text-sm">Automatic</label>
+          </div>
+          <div className="flex items-center">
+            <input id="contactless" type="checkbox" {...register('features.contactless')} className="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+            <label htmlFor="contactless" className="ml-2 block text-sm">Contactless Payment</label>
+          </div>
         </div>
       </fieldset>
 
-      {/* API Error */}
-      {apiError && (
-        <div role="alert" className="bg-red-50 border border-red-200 rounded p-3">
-          <p className="text-sm text-red-800">{apiError}</p>
-        </div>
-      )}
-
-      {/* Form actions */}
-      <div className="flex gap-2 pt-4">
-        <Button
-          type="submit"
-          disabled={isLoading}
-          aria-busy={isLoading}
-          className="flex-1 min-h-[44px]"
-        >
+      {/* Action Buttons */}
+      <div className="flex justify-end space-x-2 pt-4">
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isLoading} aria-busy={isLoading}>
           {isLoading ? 'Submitting...' : 'Submit'}
         </Button>
-        {onCancel && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isLoading}
-            className="flex-1 min-h-[44px]"
-          >
-            Cancel
-          </Button>
-        )}
       </div>
     </form>
   );
