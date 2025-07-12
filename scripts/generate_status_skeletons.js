@@ -3,13 +3,25 @@
  * ------------------------------------------------------------
  * 📄 Description  : Utility to scan /plans directory and create
  *                   skeleton status markdown files for each task
- *                   using templates/template_status_.md.
+ *                   using templates/template_status_.md. Status files
+ *                   are organized into plan-specific directories under
+ *                   status/ to prevent directory clutter.
  *
  * 📝 References   : docs/engineering-spec.md (scripts standards)
  *                   templates/template_status_.md (status template)
  *
  * 🧩 Artifact Annotation:
  *   @doc refs docs/engineering-spec.md#status-reports
+ * 
+ * 📁 Directory Structure:
+ *   status/
+ *   ├── plan_0065/
+ *   │   ├── plan_0065_task_verify_baseline_status.md
+ *   │   ├── plan_0065_task_create_failing_payload_test_status.md
+ *   │   └── ...
+ *   └── plan_frontend_ui/
+ *       ├── plan_frontend_ui_task_atoms_implementation_status.md
+ *       └── ...
  */
 
 const fs = require('fs');
@@ -95,16 +107,38 @@ function generate(selected) {
     }
     if (plan.archived) return; // skip archived plans
 
-    const planId = plan.id || path.basename(file, '.txt');
+    const planId = plan.plan_id || plan.id || path.basename(file, '.txt');
     if (!Array.isArray(plan.tasks)) return;
 
+    // Create plan-specific directory
+    const planDir = path.join(STATUS_DIR, planId);
+    fs.mkdirSync(planDir, { recursive: true });
+
     plan.tasks.forEach((task) => {
-      const { content: skeleton, statusBaseId } = populateTemplate(planId, task);
-      const statusFilename = `${statusBaseId}_task_${task.id}_status.md`;
-      const statusPath = path.join(STATUS_DIR, statusFilename);
-      if (fs.existsSync(statusPath)) return;
-      fs.writeFileSync(statusPath, skeleton, 'utf8');
-      console.log(`Created ${path.relative(process.cwd(), statusPath)}`);
+      // Handle both task.id and task.task_id formats
+      const taskId = task.id || task.task_id;
+      const taskType = task.type || task.task_type;
+      const normalizedTask = {
+        ...task,
+        id: taskId,
+        type: taskType
+      };
+      
+      const { content: skeleton, statusBaseId } = populateTemplate(planId, normalizedTask);
+      const statusFilename = `${statusBaseId}_task_${taskId}_status.md`;
+      // Check both old location (for backward compatibility) and new location
+      const oldStatusPath = path.join(STATUS_DIR, statusFilename);
+      const newStatusPath = path.join(planDir, statusFilename);
+      
+      // Skip if file exists in either location
+      if (fs.existsSync(oldStatusPath) || fs.existsSync(newStatusPath)) {
+        console.log(`Skipping existing: ${statusFilename}`);
+        return;
+      }
+      
+      // Create in new plan-specific directory
+      fs.writeFileSync(newStatusPath, skeleton, 'utf8');
+      console.log(`Created ${path.relative(process.cwd(), newStatusPath)}`);
     });
   });
 }

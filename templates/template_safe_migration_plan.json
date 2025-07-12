@@ -1,0 +1,102 @@
+{
+    "plan_id": "[feature]_[change_type]_[sequence_number]",
+    "g": "[global_event_counter]",
+    "plan_name": "[Descriptive Name with Safety Emphasis]",
+    "plan_description": "[Clear description of what needs to be changed, why, and the safety measures in place]",
+    
+    "_template_notes": {
+        "purpose": "This template is based on the successful ContributionForm payload fix and v2 migration plans that perfectly balanced evolution with stability",
+        "when_to_use": "Use for any changes that could impact working functionality, especially API migrations, refactoring critical components, or fixing bugs in production code",
+        "key_principles": [
+            "Always verify baseline before changes",
+            "Use gates to ensure each step is safe",
+            "Prefer incremental changes over big-bang",
+            "Feature flags for risky changes",
+            "Clear rollback procedures at every step"
+        ]
+    },
+    
+    "risk_assessment": {
+        "description": "Identify all risks before starting",
+        "high_risks": [
+            "[List specific risks for this change]"
+        ],
+        "mitigation_strategies": [
+            "[Specific strategies to address each risk]"
+        ]
+    },
+    
+    "safety_requirements": {
+        "pre_conditions": [
+            "All existing tests must be passing",
+            "Document current working behavior",
+            "Create isolated git branch",
+            "[Additional specific requirements]"
+        ],
+        "gate_criteria": {
+            "gate_1": "[First safety checkpoint - usually after test creation]",
+            "gate_2": "[Second checkpoint - usually after implementation]",
+            "gate_3": "[Third checkpoint - usually after refactoring]"
+        },
+        "rollback_plan": "Specific steps to revert if any gate fails"
+    },
+    
+    "tasks": [
+        {
+            "task_id": "verify_baseline",
+            "task_type": "VERIFICATION",
+            "task_description": "ALWAYS START HERE: Verify current state is working correctly. Run all tests, document current behavior, create branch for isolation.",
+            "dependencies": [],
+            "confidence_level": "High",
+            "justification": "Cannot safely change what we haven't verified",
+            "gate": "pre_condition",
+            "validation": "[Specific validation criteria]"
+        },
+        {
+            "task_id": "[next_task]",
+            "task_type": "[TEST_CREATION|IMPLEMENTATION|REFACTORING|PLANNING]",
+            "task_description": "[Detailed description including specific files and changes]",
+            "dependencies": ["[previous_task_ids]"],
+            "confidence_level": "[High|Medium|Low]",
+            "justification": "[Why this approach is safe]",
+            "gate": "[gate_1|gate_2|gate_3|none]",
+            "validation": "[How to verify this step worked]"
+        }
+    ],
+    
+    "rollback_procedures": {
+        "description": "Clear steps to undo changes if something goes wrong",
+        "step_1": "Save any diagnostic information",
+        "step_2": "Revert to known-good state",
+        "step_3": "Analyze what went wrong",
+        "step_4": "Document lessons learned"
+    },
+    
+    "success_criteria": {
+        "must_have": [
+            "Primary goal achieved",
+            "No regressions in existing functionality",
+            "All tests still passing"
+        ],
+        "nice_to_have": [
+            "Improved test coverage",
+            "Better code organization",
+            "Documentation updates"
+        ]
+    },
+    
+    "monitoring_strategy": {
+        "description": "How to observe the change in production",
+        "metrics": [
+            "[What to measure]"
+        ],
+        "alerts": [
+            "[What conditions trigger rollback]"
+        ],
+        "dashboards": [
+            "[Where to view status]"
+        ]
+    },
+    
+    "version": "1.0.0"
+}

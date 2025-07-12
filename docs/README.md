@@ -91,6 +91,8 @@ Reusable code patterns and recipes for common development tasks:
 - [**Template Refactoring**](cookbook/recipe_template_refactoring.md) - Template builder and modular design patterns
 - [**Atomic Components**](cookbook/recipe_atomic_components.md) - shadcn/ui component development patterns
 - [**Shadcn Integration**](cookbook/recipe_shadcn_integration.md) - Design system integration with TailwindCSS
+- [**React Hook Form with Zod**](cookbook/recipe_react_hook_form_with_zod.md) - Canonical patterns for robust form validation
+- [**Robust React Testing**](cookbook/recipe_robust_react_testing.md) - Best practices for reliable component testing
 - [**AI Config Patterns**](cookbook/recipe_aiconfig_patterns.md) - Configuration management and optimization patterns
 - [**Tiered Validation**](cookbook/recipe_tiered_validation.md) - 4-tier property validation implementation (99%+ test coverage)
 - [**Metrics Export**](cookbook/recipe_metrics_export.md) - Prometheus metrics and observability patterns ✅ COMPLETE

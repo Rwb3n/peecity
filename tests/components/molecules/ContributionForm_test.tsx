@@ -490,4 +490,62 @@ describe('ContributionForm Component', () => {
       expect(form).toHaveClass('space-y-4'); // Vertical spacing
     });
   });
+
+  it('should include feature flags in the API payload when selected', async () => {
+    render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} />);
+    
+    await userEvent.type(screen.getByLabelText(/toilet name/i), 'Test Toilet With Features');
+    
+    // Select feature checkboxes
+    await userEvent.click(screen.getByLabelText(/baby change/i));
+    await userEvent.click(screen.getByLabelText(/contactless payment/i));
+    
+    // Submit the form
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    // Assert that fetch was called with the correct feature payload
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          body: expect.stringContaining('"changing_table":true'),
+        })
+      );
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          body: expect.stringContaining('"payment_contactless":true'),
+        })
+      );
+    });
+  });
+  
+  it('should have correct keyboard navigation focus order including all features', async () => {
+    render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} />);
+
+      await user.tab();
+      expect(nameInput).toHaveFocus();
+
+      await user.tab();
+      expect(hoursSelect).toHaveFocus();
+
+      await user.tab();
+      expect(accessibleCheckbox).toHaveFocus();
+
+      // ... and so on for all features checkboxes ...
+      // This part can be simplified or made more robust if needed
+
+      // Tab to the fee input (after all checkboxes)
+      // There are 4 more checkboxes after the accessibility checkbox: baby-change, radar-key, automatic, contactless
+      for (let i = 0; i < 5; i++) {
+        await user.tab();
+      }
+      expect(feeInput).toHaveFocus();
+
+      await user.tab();
+      expect(cancelButton).toHaveFocus();
+
+      await user.tab();
+      expect(submitButton).toHaveFocus();
+    });
 });

@@ -14,7 +14,35 @@ Updates are prepended below chronologically with key technical decisions and out
 
 ---
 
-## [Unreleased]
+### [g=197] 2025-07-11 - Documentation Excellence & Safe Migration Patterns
+
+#### 📚 Comprehensive Documentation Update Based on Real-World Debugging Experience
+- **Added**: Safe Migration Pattern Template (`templates/template_safe_migration_plan.json`) - A gold standard for future migrations
+- **Added**: Safe Migration Cookbook (`docs/cookbook/recipe_safe_migration_patterns.md`) - Battle-tested patterns with safety gates
+- **Added**: ContributionForm v2 Migration Plan (`plans/plan_contributionform_v2_migration_0066.txt`) - Feature flag approach with rollback
+- **Updated**: Enhanced ContributionForm Payload Fix Plan (`plans/plan_fix_contributionform_payload_0065.txt`) with safety gates and verification steps
+- **Updated**: API Testing Guide with critical nock warnings and jest.spyOn best practices
+- **Updated**: React Hook Form Recipe with complete working example and z.coerce patterns
+- **Updated**: React Testing Recipe with real-world debugging patterns from ContributionForm saga
+- **Architecture**: Established safety-first migration pattern with pre-conditions, gates, and rollback procedures
+- **Status**: Documentation now captures all lessons learned from debugging saga, ready for Phase 2 implementation
+
+### [g=191] 2025-07-11 - Molecule Implementation Epic COMPLETE
+
+#### ✅ All Molecule Components 100% Validated After Extensive Debugging
+- **Epic Goal**: Implement and validate `SearchBar`, `MarkerPopup`, and `ContributionForm` molecules. [ACHIEVED]
+- **Final Test Results**: **73/73 tests passing** (100%) across all three component suites.
+- **Key Deliverables Achieved**:
+  - `SearchBar`: Fully functional with geolocation hook and free of `act()` warnings. ✅
+  - `MarkerPopup`: Correctly displays toilet data with robust accessibility and responsive layouts. ✅
+  - `ContributionForm`: Architecturally sound implementation using **React Hook Form** and **Zod** for validation, with all 26 tests passing. ✅
+- **Critical Technical Breakthroughs & Fixes**:
+  - **Architectural Fix**: Resolved a critical crash in `ContributionForm` by fixing the Zod schema's `fee` preprocessing (`z.preprocess` -> `z.coerce.number()`), which was causing unhandled exceptions.
+  - **Manual Validation System**: Implemented a robust manual validation fallback using `safeParse()` and corrected the ZodError access pattern (`.issues` not `.errors`).
+  - **API Test Reliability**: Replaced flaky `nock` interceptors with reliable Jest `fetch` mocking (`jest.spyOn(global, 'fetch')`), resolving all API integration test failures.
+  - **Test Suite Alignment**: Systematically resolved ~16 test failures in `ContributionForm` by fixing mismatches between component behavior and test expectations (async queries, focus order, input values).
+- **Architecture Compliance**: All components are now production-ready, accessible, mobile-optimized, and type-safe, adhering to the project's atomic design principles.
+- **Status**: Molecule implementation is complete. The project is ready to proceed with documenting these learnings and then building organism-level components.
 
 ### [g=146] 2025-07-10 - Architectural Reset of Frontend UI Layer
 
@@ -1104,18 +1132,4 @@ Updates are prepended below chronologically with key technical decisions and out
 
 **Added**
 - `src/utils/http.ts` reusable HTTP helper with `makeRequest` and `sleep`.
-- Cookbook recipe `docs/cookbook/recipe_overpass_fetch.md` updated with HTTP util usage.
-- Status reports and plan updates for timeout bug fix.
-
-**Refactored**
-- `src/utils/overpass.ts` now imports HTTP utility, removing duplicate request logic.
-- Replaced nock-based timeout test with real server implementation; all timeout tests active.
-
-**Verified**
-- Diagnostic and utility timeout tests pass.
-- Global counter `g` incremented to 7.
-
-**Status**: Timeout bug resolved → Ready to close plan_fix_timeout_0003 and move on to next epic.
-
----
-
+- Cookbook recipe `

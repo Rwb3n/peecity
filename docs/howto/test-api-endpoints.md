@@ -2,8 +2,15 @@
 title: "How to Test API Endpoints"
 description: "Guide covering various methods for testing CityPee API endpoints"
 category: howto
-version: "1.0.0"
-last_updated: "2025-07-09"
+version: "1.1.0"
+last_updated: "2025-07-11"
+tags: ["api", "testing", "endpoints", "jest", "curl", "validation", "integration-testing"]
+author: "Development Team"
+status: "published"
+audience: "developers"
+complexity: "intermediate"
+dependencies: ["jest", "nock", "supertest", "httpie", "curl"]
+related_files: ["../cookbook/recipe_react_hook_form_with_zod.md", "../cookbook/recipe_robust_react_testing.md"]
 ---
 
 # How to Test API Endpoints
@@ -241,6 +248,192 @@ X-Forwarded-For: 10.0.0.1
 }
 ```
 
+## Automated Integration Testing with Jest
+
+For robust, repeatable, and automated testing of components that interact with API endpoints, manual tools like cURL are insufficient. The recommended approach is to use Jest's built-in mocking capabilities to simulate API responses within your test environment.
+
+### Critical Lesson: Avoid `nock` in Modern React Testing
+
+Based on extensive debugging experience with the ContributionForm component (see status/plan_frontend_ui_detailed_task_molecules_implementation_status.md), we have identified that `nock` can be extremely problematic in Jest/jsdom environments:
+
+1. **Environment Mismatches**: `nock` intercepts at the Node.js HTTP level, but jsdom uses its own fetch implementation
+2. **Base URL Issues**: Tests often fail to match interceptors due to URL construction differences
+3. **Debugging Difficulty**: When nock fails, it's often silent or gives cryptic errors
+4. **Timing Issues**: Race conditions between nock setup and component rendering
+
+### Strongly Recommended Method: `jest.spyOn(global, 'fetch')`
+
+The **proven and most reliable method** is to directly mock the global `fetch` function using `jest.spyOn`. This approach has been battle-tested through the ContributionForm debugging saga and provides:
+
+- **Direct Control**: Mock at the exact level your component uses
+- **Clear Debugging**: Easy to inspect what was called and with what arguments
+- **Synchronous Behavior**: No timing issues or race conditions
+- **Type Safety**: Full TypeScript support for mocked responses
+
+#### Example: Testing a Component's API Interaction
+
+The following example demonstrates how to test a component (e.g., `ContributionForm`) that makes a `POST` request to `/api/suggest`.
+
+**File**: `tests/components/molecules/ContributionForm_test.tsx`
+
+```tsx
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ContributionForm } from '@/components/molecules/ContributionForm';
+
+// Mock the global fetch function before each test
+beforeEach(() => {
+  // jest.spyOn returns a mock function, allowing us to customize it for each test.
+  // We use mockResolvedValue to simulate a successful API response.
+  jest.spyOn(global, 'fetch').mockResolvedValue({
+    ok: true,
+    json: async () => ({ success: true, id: 'new-toilet-123' }),
+  } as Response);
+});
+
+// Restore the original fetch function after all tests are done
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
+describe('ContributionForm API Integration', () => {
+
+  // Test Case 1: Successful Submission
+  it('should call the suggest API with the correct payload on successful submission', async () => {
+    render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} />);
+    
+    // Fill out the form
+    await userEvent.type(screen.getByLabelText(/toilet name/i), 'Test Toilet');
+    await userEvent.click(screen.getByLabelText(/accessible/i));
+    
+    // Submit the form
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    // Assert that fetch was called correctly
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/suggest',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: 'Test Toilet',
+            lat: 51.5,
+            lng: -0.1,
+            accessible: true,
+            // ... other fields
+          }),
+        })
+      );
+    });
+  });
+
+  // Test Case 2: API Returns an Error
+  it('should display an error message if the API call fails', async () => {
+    // Override the default mock for this specific test
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({ error: 'Internal Server Error' }),
+    } as Response);
+    
+    render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} />);
+    
+    // Fill out and submit the form
+    await userEvent.type(screen.getByLabelText(/toilet name/i), 'Test Toilet');
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    // Assert that an error message is displayed
+    expect(await screen.findByRole('alert')).toHaveTextContent(/internal server error/i);
+  });
+
+  // Test Case 3: Network Error
+  it('should display a generic error on network failure', async () => {
+    // Simulate a network error by rejecting the fetch promise
+    (global.fetch as jest.Mock).mockRejectedValueOnce(new TypeError('Failed to fetch'));
+    
+    render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} />);
+    
+    // Fill out and submit the form
+    await userEvent.type(screen.getByLabelText(/toilet name/i), 'Test Toilet');
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    // Assert that a generic error message is shown
+    expect(await screen.findByRole('alert')).toHaveTextContent(/failed to submit/i);
+  });
+});
+```
+
+### Common Pitfalls and Solutions
+
+Based on real-world debugging experience, here are critical pitfalls to avoid:
+
+#### 1. Form Data Not Reaching API
+
+**Problem**: Your component collects form data but the API receives empty or partial payloads.
+
+**Solution**: Ensure your form submission handler properly collects all form data:
+```tsx
+// ❌ BAD: Manual data collection can miss fields
+const handleSubmit = () => {
+  const data = {
+    name: formData.name,
+    // Easy to forget fields here!
+  };
+  fetch('/api/suggest', { body: JSON.stringify(data) });
+};
+
+// ✅ GOOD: Use React Hook Form's handleSubmit
+const onSubmit = handleSubmit(async (data) => {
+  // data contains ALL registered form fields
+  await fetch('/api/suggest', { 
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data) 
+  });
+});
+```
+
+#### 2. Test Expectations vs Component Behavior
+
+**Problem**: Tests expect immediate validation errors, but your form validates on submit.
+
+**Solution**: Understand and test the actual UX pattern:
+```tsx
+// ❌ BAD: Expecting immediate validation
+await userEvent.type(screen.getByLabelText(/name/i), 'ab');
+expect(screen.getByText(/must be at least 3 characters/i)).toBeInTheDocument();
+
+// ✅ GOOD: Test the actual behavior (validation on submit)
+await userEvent.type(screen.getByLabelText(/name/i), 'ab');
+await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+const error = await screen.findByText(/must be at least 3 characters/i);
+expect(error).toBeInTheDocument();
+```
+
+#### 3. Focus Order Testing
+
+**Problem**: Keyboard navigation tests fail due to unexpected tab order.
+
+**Solution**: Test the actual DOM order, not your assumptions:
+```tsx
+// Debug helper to see actual tab order
+const debugTabOrder = async () => {
+  const elements = [];
+  await userEvent.tab();
+  while (document.activeElement && document.activeElement !== document.body) {
+    elements.push({
+      tag: document.activeElement.tagName,
+      name: document.activeElement.getAttribute('name'),
+      type: document.activeElement.getAttribute('type')
+    });
+    await userEvent.tab();
+  }
+  console.log('Tab order:', elements);
+};
+```
+
 ## Testing Scenarios
 
 ### 1. Validation Testing
@@ -392,105 +585,6 @@ Expected:
 - Requests 1-5: 201 Created
 - Request 6: 429 Too Many Requests
 
-## Automated Testing
-
-### Jest Integration Tests
-
-```javascript
-// test-suggest-api.test.js
-const request = require('supertest');
-
-describe('Suggest API', () => {
-  const baseUrl = 'http://localhost:3000';
-  
-  describe('v1 API', () => {
-    it('should accept valid submission', async () => {
-      const response = await request(baseUrl)
-        .post('/api/suggest')
-        .send({
-          lat: 51.5074,
-          lng: -0.1278,
-          name: 'Test Toilet'
-        });
-        
-      expect(response.status).toBe(201);
-      expect(response.body.success).toBe(true);
-      expect(response.body.suggestionId).toBeDefined();
-    });
-    
-    it('should reject invalid submission', async () => {
-      const response = await request(baseUrl)
-        .post('/api/suggest')
-        .send({
-          lng: -0.1278,
-          name: 'Missing Latitude'
-        });
-        
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.validation.errors).toHaveLength(1);
-    });
-  });
-
-  describe('v2 API', () => {
-    it('should accept valid v2 submission with all core properties', async () => {
-      const response = await request(baseUrl)
-        .post('/api/v2/suggest')
-        .send({
-          lat: 51.5074,
-          lng: -0.1278,
-          '@id': 'node/123456789',
-          amenity: 'toilets',
-          wheelchair: 'yes',
-          access: 'yes',
-          opening_hours: '24/7',
-          fee: true,
-          name: 'Test v2 Toilet'
-        });
-        
-      expect(response.status).toBe(201);
-      expect(response.body.success).toBe(true);
-    });
-    
-    it('should reject v2 submission missing core properties', async () => {
-      const response = await request(baseUrl)
-        .post('/api/v2/suggest')
-        .send({
-          lat: 51.5074,
-          lng: -0.1278,
-          name: 'Missing Core'
-        });
-        
-      expect(response.status).toBe(400);
-      expect(response.body.validation.tierSummary.core.required).toBe(8);
-      expect(response.body.validation.tierSummary.core.provided).toBeLessThan(8);
-    });
-    
-    it('should validate tier-based properties', async () => {
-      const response = await request(baseUrl)
-        .post('/api/v2/suggest')
-        .send({
-          lat: 51.5074,
-          lng: -0.1278,
-          '@id': 'node/123456789',
-          amenity: 'toilets',
-          wheelchair: 'yes',
-          access: 'yes',
-          opening_hours: '24/7',
-          fee: true,
-          name: 'Tier Test',
-          male: true,                    // high-frequency
-          'toilets:disposal': 'flush',   // high-frequency
-          operator: 'Council',           // optional
-          'roof:shape': 'flat'           // specialized
-        });
-        
-      expect(response.status).toBe(201);
-      expect(response.body.validation.tierSummary).toBeDefined();
-    });
-  });
-});
-```
 
 ### Node.js Script
 

@@ -1,107 +1,61 @@
+You are correct to insist on a structured approach. Given that we have just concluded an exhaustive debugging cycle, it is crucial that we proceed methodically.
 
-### Investigation of Failing Tests
+Here is the phased approach I recommend to address the identified issues, ensuring we build on our recent progress without introducing new instability:
 
-The failures can be broken down into three core mismatches between the test suite and the component.
+### **Phase 1: Knowledge Capture & Solidification (Immediate Next Step)**
 
-#### 1. Mismatch: Validation Logic (`onSubmit` vs. `onChange`)
+**Action:** Execute the existing documentation plan: `plan_docs_update_from_debugging_0064.txt`.
 
-The component is configured to validate when the user clicks submit, but the tests expect errors to appear immediately as the user types. This accounts for the majority of the "Form Validation" failures.
+**Rationale:** The highest priority is to capture and codify the hard-won knowledge from the `ContributionForm` debugging saga. If we immediately dive into new code changes, we risk losing the nuances of the solutions we just implemented. This documentation will serve as the new, validated standard for future work.
 
-*   **Component Code (`ContributionForm.tsx`):**
-    ```typescript
-    // ...
-    const { 
-      // ...
-    } = useForm<ContributionFormData>({
-      mode: 'onSubmit', // <-- This is the key line
-      // ...
-    });
-    // ...
-    ```
-    The `mode: 'onSubmit'` configuration tells `react-hook-form` to delay validation until the `handleSubmit` function is triggered.
+**Order of Execution:**
+1.  **Task 1:** `update_api_testing_guide` (Update `docs/howto/test-api-endpoints.md`).
+2.  **Task 2:** `create_zod_recipe` (Create `docs/cookbook/recipe_react_hook_form_with_zod.md`).
+3.  **Task 3:** `create_robust_testing_recipe` (Create `docs/cookbook/recipe_robust_react_testing.md`).
 
-*   **Failing Test Code (`ContributionForm_test.tsx`):**
-    ```typescript
-    // ...
-    it('should require toilet name', async () => {
-      // ...
-      // No submit action is performed here
-      await waitFor(() => {
-        // This fails because the 'errors' object is still empty
-        expect(screen.getByText(/toilet name is required/i)).toBeInTheDocument(); 
-      });
-      // ...
-    });
-    // ...
-    ```
-    This test, and others like it (`should validate name length`), expect the error message to be present *without* a submit event. Because the component is in `onSubmit` mode, the test times out waiting for an error that will never appear under these conditions.
+### **Phase 2: Critical Bug Fix - Dropped Data Payload (After Phase 1)**
 
-#### 2. Mismatch: User Interaction Simulation
+**Action:** Create and execute a new, focused plan to fix the data being dropped from the `ContributionForm` payload.
 
-The tests are attempting to interact with form elements in a way that is inconsistent with their implementation.
+**Rationale:** This is a high-severity functional bug. The user-facing UI allows for input that is being silently discarded. This must be fixed before any further refactoring. We will follow a strict TDD cycle.
 
-*   **Component Code (`ContributionForm.tsx`):**
-    The component renders a standard HTML `<select>` element for the "Opening Hours".
-    ```jsx
-    // ...
-    <select {...register('hours')}>
-      <option value="">Select hours...</option>
-      <option value="24/7">24/7</option>
-      // ...
-    </select>
-    // ...
-    ```
+**Proposed Plan (`plan_fix_contributionform_payload_0065.txt`):**
 
-*   **Failing Test Code (`ContributionForm_test.tsx`):**
-    The test for a valid submission attempts to *type* into this field instead of *selecting* an option.
-    ```typescript
-    // ...
-    it('should allow valid form submission', async () => {
-      // ...
-      const hoursInput = screen.getByLabelText(/opening hours/i);
-      await user.type(hoursInput, '9am - 5pm'); // <-- Incorrect interaction
-      // ...
-    });
-    // ...
-    ```
-    `userEvent.type` on a `<select>` element does not work as it does on an `<input>`. The test must be updated to use `userEvent.selectOptions` to correctly simulate user behavior. This single incorrect interaction causes the form's Zod schema to fail validation (because `hours` is empty), preventing the `mockOnSubmit` function from ever being called and failing the test.
+1.  **Task 1: `TEST_CREATION` (Red)**
+    *   **Action:** I will add a new test to `tests/components/molecules/ContributionForm_test.tsx`.
+    *   **Description:** This test will enable feature flags (e.g., "Baby Change," "Contactless Payment") and submit the form. It will then **assert** that the `fetch` mock was called with a payload containing the correctly mapped and non-empty feature fields (e.g., `{ changing_table: true, payment_contactless: true }`).
+    *   **Expected Outcome:** This test will fail because the current implementation does not send this data.
 
-#### 3. Mismatch: Asynchronous State and Error Handling
+2.  **Task 2: `IMPLEMENTATION` (Green)**
+    *   **Action:** I will modify `src/components/molecules/ContributionForm/ContributionForm.tsx`.
+    *   **Description:** I will update the `handleFormSubmit` function to correctly map the `features` object from the component's state to the API `requestBody`, ensuring the data structure matches the `suggest-api.md` documentation.
+    *   **Expected Outcome:** The new test will pass.
 
-The accessibility test for announcing errors fails because it doesn't correctly wait for the asynchronous validation process to complete.
+3.  **Task 3: `REFACTORING` (Refactor)**
+    *   **Action:** I will clean up the implementation and test code, ensuring all 26 existing tests for the component continue to pass.
 
-*   **Component Code (`ContributionForm.tsx`):**
-    The entire submission and validation process is asynchronous.
-    ```typescript
-    // ...
-    const handleFormSubmit = async () => {
-      // ...
-      const validationResult = formSchema.safeParse(formDataWithFee);
-      // ...
-      if (!validationResult.success) {
-        // ...
-        setManualErrors(newErrors); // <-- State update is async
-        // ...
-        return;
-      }
-      // ...
-    }
-    // ...
-    ```
+### **Phase 3: Technical Debt Refactor - Upgrade to API v2 (After Phase 2)**
 
-*   **Failing Test Code (`ContributionForm_test.tsx`):**
-    The test checks for the error message without properly waiting for the state update that renders it.
-    ```typescript
-    // ...
-    it('should announce form errors to screen readers', async () => {
-      // ...
-      await user.click(submitButton);
+**Action:** Create and execute a plan to upgrade the `ContributionForm` to use the production-intended `/api/v2/suggest` endpoint.
 
-      // This check runs immediately, but the error state hasn't been set yet.
-      const errorAlert = screen.getByRole('alert'); 
-      expect(errorAlert).toBeInTheDocument();
-      // ...
-    });
-    // ...
-    ```
-    While the test is an `async` function, the `getByRole('alert')` query runs synchronously after the click. It fails because the error `div` has not been rendered yet. The fix is to use an asynchronous query, like `findByRole('alert')`, which will wait for the element to appear.
+**Rationale:** With the immediate bug fixed, we can now address the technical debt of using the obsolete v1 API. This improves data integrity and aligns the component with the documented project architecture.
+
+**Proposed Plan (`plan_refactor_contributionform_apiv2_0066.txt`):**
+
+1.  **Task 1: `TEST_REFACTORING` (Red)**
+    *   **Action:** I will update the Jest `fetch` mock in `tests/components/molecules/ContributionForm_test.tsx`.
+    *   **Description:** The mock will be changed to intercept calls to `/api/v2/suggest` instead of `/api/v1/suggest`. This change will immediately break the existing API integration tests, placing us in the 'Red' state.
+
+2.  **Task 2: `IMPLEMENTATION` (Green)**
+    *   **Action:** I will update the `endpoint` variable in `src/components/molecules/ContributionForm/ContributionForm.tsx` to target `/api/v2/suggest`.
+    *   **Description:** This change will make the refactored tests pass again. It may also require adding default values for newly required fields in the test payloads to satisfy the stricter v2 validation.
+
+### **Summary of Sequence:**
+
+1.  **Execute Documentation Plan:** Solidify learnings.
+2.  **Fix Payload Bug:** Correct the immediate data loss issue.
+3.  **Refactor to API v2:** Pay down technical debt and align with production standards.
+
+This sequence prioritizes stability, captures critical knowledge, fixes user-facing bugs first, and then addresses architectural improvements.
+
+I will now begin with **Phase 1, Task 1**: Updating the API testing guide.
