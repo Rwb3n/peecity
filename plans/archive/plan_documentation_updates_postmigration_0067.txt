@@ -1,0 +1,195 @@
+{
+    "plan_id": "documentation_updates_postmigration_0067",
+    "g": 182,
+    "plan_name": "Post-Migration Documentation Updates",
+    "plan_description": "Comprehensive documentation update campaign following the completion of multiple epics and the v2 migration work. This plan addresses the accumulated documentation debt and ensures all project artifacts reflect the current state accurately. CRITICAL: This plan MUST complete before plan_0068 can start due to toilet data file relocation dependency.",
+    "context": {
+        "trigger": "Multiple major epics completed but documentation not updated",
+        "completed_work": [
+            "Ingest agent epic (98.63% coverage)",
+            "Suggest agent epic with v2 migration (99%+ coverage)",
+            "SEO agent epic",
+            "Monitor agent epic",
+            "Metrics export epic",
+            "ContributionForm v2 migration (plan_0066)",
+            "Molecule components debugging saga"
+        ],
+        "documentation_debt": [
+            "CLAUDE.md shows incorrect epic statuses",
+            "changelog.md missing recent work",
+            "aiconfig.json not reflecting new patterns",
+            "README files outdated",
+            "export.geojson in wrong location (docs/ instead of data/)"
+        ]
+    },
+    "tasks": [
+        {
+            "task_id": "audit_documentation_state",
+            "task_type": "DIAGNOSTIC",
+            "task_description": "Perform comprehensive audit of all documentation files to identify specific outdated content. Check: CLAUDE.md epic statuses, changelog.md last entry, aiconfig.json patterns, all README files, incorrect file paths/locations. Create checklist of all updates needed.",
+            "dependencies": [],
+            "confidence_level": "High",
+            "justification": "Need clear picture of what's outdated before updating",
+            "validation": "Detailed audit report with specific line numbers and content to update"
+        },
+        {
+            "task_id": "update_claude_md",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Update CLAUDE.md to reflect current project state: Mark completed epics (ingest, suggest, seo, monitor, metrics) as COMPLETE with coverage percentages. Update current implementation status for frontend UI. Add new service patterns and v2 API information. Update development commands section. Add notes about export.geojson location.",
+            "dependencies": ["audit_documentation_state"],
+            "confidence_level": "High",
+            "justification": "CLAUDE.md is the primary project reference",
+            "validation": "All epic statuses accurate, new patterns documented"
+        },
+        {
+            "task_id": "update_changelog",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Add comprehensive changelog entries for all recent work: v2 migration (plan_0066), molecule debugging saga resolution, monitor agent completion, metrics export implementation. Follow existing changelog format with dates, version numbers, and categorized changes (Added/Changed/Fixed).",
+            "dependencies": ["audit_documentation_state"],
+            "confidence_level": "High",
+            "justification": "Changelog provides historical context for project evolution",
+            "validation": "All major work since last entry documented"
+        },
+        {
+            "task_id": "update_aiconfig_patterns",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Update aiconfig.json with new validated patterns: v2 migration patterns, service-oriented architecture patterns from recent implementations, updated test coverage targets based on achieved percentages, new cookbook recipe references. Increment g counter appropriately.",
+            "dependencies": ["audit_documentation_state"],
+            "confidence_level": "High",
+            "justification": "aiconfig.json drives project standards",
+            "validation": "New patterns added, g counter updated"
+        },
+        {
+            "task_id": "relocate_toilet_data",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Move export.geojson from docs/ to data/toilets.geojson (expected location). This file is actually the toilet data that was renamed. Update any references in code/docs that point to the file. Critical: Must complete before plan_0068 can proceed.",
+            "dependencies": [],
+            "confidence_level": "High",
+            "justification": "Code expects toilets.geojson in data directory, plan_0068 blocked until complete",
+            "validation": "File moved, all references updated, tests pass"
+        },
+        {
+            "task_id": "verify_code_references",
+            "task_type": "VALIDATION",
+            "task_description": "After moving export.geojson, grep entire codebase for any hardcoded references to the old location (docs/export.geojson). Update all found references to new location (data/toilets.geojson). Check: React components, API routes, tests, scripts, documentation.",
+            "dependencies": ["relocate_toilet_data"],
+            "confidence_level": "High",
+            "justification": "Critical to prevent runtime errors from broken file paths",
+            "validation": "No references to old path remain in codebase"
+        },
+        {
+            "task_id": "verify_react_leaflet",
+            "task_type": "DIAGNOSTIC",
+            "task_description": "Check package.json for react-leaflet and leaflet dependencies. If missing, create task to add them with correct versions compatible with Next.js 14.3. Document installation in setup instructions. This blocks plan_0068 MapView implementation.",
+            "dependencies": [],
+            "confidence_level": "High",
+            "justification": "MapView organism requires React-Leaflet",
+            "validation": "Dependencies confirmed or installation documented"
+        },
+        {
+            "task_id": "document_data_file_history",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Create or update data/README.md explaining: export.geojson was renamed to toilets.geojson, file originates from OpenStreetMap via Overpass API, format is GeoJSON with toilet location data, last updated date, how to refresh data using ingest agent.",
+            "dependencies": ["relocate_toilet_data"],
+            "confidence_level": "High",
+            "justification": "Important context for future developers",
+            "validation": "README clearly explains file history and purpose"
+        },
+        {
+            "task_id": "update_readme_files",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Update all README files: Root README.md with current project status and setup instructions. src/services/README.md with new services added. docs/README.md with new documentation structure. tests/README.md with testing patterns and coverage stats.",
+            "dependencies": ["audit_documentation_state"],
+            "confidence_level": "Medium",
+            "justification": "Multiple README files may have drift",
+            "validation": "All READMEs provide accurate current information"
+        },
+        {
+            "task_id": "create_migration_summary",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Create docs/summaries/v2-migration-summary.md documenting the complete v2 migration: what was done, why it was needed, architectural decisions, safety gates approach, monitoring implementation, and lessons learned. This serves as a case study for future migrations.",
+            "dependencies": ["update_claude_md", "update_changelog"],
+            "confidence_level": "High",
+            "justification": "v2 migration was significant work worth documenting",
+            "validation": "Comprehensive summary that could guide future migrations"
+        },
+        {
+            "task_id": "update_api_documentation",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Update docs/reference/api/suggest-api.md to clearly show both v1 and v2 endpoints, migration status, and deprecation timeline. Add examples for both versions. Document the apiVersion parameter and feature flag behavior.",
+            "dependencies": ["audit_documentation_state"],
+            "confidence_level": "High",
+            "justification": "API documentation must reflect dual endpoint support",
+            "validation": "Both v1 and v2 clearly documented with examples"
+        },
+        {
+            "task_id": "verify_documentation_consistency",
+            "task_type": "VALIDATION",
+            "task_description": "Cross-check all updated documentation for consistency: Epic statuses match across files, file paths are correct everywhere (especially toilets.geojson), version numbers align, no contradictions between docs. Verify React-Leaflet setup instructions if added. Run any documentation linting tools. Create final documentation status report confirming plan_0068 can proceed.",
+            "dependencies": ["update_claude_md", "update_changelog", "update_aiconfig_patterns", "update_readme_files", "update_api_documentation", "verify_code_references", "verify_react_leaflet", "document_data_file_history"],
+            "confidence_level": "High",
+            "justification": "Ensures documentation updates are coherent and plan_0068 prerequisites met",
+            "validation": "No inconsistencies found, all cross-references valid, plan_0068 unblocked"
+        }
+    ],
+    "success_metrics": {
+        "documentation_accuracy": [
+            "All epic statuses correctly reflected",
+            "File locations match reality",
+            "API documentation covers both v1 and v2",
+            "No outdated commands or instructions"
+        ],
+        "documentation_completeness": [
+            "All recent work appears in changelog",
+            "New patterns captured in aiconfig.json",
+            "README files provide clear setup instructions",
+            "Migration work properly documented"
+        ],
+        "documentation_usability": [
+            "New developer can understand project state",
+            "Clear path forward documented",
+            "Lessons learned captured for future reference"
+        ]
+    },
+    "risks": {
+        "scope_creep": {
+            "risk": "Documentation updates could expand indefinitely",
+            "mitigation": "Focus only on accuracy of existing docs, not creating new ones"
+        },
+        "breaking_references": {
+            "risk": "Moving export.geojson could break existing code",
+            "mitigation": "Search codebase for all references before moving"
+        }
+    },
+    "estimated_effort": "4-6 hours",
+    "priority": "High",
+    "notes": "This documentation update is critical before continuing with frontend UI implementation to ensure all team members have accurate project state information.",
+    "critical_validation_findings": {
+        "validator_report": {
+            "date": "2025-07-12",
+            "findings": [
+                "CONFIRMED: export.geojson in docs/ is actually the toilet data (toilets.geojson renamed)",
+                "Plan 0068 is BLOCKED until this plan completes due to hard dependency on toilet data location",
+                "React-Leaflet installation needs verification before plan 0068 can proceed"
+            ],
+            "additional_tasks_recommended": [
+                {
+                    "task": "verify_code_references",
+                    "description": "After moving export.geojson to data/toilets.geojson, grep entire codebase for any hardcoded references to the old location",
+                    "priority": "Critical"
+                },
+                {
+                    "task": "verify_react_leaflet",
+                    "description": "Check package.json for react-leaflet and leaflet dependencies. If missing, add installation instructions to documentation",
+                    "priority": "High"
+                },
+                {
+                    "task": "document_data_file_history",
+                    "description": "Add note in data/README.md explaining that export.geojson was renamed to toilets.geojson and its OSM origin",
+                    "priority": "Medium"
+                }
+            ],
+            "execution_order": "This plan MUST complete before plan_0068 can start"
+        }
+    }
+}

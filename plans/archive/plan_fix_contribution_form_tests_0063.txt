@@ -1,0 +1,128 @@
+{
+  "plan_id": "fix_contribution_form_tests_0063",
+  "title": "Fix ContributionForm Test Expectations Based on Feedback Analysis",
+  "description": "Address the 8 remaining ContributionForm test failures by fixing test expectations rather than breaking component UX patterns. The feedback analysis correctly identified that tests have incorrect expectations about form validation timing and interaction patterns.",
+  "type": "IMPLEMENTATION",
+  "priority": "HIGH",
+  "status": "PENDING",
+  "created_at": "2025-07-11T20:45:00Z",
+  "parent_plan": "plan_frontend_ui_detailed.txt",
+  "confidence_level": "High",
+  "confidence_justification": "The feedback analysis provides clear, specific fixes for each failing test. The root cause is test expectations, not component implementation flaws.",
+  "prerequisites": [
+    "ContributionForm component exists and is functionally correct",
+    "Feedback analysis has identified specific test expectation mismatches"
+  ],
+  "success_criteria": [
+    "All 26 ContributionForm tests pass",
+    "Component UX patterns preserved (onSubmit validation, proper select elements)",
+    "Tests use correct async queries and interaction patterns",
+    "No regression in SearchBar or MarkerPopup tests"
+  ],
+  "tasks": [
+    {
+      "task_id": "diagnostic_test_creation",
+      "type": "DIAGNOSTIC_TEST_CREATION",
+      "title": "Create diagnostic test to validate feedback analysis",
+      "description": "Create a focused diagnostic test that demonstrates the three core mismatches identified in the feedback: (1) onSubmit vs onChange validation timing, (2) select element interaction patterns, (3) async state handling for error messages.",
+      "acceptance_criteria": [
+        "Test demonstrates onSubmit validation works correctly",
+        "Test shows userEvent.selectOptions works with select elements",
+        "Test shows findByRole works for async error messages",
+        "Test fails when using incorrect patterns (type on select, getByRole for async)"
+      ],
+      "confidence_level": "High",
+      "confidence_justification": "This will prove the feedback analysis is correct before making changes",
+      "status": "PENDING",
+      "dependencies": []
+    },
+    {
+      "task_id": "fix_validation_timing_tests",
+      "type": "IMPLEMENTATION", 
+      "title": "Fix validation timing test expectations",
+      "description": "Update the 'should require toilet name' and 'should validate name length' tests to properly trigger form submission before checking for validation errors, and use async queries.",
+      "acceptance_criteria": [
+        "Tests click submit button before checking for errors",
+        "Tests use waitFor() or findByText() for async error messages",
+        "Tests preserve onSubmit validation pattern in component",
+        "Both name validation tests pass"
+      ],
+      "confidence_level": "High",
+      "confidence_justification": "Clear fix pattern identified in feedback analysis",
+      "status": "PENDING",
+      "dependencies": ["diagnostic_test_creation"]
+    },
+    {
+      "task_id": "fix_select_interaction_tests",
+      "type": "IMPLEMENTATION",
+      "title": "Fix select element interaction patterns",
+      "description": "Update the 'should allow valid form submission' test to use userEvent.selectOptions() instead of userEvent.type() for the hours select element.",
+      "acceptance_criteria": [
+        "Test uses userEvent.selectOptions(hoursSelect, '24/7') instead of userEvent.type()",
+        "Test preserves select element implementation in component",
+        "Form submission test passes with proper hours selection",
+        "mockOnSubmit receives correct hours value"
+      ],
+      "confidence_level": "High", 
+      "confidence_justification": "This is a straightforward test utility fix",
+      "status": "PENDING",
+      "dependencies": ["diagnostic_test_creation"]
+    },
+    {
+      "task_id": "fix_async_error_handling_tests",
+      "type": "IMPLEMENTATION",
+      "title": "Fix async error handling in accessibility tests",
+      "description": "Update the 'should announce form errors to screen readers' test to use findByRole() instead of getByRole() for error messages that appear after async validation.",
+      "acceptance_criteria": [
+        "Test uses findByRole('alert') instead of getByRole('alert')",
+        "Test waits for async validation to complete before checking errors",
+        "Accessibility test passes with proper async handling",
+        "Error announcement timing matches component behavior"
+      ],
+      "confidence_level": "High",
+      "confidence_justification": "Standard pattern for async element queries in React Testing Library",
+      "status": "PENDING", 
+      "dependencies": ["diagnostic_test_creation"]
+    },
+    {
+      "task_id": "fix_remaining_test_patterns",
+      "type": "IMPLEMENTATION",
+      "title": "Fix remaining test expectation mismatches",
+      "description": "Address any remaining test failures by applying the same principles: preserve component UX patterns, use correct testing utilities, handle async state properly.",
+      "acceptance_criteria": [
+        "All remaining ContributionForm tests pass",
+        "Component maintains proper form UX patterns",
+        "Tests use appropriate async queries where needed",
+        "No new test failures introduced"
+      ],
+      "confidence_level": "High",
+      "confidence_justification": "Following established patterns from previous fixes",
+      "status": "PENDING",
+      "dependencies": ["fix_validation_timing_tests", "fix_select_interaction_tests", "fix_async_error_handling_tests"]
+    },
+    {
+      "task_id": "validation_full_suite",
+      "type": "VALIDATION",
+      "title": "Validate complete molecule test suite",
+      "description": "Run the full molecule test suite to ensure all fixes work together and no regressions were introduced.",
+      "acceptance_criteria": [
+        "SearchBar: 21/21 tests pass",
+        "MarkerPopup: 26/26 tests pass", 
+        "ContributionForm: 26/26 tests pass",
+        "No console errors or warnings",
+        "All tests complete in reasonable time"
+      ],
+      "confidence_level": "High",
+      "confidence_justification": "Individual fixes are targeted and well-tested",
+      "status": "PENDING",
+      "dependencies": ["fix_remaining_test_patterns"]
+    }
+  ],
+  "estimated_duration": "2 hours",
+  "notes": [
+    "The feedback analysis correctly identifies that tests have wrong expectations, not component bugs",
+    "Component follows proper UX patterns: onSubmit validation, select elements, async state",
+    "Tests should be fixed to match correct component behavior, not vice versa",
+    "This approach preserves good UX while achieving test compatibility"
+  ]
+}

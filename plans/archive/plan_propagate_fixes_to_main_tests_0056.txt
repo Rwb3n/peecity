@@ -1,0 +1,46 @@
+{
+    "id": "plan_propagate_fixes_to_main_tests_0056",
+    "version": 1,
+    "g_event_created": 183,
+    "title": "Propagate All Test Fixes to Main Molecule Test Suite",
+    "description": "This is the definitive and final plan to resolve the molecule implementation failures. It applies all the lessons learned from the diagnostic saga directly to the original, canonical test files (`SearchBar_test.tsx` and `MarkerPopup_test.tsx`).",
+    "references": {
+        "issue_id": "issue_0052",
+        "target_tests": [
+            "tests/components/molecules/SearchBar_test.tsx",
+            "tests/components/molecules/MarkerPopup_test.tsx"
+        ]
+    },
+    "tasks": [
+        {
+            "id": "propagate_all_test_fixes",
+            "type": "REFACTORING",
+            "description": "Modify the main molecule test files to be robust and accurate. 1. In `SearchBar_test.tsx`, update the keyboard navigation test to type into the input field before tabbing. 2. In `MarkerPopup_test.tsx`, update all `getByRole` queries for the report button to use the explicit `aria-label`. 3. In `MarkerPopup_test.tsx`, correct the keyboard navigation test to expect the correct DOM-based focus order. 4. In `MarkerPopup_test.tsx`, wrap the `user.click` on the expand button within an `act()` block to resolve the state update warning.",
+            "acceptance_criteria": [
+                "The SearchBar test must be updated to type before tabbing.",
+                "All MarkerPopup button selectors must use the full `aria-label`.",
+                "The MarkerPopup focus test must expect the correct tab order.",
+                "The MarkerPopup expand/collapse test must use `act()`."
+            ],
+            "dependencies": [],
+            "status": "PENDING",
+            "confidence_level": "High",
+            "justification": "This task applies multiple, known-good fixes to the final test files."
+        },
+        {
+            "id": "final_definitive_validation",
+            "type": "VALIDATION",
+            "description": "Run the entire molecule test suite (`npm test -- tests/components/molecules/`). All tests must now pass.",
+            "acceptance_criteria": [
+                "The command `npm test -- tests/components/molecules/` must execute with zero failures.",
+                "The `plan_frontend_ui_detailed_task_molecules_implementation_status.md` status report must be updated to `VALIDATION_PASSED`."
+            ],
+            "dependencies": [
+                "propagate_all_test_fixes"
+            ],
+            "status": "PENDING",
+            "confidence_level": "High",
+            "justification": "With both the components and the tests finally fixed, this validation should succeed."
+        }
+    ]
+} 

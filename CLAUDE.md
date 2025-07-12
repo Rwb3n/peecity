@@ -251,7 +251,8 @@ npm test tests/performance/optimization_comparison_test.js
 - ✅ **Monitor agent COMPLETE** (Weekly monitoring with pluggable alerts and configurable metrics collection)
 - ✅ Service-oriented architecture established as project standard
 - 🔄 V1 feature implementation in progress (2 remaining epics)
-- ⏳ Frontend UI, Deploy pipeline pending
+- 🔄 **Frontend UI** - All atoms and molecules complete with 100% test coverage. Organisms phase pending
+- ⏳ Deploy pipeline ready to begin
 
 ## Service-Oriented Architecture
 
@@ -266,6 +267,7 @@ The project now implements mature service-oriented architecture patterns:
 - **SuggestionLogService** - Structured logging with file rotation
 - **IngestService** - OSM data processing and normalization
 - **MonitorService** - Weekly monitoring workflow with pluggable alert channels and metrics collection
+- **SuggestPayloadTransformer** - v1/v2 API payload transformation with smart defaults
 
 ### Architecture Patterns
 - **SOLID Compliance** - Perfect adherence to all five principles
@@ -273,6 +275,32 @@ The project now implements mature service-oriented architecture patterns:
 - **Service Orchestration** - Route handlers as thin orchestration layers
 - **Error Standardization** - Consistent error handling via ErrorFactory
 - **Multi-Layer Testing** - Unit tests for services + integration tests for workflows
+
+## API v2 Migration & Feature Flags
+
+The project now supports safe, gradual migration from v1 to v2 API endpoints:
+
+### Migration Strategy
+- **Feature Flags** - Component-level `apiVersion` prop → Environment variable → Default value precedence
+- **Dual Endpoint Support** - Both `/api/suggest` (v1) and `/api/v2/suggest` operate concurrently
+- **Payload Transformation** - SuggestPayloadTransformer service handles v1/v2 format differences
+- **Smart Defaults** - v2 automatically provides sensible defaults for core properties
+- **Monitoring** - Separate logging and metrics for v1 vs v2 usage patterns
+
+### Safe Migration Patterns
+- **5-Gate Safety Process** - From ContributionForm v2 migration (plan_0066)
+  1. Feature flag infrastructure
+  2. Payload transformer with tests
+  3. Dual endpoint support
+  4. Migration monitoring
+  5. Gradual rollout documentation
+- **Zero Breaking Changes** - v1 continues to work exactly as before
+- **Rollback Ready** - Feature flags enable instant rollback if issues arise
+
+### Recent Debugging Patterns
+- **React Hook Form + Zod** - Complete patterns from molecule debugging saga (g=191-197)
+- **Test Resilience** - Robust testing patterns preventing act() warnings and async issues
+- **API Testing** - Critical nock configuration patterns for reliable tests
 
 ## Important Files to Consult
 
@@ -287,6 +315,9 @@ The project now implements mature service-oriented architecture patterns:
 9. **Config**: `aiconfig.json` (single source of truth), `src/config/suggestPropertyTiers.json`
 10. **Metrics Guide**: `docs/cookbook/recipe_metrics_export.md` (Monitoring & observability patterns)
 11. **Testing Patterns**: `docs/cookbook/recipe_dependency_injection_hooks.md` (Dependency injection for React hooks)
+12. **Migration Patterns**: `docs/cookbook/recipe_safe_migration_patterns.md` (Feature flag-based migration)
+13. **React Hook Form**: `docs/cookbook/recipe_react_hook_form_with_zod.md` (Complete working patterns)
+14. **API Testing**: `docs/cookbook/recipe_robust_react_testing.md` (Critical test patterns)
 
 ## V1 Epic Implementation (plan_0003.txt)
 
@@ -331,7 +362,7 @@ Each epic follows strict TDD (TEST_CREATION → IMPLEMENTATION → REFACTORING)
 - ✅ suggest-agent completed (production-ready with 99%+ test coverage)
 - ✅ seo-agent completed (static page generation operational)
 - ✅ monitor-agent completed (weekly monitoring with pluggable architecture)
-- 🔄 frontend-ui in progress (atomic components complete, organisms pending)
+- 🔄 frontend-ui in progress (atoms and molecules complete with 100% test coverage, organisms pending)
 - ⏳ deploy-pipeline ready to begin (all dependencies satisfied)
 
 ## Operational Notes
@@ -341,7 +372,7 @@ Each epic follows strict TDD (TEST_CREATION → IMPLEMENTATION → REFACTORING)
 - Use `docs/cookbook/recipe_*.md` for reusable patterns
 - Increment global event counter `g` in aiconfig.json for significant events
 - Follow artifact annotation requirements in implementation tasks
-- Current g counter: 123 (as of monitor agent epic completion)
+- Current g counter: 197 (as of documentation excellence & safe migration patterns)
 
 ## Monitoring & Operations
 

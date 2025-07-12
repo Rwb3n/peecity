@@ -1,0 +1,99 @@
+{
+    "plan_id": "fix_contributionform_payload_0065",
+    "g": 196,
+    "plan_name": "Fix ContributionForm Dropped Payload Data with Safe Gating",
+    "plan_description": "Address a critical bug where the ContributionForm component collects feature data (e.g., baby change, contactless payment) from the user but fails to include it in the API submission payload. This plan follows a strict TDD cycle with safety gates to ensure no regressions are introduced to the currently working component (100% test pass rate).",
+    "safety_requirements": {
+        "pre_conditions": [
+            "All 26 existing ContributionForm tests must be passing",
+            "Document current working behavior before changes",
+            "Create a git branch for isolation"
+        ],
+        "gate_criteria": {
+            "gate_1": "New failing test must not break existing tests",
+            "gate_2": "Implementation must maintain 100% pass rate for existing tests",
+            "gate_3": "Refactoring must not change external API or component props"
+        },
+        "rollback_plan": "If any gate fails, revert to main branch and reassess approach"
+    },
+    "tasks": [
+        {
+            "task_id": "verify_baseline",
+            "task_type": "VERIFICATION",
+            "task_description": "Run the full ContributionForm test suite to confirm all 26 tests are passing. Document the current payload structure being sent to the API. Create a new git branch 'fix/contribution-form-payload'. This establishes our baseline and ensures we can rollback if needed.",
+            "dependencies": [],
+            "confidence_level": "High",
+            "justification": "Essential safety step to ensure we start from a known-good state",
+            "gate": "pre_condition"
+        },
+        {
+            "task_id": "create_failing_payload_test",
+            "task_type": "TEST_CREATION",
+            "task_description": "Add a new test to 'tests/components/molecules/ContributionForm_test.tsx' in the 'API Integration' describe block. Test name: 'should include feature fields in API payload'. This test will: 1) Render the form, 2) Check 'Baby Changing' and 'Contactless Payment' checkboxes, 3) Fill required fields and submit, 4) Assert that fetch was called with body containing { changing_table: true, payment_contactless: true }. The test MUST fail initially but MUST NOT break existing tests.",
+            "dependencies": ["verify_baseline"],
+            "confidence_level": "High",
+            "justification": "Isolated new test follows established patterns in the test file",
+            "gate": "gate_1",
+            "validation": "Run full test suite - should show 26 passing, 1 failing"
+        },
+        {
+            "task_id": "implement_minimal_payload_fix",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Modify ONLY the handleFormSubmit function in 'src/components/molecules/ContributionForm/ContributionForm.tsx'. After line 193 (fee assignment), add feature field mappings: if (validationResult.data.features?.babyChange) requestBody.changing_table = true; if (validationResult.data.features?.contactless) requestBody.payment_contactless = true; This is the minimal change needed to fix the bug.",
+            "dependencies": ["create_failing_payload_test"],
+            "confidence_level": "High",
+            "justification": "Minimal, additive change that doesn't modify existing logic",
+            "gate": "gate_2",
+            "validation": "Run full test suite - should show 27 passing, 0 failing"
+        },
+        {
+            "task_id": "add_comprehensive_feature_tests",
+            "task_type": "TEST_CREATION",
+            "task_description": "Add additional tests to ensure robustness: 1) Test with no features selected (should not include feature fields), 2) Test with only one feature selected, 3) Test that radar and automatic fields are handled (even if not sent to v1 API). These tests document expected behavior and prevent regressions.",
+            "dependencies": ["implement_minimal_payload_fix"],
+            "confidence_level": "High",
+            "justification": "Additional test coverage without modifying implementation",
+            "gate": "gate_2",
+            "validation": "All tests should pass"
+        },
+        {
+            "task_id": "refactor_for_maintainability",
+            "task_type": "REFACTORING",
+            "task_description": "Extract feature mapping logic into a helper function within the component: const mapFeaturesToApi = (features) => { const mapped = {}; if (features?.babyChange) mapped.changing_table = true; if (features?.contactless) mapped.payment_contactless = true; return mapped; }. Update handleFormSubmit to use this helper: Object.assign(requestBody, mapFeaturesToApi(validationResult.data.features)). This makes future v2 migration easier.",
+            "dependencies": ["add_comprehensive_feature_tests"],
+            "confidence_level": "Medium",
+            "justification": "Pure refactoring with no behavior change, improves code organization",
+            "gate": "gate_3",
+            "validation": "All tests still pass, no external changes"
+        },
+        {
+            "task_id": "document_v2_migration_plan",
+            "task_type": "PLANNING",
+            "task_description": "Create 'plans/plan_contributionform_v2_migration_0066.txt' documenting the complexities of v2 migration: 1) v2 requires 8 core fields with specific defaults, 2) Boolean to string conversions needed, 3) Property name changes (payment_contactless → payment:contactless), 4) Consider keeping v1 as fallback for missing core fields. This plan should include a feature flag approach to safely test v2 in production.",
+            "dependencies": ["refactor_for_maintainability"],
+            "confidence_level": "High",
+            "justification": "Separate planning for complex migration reduces risk",
+            "gate": "none",
+            "validation": "Plan reviewed and approved before execution"
+        }
+    ],
+    "rollback_procedures": {
+        "step_1": "If any test fails unexpectedly, run 'git stash' to save work",
+        "step_2": "Checkout main branch: 'git checkout main'",
+        "step_3": "Analyze failure and adjust approach",
+        "step_4": "Document lessons learned in status report"
+    },
+    "success_criteria": {
+        "must_have": [
+            "Feature data is included in API payload",
+            "All 26 original tests still pass",
+            "No changes to component props or public API"
+        ],
+        "nice_to_have": [
+            "Improved test coverage for edge cases",
+            "Refactored code for easier v2 migration",
+            "Clear documentation for next steps"
+        ]
+    },
+    "version": "2.0.0"
+}

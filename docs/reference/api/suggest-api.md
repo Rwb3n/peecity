@@ -348,7 +348,7 @@ The API uses a 4-tier validation system based on property importance and frequen
 - **Coverage:** Greater London area with focus on central boroughs
 - **Data Fields:** amenity=toilets with properties like fee, accessibility, opening hours
 
-**Original Source:** `docs/export.geojson` (exported from overpass-turbo)
+**Original Source:** `data/toilets.geojson` (exported from overpass-turbo)
 
 **Sample Feature Structure:**
 ```json

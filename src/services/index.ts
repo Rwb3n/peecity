@@ -14,6 +14,7 @@ export { DuplicateService, duplicateService } from './duplicateService';
 export { RateLimitService, rateLimitService } from './rateLimitService';
 export { SuggestionLogService, suggestionLogService } from './suggestionLogService';
 export { IngestService, ingestService } from './ingestService';
+export { SuggestPayloadTransformer } from './SuggestPayloadTransformer';
 
 // Re-export types for convenience
 export type { ValidationRequest, ValidationResult } from './validationService';
@@ -21,3 +22,4 @@ export type { DuplicateCheckRequest, DuplicateCheckResult } from './duplicateSer
 export type { RateLimitRequest, RateLimitResult } from './rateLimitService';
 export type { LogSuggestionRequest } from './suggestionLogService';
 export type { IngestOptions, IngestResult } from './ingestService';
+export type { ContributionFormData, SuggestV1Payload, SuggestV2Payload } from './SuggestPayloadTransformer';

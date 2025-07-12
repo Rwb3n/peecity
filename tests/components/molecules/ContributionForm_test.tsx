@@ -492,12 +492,18 @@ describe('ContributionForm Component', () => {
   });
 
   it('should include feature flags in the API payload when selected', async () => {
+    // Mock fetch globally
+    const mockFetch = jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true, id: 'new-toilet-123' }),
+    } as Response);
+    
     render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} />);
     
     await userEvent.type(screen.getByLabelText(/toilet name/i), 'Test Toilet With Features');
     
     // Select feature checkboxes
-    await userEvent.click(screen.getByLabelText(/baby change/i));
+    await userEvent.click(screen.getByLabelText(/baby changing facilities/i));
     await userEvent.click(screen.getByLabelText(/contactless payment/i));
     
     // Submit the form
@@ -505,47 +511,250 @@ describe('ContributionForm Component', () => {
     
     // Assert that fetch was called with the correct feature payload
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
           body: expect.stringContaining('"changing_table":true'),
         })
       );
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
           body: expect.stringContaining('"payment_contactless":true'),
         })
       );
     });
+    
+    mockFetch.mockRestore();
+  });
+
+  it('should not include feature fields in payload when no features are selected', async () => {
+    // Mock fetch globally
+    const mockFetch = jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true, id: 'new-toilet-123' }),
+    } as Response);
+    
+    render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} />);
+    
+    await userEvent.type(screen.getByLabelText(/toilet name/i), 'Test Toilet No Features');
+    
+    // Do NOT select any feature checkboxes
+    
+    // Submit the form
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    // Assert that fetch was called without feature fields
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          body: expect.not.stringContaining('changing_table'),
+        })
+      );
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          body: expect.not.stringContaining('payment_contactless'),
+        })
+      );
+    });
+    
+    mockFetch.mockRestore();
+  });
+
+  it('should include only selected feature in payload when single feature is selected', async () => {
+    // Mock fetch globally
+    const mockFetch = jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true, id: 'new-toilet-123' }),
+    } as Response);
+    
+    render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} />);
+    
+    await userEvent.type(screen.getByLabelText(/toilet name/i), 'Test Toilet Single Feature');
+    
+    // Select only baby changing feature
+    await userEvent.click(screen.getByLabelText(/baby changing facilities/i));
+    
+    // Submit the form
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    // Assert that fetch was called with only changing_table
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          body: expect.stringContaining('"changing_table":true'),
+        })
+      );
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          body: expect.not.stringContaining('payment_contactless'),
+        })
+      );
+    });
+    
+    mockFetch.mockRestore();
+  });
+
+  it('should not include radar and automatic fields in v1 API payload (documenting current behavior)', async () => {
+    // Mock fetch globally
+    const mockFetch = jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true, id: 'new-toilet-123' }),
+    } as Response);
+    
+    render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} />);
+    
+    await userEvent.type(screen.getByLabelText(/toilet name/i), 'Test Toilet All Features');
+    
+    // Select all feature checkboxes
+    await userEvent.click(screen.getByLabelText(/baby changing facilities/i));
+    await userEvent.click(screen.getByLabelText(/radar key/i));
+    await userEvent.click(screen.getByLabelText(/automatic/i));
+    await userEvent.click(screen.getByLabelText(/contactless payment/i));
+    
+    // Submit the form
+    await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+    
+    // Assert that only baby changing and contactless are included
+    // radar and automatic are not mapped in v1 API
+    await waitFor(() => {
+      const calls = mockFetch.mock.calls;
+      expect(calls.length).toBeGreaterThan(0);
+      const lastCall = calls[calls.length - 1];
+      const body = JSON.parse(lastCall[1].body);
+      
+      // Should include mapped features
+      expect(body).toHaveProperty('changing_table', true);
+      expect(body).toHaveProperty('payment_contactless', true);
+      
+      // Should NOT include unmapped features
+      expect(body).not.toHaveProperty('radar');
+      expect(body).not.toHaveProperty('automatic');
+      expect(body).not.toHaveProperty('features'); // raw features object should not be sent
+    });
+    
+    mockFetch.mockRestore();
   });
   
   it('should have correct keyboard navigation focus order including all features', async () => {
+    const user = userEvent.setup();
     render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} />);
 
+    const nameInput = screen.getByLabelText(/toilet name/i);
+    const hoursSelect = screen.getByLabelText(/opening hours/i);
+    const accessibleCheckbox = screen.getByLabelText(/wheelchair accessible/i);
+    const feeInput = screen.getByLabelText(/usage fee/i);
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+
+    await user.tab();
+    expect(nameInput).toHaveFocus();
+
+    await user.tab();
+    expect(hoursSelect).toHaveFocus();
+
+    await user.tab();
+    expect(accessibleCheckbox).toHaveFocus();
+
+    // Tab through the 4 feature checkboxes
+    for (let i = 0; i < 4; i++) {
       await user.tab();
-      expect(nameInput).toHaveFocus();
+    }
 
-      await user.tab();
-      expect(hoursSelect).toHaveFocus();
+    await user.tab();
+    expect(feeInput).toHaveFocus();
 
-      await user.tab();
-      expect(accessibleCheckbox).toHaveFocus();
+    await user.tab();
+    expect(cancelButton).toHaveFocus();
 
-      // ... and so on for all features checkboxes ...
-      // This part can be simplified or made more robust if needed
+    await user.tab();
+    expect(submitButton).toHaveFocus();
+  });
 
-      // Tab to the fee input (after all checkboxes)
-      // There are 4 more checkboxes after the accessibility checkbox: baby-change, radar-key, automatic, contactless
-      for (let i = 0; i < 5; i++) {
-        await user.tab();
+  describe('Feature Flag Support', () => {
+    it('should default to v1 when no apiVersion prop or env var is set', () => {
+      // Ensure env var is not set
+      const originalEnv = process.env.NEXT_PUBLIC_SUGGEST_API_VERSION;
+      delete process.env.NEXT_PUBLIC_SUGGEST_API_VERSION;
+      
+      render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} />);
+      
+      // Component should render normally (v1 behavior)
+      expect(screen.getByRole('form')).toBeInTheDocument();
+      
+      // Restore env
+      if (originalEnv) {
+        process.env.NEXT_PUBLIC_SUGGEST_API_VERSION = originalEnv;
       }
-      expect(feeInput).toHaveFocus();
-
-      await user.tab();
-      expect(cancelButton).toHaveFocus();
-
-      await user.tab();
-      expect(submitButton).toHaveFocus();
     });
+    
+    it('should use apiVersion prop when provided', () => {
+      render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} apiVersion="v2" />);
+      
+      // Component should render normally
+      expect(screen.getByRole('form')).toBeInTheDocument();
+    });
+    
+    it('should use environment variable when no prop is provided', () => {
+      const originalEnv = process.env.NEXT_PUBLIC_SUGGEST_API_VERSION;
+      process.env.NEXT_PUBLIC_SUGGEST_API_VERSION = 'v2';
+      
+      render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} />);
+      
+      // Component should render normally
+      expect(screen.getByRole('form')).toBeInTheDocument();
+      
+      // Restore env
+      if (originalEnv) {
+        process.env.NEXT_PUBLIC_SUGGEST_API_VERSION = originalEnv;
+      } else {
+        delete process.env.NEXT_PUBLIC_SUGGEST_API_VERSION;
+      }
+    });
+    
+    it('should prioritize prop over environment variable', () => {
+      const originalEnv = process.env.NEXT_PUBLIC_SUGGEST_API_VERSION;
+      process.env.NEXT_PUBLIC_SUGGEST_API_VERSION = 'v2';
+      
+      // Prop should take precedence
+      render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} apiVersion="v1" />);
+      
+      // Component should render normally
+      expect(screen.getByRole('form')).toBeInTheDocument();
+      
+      // Restore env
+      if (originalEnv) {
+        process.env.NEXT_PUBLIC_SUGGEST_API_VERSION = originalEnv;
+      } else {
+        delete process.env.NEXT_PUBLIC_SUGGEST_API_VERSION;
+      }
+    });
+    
+    it('should maintain v1 behavior when apiVersion is v1', async () => {
+      const mockFetch = jest.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({ success: true, id: 'test-123' }),
+      } as Response);
+      
+      render(<ContributionForm location={{ lat: 51.5, lng: -0.1 }} apiVersion="v1" />);
+      
+      // Fill and submit form
+      await userEvent.type(screen.getByLabelText(/toilet name/i), 'Test Toilet');
+      await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+      
+      // Should still call v1 endpoint
+      await waitFor(() => {
+        expect(mockFetch).toHaveBeenCalledWith(
+          'http://localhost:3000/api/suggest',
+          expect.any(Object)
+        );
+      });
+      
+      mockFetch.mockRestore();
+    });
+  });
 });

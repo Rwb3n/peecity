@@ -14,6 +14,47 @@ Updates are prepended below chronologically with key technical decisions and out
 
 ---
 
+### [g=200] 2025-07-12 - Post-Migration Documentation Updates
+
+#### 📚 Comprehensive Documentation Alignment After Major Epics
+- **Changed**: Updated CLAUDE.md g counter from 123 to 197 (closed 74-event gap)
+- **Changed**: Updated Frontend UI epic status to reflect completed molecules with 100% test coverage
+- **Added**: API v2 Migration & Feature Flags section to CLAUDE.md documenting safe migration strategy
+- **Added**: Safe Migration Patterns subsection with 5-gate safety process from plan_0066
+- **Added**: Recent Debugging Patterns subsection capturing molecule saga learnings (g=191-197)
+- **Added**: Three new cookbook recipe references for migration and testing patterns
+- **Fixed**: Relocated export.geojson to data/toilets.geojson, unblocking plan_0068 for MapView implementation
+- **Fixed**: Updated 5 critical file references to correct toilet data path
+- **Architecture**: Documented feature flag precedence: Component prop → Environment variable → Default value
+- **Status**: Documentation now accurately reflects all completed work through g=197
+
+### [g=199] 2025-07-12 - ContributionForm v2 API Migration Complete
+
+#### 🚀 Safe Migration to v2 Suggest API Endpoint
+- **Implemented**: SuggestPayloadTransformer service for v1/v2 payload transformations
+- **Implemented**: Feature flag support in ContributionForm with `apiVersion` prop
+- **Implemented**: Smart defaults strategy for v2 core properties (wheelchair: 'unknown', opening_hours: '24/7')
+- **Implemented**: Dual endpoint support - both /api/suggest and /api/v2/suggest operating concurrently
+- **Added**: Comprehensive v2 integration tests with transformer verification
+- **Added**: Migration monitoring in SuggestionLogService tracking API version usage
+- **Added**: 420-line runbook for v2 rollout (docs/runbooks/contributionform-v2-rollout.md)
+- **Architecture**: Zero breaking changes - v1 continues working exactly as before
+- **Architecture**: Feature flags enable instant rollback if issues arise
+- **Verified**: All 26 ContributionForm tests passing with dual endpoint support
+- **Status**: v2 migration infrastructure complete, ready for gradual rollout
+
+### [g=198] 2025-07-12 - ContributionForm Payload Bug Fixed
+
+#### 🐛 Critical Bug Fix: Feature Data Now Properly Sent to API
+- **Fixed**: ContributionForm was collecting but not sending feature data (baby change, contactless payment)
+- **Added**: Comprehensive test verifying feature data appears in API payload
+- **Implemented**: Feature mapping in handleFormSubmit: `features.babyChange` → `requestBody.changing_table`
+- **Implemented**: Feature mapping in handleFormSubmit: `features.contactless` → `requestBody.payment_contactless`
+- **Architecture**: Followed strict TDD with safety gates to prevent regression
+- **Verified**: All 26 existing tests continue passing after fix
+- **Verified**: New test confirms feature data properly included in API submission
+- **Status**: Users can now successfully submit toilet features that will be saved
+
 ### [g=197] 2025-07-11 - Documentation Excellence & Safe Migration Patterns
 
 #### 📚 Comprehensive Documentation Update Based on Real-World Debugging Experience
@@ -414,7 +455,7 @@ Updates are prepended below chronologically with key technical decisions and out
 
 #### 🚨 Major Schema Discovery - API Documentation Critically Incomplete
 - **Issue #0008 RAISED**: API documentation covers only 8.6% (9/104) of real OSM properties
-  - Systematic analysis of `/docs/export.geojson` reveals 104 unique properties across 1,042 toilet locations
+  - Systematic analysis of `/data/toilets.geojson` reveals 104 unique properties across 1,042 toilet locations
   - Current schema assumptions fundamentally incorrect (boolean vs string "yes"/"no")
   - High-value missing: male/female (447 total), unisex (118), toilets:disposal (175), payment methods (13 types)
 - **Issue #0009 RAISED**: ValidationService architecture mismatch with OSM data complexity

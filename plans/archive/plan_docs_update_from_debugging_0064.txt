@@ -1,0 +1,33 @@
+{
+    "plan_id": "docs_update_from_debugging_0064",
+    "g": 192,
+    "plan_name": "Documentation Update from Molecule Debugging Saga",
+    "plan_description": "Create and update documentation to reflect the key learnings from the extensive debugging of the molecule components (especially ContributionForm). This includes best practices for API testing, react-hook-form with Zod, and writing robust asynchronous component tests.",
+    "tasks": [
+        {
+            "task_id": "update_api_testing_guide",
+            "task_type": "REFACTORING",
+            "task_description": "Update 'docs/howto/test-api-endpoints.md' to include a new major section on 'Automated Integration Testing with Jest'. This section will strongly recommend using 'jest.spyOn(global, 'fetch')' over 'nock', explaining the rationale (stability, ease of debugging) and providing a comprehensive code example for testing success, client error, and server error states.",
+            "dependencies": [],
+            "confidence_level": "High",
+            "justification": "The pattern is well-established from the debugging work. The existing document provides a clear place for this new section."
+        },
+        {
+            "task_id": "create_zod_recipe",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Create a new cookbook document 'docs/cookbook/recipe_react_hook_form_with_zod.md'. This document will serve as the canonical guide for using react-hook-form and Zod together. It must include: 1) The standard setup. 2) The 'z.coerce.number()' pattern for numeric inputs. 3) The correct 'error.issues' parsing pattern for ZodError objects. 4) The manual 'safeParse()' validation fallback pattern.",
+            "dependencies": [],
+            "confidence_level": "High",
+            "justification": "These patterns were the direct result of solving critical bugs and are now well understood."
+        },
+        {
+            "task_id": "create_robust_testing_recipe",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Create a new cookbook document 'docs/cookbook/recipe_robust_react_testing.md'. This recipe will focus on writing reliable React component tests. It must cover: 1) Using 'findBy*' and 'waitFor' for async operations. 2) The standard pattern for fixing 'act()' warnings by wrapping userEvent calls. 3) A strategy for choosing robust selectors (e.g., role, aria-label). 4) Guidance on testing accessibility features like keyboard focus order.",
+            "dependencies": [],
+            "confidence_level": "High",
+            "justification": "The learnings are distilled from solving over a dozen failing tests and represent a clear improvement in testing strategy."
+        }
+    ],
+    "version": "1.0.0"
+} 

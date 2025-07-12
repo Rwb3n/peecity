@@ -1,0 +1,33 @@
+{
+  "id": "plan_0011",
+  "v": 1,
+  "goal": "Fix failing SearchBar geolocation integration tests by ensuring mocked useGeolocation is correctly applied and component reflects loading and error states.",
+  "epic": "frontend_molecules",
+  "preceding_plan_ref": "plan_frontend_molecules.txt",
+  "tasks": [
+    {
+      "id": "task1_geo_test_create",
+      "title": "Create failing test for geolocation hook invocation",
+      "type": "TEST_CREATION",
+      "description": "Add a new Jest test in tests/components/molecules/SearchBar_test.tsx that asserts clicking the geolocation button invokes requestLocation from the mocked useGeolocation hook. This should initially fail (RED).",
+      "dependencies": [],
+      "confidence_level": "High"
+    },
+    {
+      "id": "task2_geo_impl_fix",
+      "title": "Implement import-order and isLoading fixes",
+      "type": "IMPLEMENTATION",
+      "description": "Reorder mock declaration to very top of SearchBar_test.tsx, switch back to simple per-test mockReturnValue pattern, and update SearchBar component to use composite isLoading for aria-busy and loading indicator. This should turn all SearchBar tests green (GREEN).",
+      "dependencies": ["task1_geo_test_create"],
+      "confidence_level": "High"
+    },
+    {
+      "id": "task3_geo_refactor",
+      "title": "Refactor SearchBar tests for clarity and DRYness",
+      "type": "REFACTORING",
+      "description": "Remove geoState mutable object, restore setGeoMock helper, eliminate duplication across tests, ensure all tests continue to pass (REFACTOR).",
+      "dependencies": ["task2_geo_impl_fix"],
+      "confidence_level": "High"
+    }
+  ]
+} 

@@ -11,6 +11,7 @@ import { Input } from '@/components/atoms/Input';
 import { Button } from '@/components/atoms/Button';
 import { cn } from '@/lib/utils';
 import { act } from 'react';
+import { SuggestPayloadTransformer } from '@/services/SuggestPayloadTransformer';
 
 const formSchemaObject = z.object({
   name: z.string()
@@ -30,6 +31,40 @@ const formSchemaObject = z.object({
     contactless: z.boolean(),
   }),
 });
+
+// Extract features type from schema for type safety
+type Features = z.infer<typeof formSchemaObject>['features'];
+
+/**
+ * Maps form feature selections to v1 API payload format
+ * @param features - Feature selections from the form
+ * @returns Object with v1 API field names and values
+ * 
+ * Current v1 API mappings:
+ * - babyChange -> changing_table
+ * - contactless -> payment_contactless
+ * - radar and automatic are not supported in v1
+ */
+const mapFeaturesToApi = (features?: Features): Record<string, boolean> => {
+  const mapped: Record<string, boolean> = {};
+  
+  if (!features) {
+    return mapped;
+  }
+  
+  // Map only v1 supported features
+  if (features.babyChange) {
+    mapped.changing_table = true;
+  }
+  
+  if (features.contactless) {
+    mapped.payment_contactless = true;
+  }
+  
+  // Note: radar and automatic are intentionally not mapped (v1 limitation)
+  
+  return mapped;
+};
 
 const formSchema = formSchemaObject.refine((data) => {
   if (data.hours === 'custom') {
@@ -55,6 +90,7 @@ export interface ContributionFormProps {
   loading?: boolean;
   initialData?: Partial<ContributionFormData>;
   className?: string;
+  apiVersion?: 'v1' | 'v2';
 }
 
 export const ContributionForm: React.FC<ContributionFormProps> = ({
@@ -65,7 +101,26 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
   loading = false,
   initialData,
   className,
+  apiVersion: apiVersionProp,
 }) => {
+  // Determine API version with precedence: prop > env var > default
+  const getApiVersion = (): 'v1' | 'v2' => {
+    // 1. Prop takes highest precedence
+    if (apiVersionProp) {
+      return apiVersionProp;
+    }
+    
+    // 2. Environment variable takes second precedence
+    const envVersion = process.env.NEXT_PUBLIC_SUGGEST_API_VERSION;
+    if (envVersion === 'v2') {
+      return 'v2';
+    }
+    
+    // 3. Default to v1
+    return 'v1';
+  };
+  
+  const apiVersion = getApiVersion();
   const [apiError, setApiError] = React.useState<string | null>(null);
   
   const [manualErrors, setManualErrors] = React.useState<Record<string, { message: string }>>({});
@@ -181,17 +236,31 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
       }
 
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      // Always use v1 endpoint for now (tests only intercept v1)
-      const endpoint = `${baseUrl}/api/suggest`;
+      const endpoint = apiVersion === 'v2' ? `${baseUrl}/api/v2/suggest` : `${baseUrl}/api/suggest`;
       
-      const requestBody = {
-        name: validationResult.data.name,
-        lat: validationResult.data.lat,
-        lng: validationResult.data.lng,
-        hours: validationResult.data.hours === 'custom' ? validationResult.data.customHours : validationResult.data.hours || '',
-        accessible: validationResult.data.accessible,
+      // Log API version usage for monitoring
+      console.log('[ContributionForm] Submitting suggestion', {
+        apiVersion,
+        endpoint,
+        timestamp: new Date().toISOString(),
+        hasName: !!validationResult.data.name,
+        coordinates: { lat: validationResult.data.lat, lng: validationResult.data.lng }
+      });
+      
+      // Create transformer instance
+      const transformer = new SuggestPayloadTransformer();
+      
+      // Build form data with resolved hours
+      const formDataForTransformer = {
+        ...validationResult.data,
+        hours: validationResult.data.hours === 'custom' ? validationResult.data.customHours : validationResult.data.hours,
         fee: parseFloat(feeValue) || 0,
       };
+      
+      // Use transformer based on API version
+      const requestBody = apiVersion === 'v2' 
+        ? transformer.transformToV2Payload(formDataForTransformer)
+        : transformer.transformToV1Payload(formDataForTransformer);
       
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -204,8 +273,23 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
       const result = await response.json();
 
       if (!response.ok) {
+        // Log API errors for monitoring
+        console.error('[ContributionForm] API error', {
+          apiVersion,
+          endpoint,
+          status: response.status,
+          error: result.error,
+          timestamp: new Date().toISOString()
+        });
         throw new Error(result.error || 'Failed to submit suggestion.');
       }
+
+      // Log successful submission
+      console.log('[ContributionForm] Submission successful', {
+        apiVersion,
+        suggestionId: result.id || result.suggestionId,
+        timestamp: new Date().toISOString()
+      });
 
       onSuccess?.(result);
     } catch (error) {

@@ -1,0 +1,46 @@
+{
+    "id": "plan_final_focus_and_act_fix_0057",
+    "version": 1,
+    "g_event_created": 184,
+    "title": "Final Test Suite Fix: Correct Focus Order and Act Warnings",
+    "description": "This is the final plan to achieve 100% test pass rate for molecules. It fixes the last two failing keyboard navigation tests and wraps all state-updating user events in `act()` to resolve console warnings.",
+    "references": {
+        "issue_id": "issue_0052",
+        "target_tests": [
+            "tests/components/molecules/SearchBar_test.tsx",
+            "tests/components/molecules/MarkerPopup_test.tsx"
+        ]
+    },
+    "tasks": [
+        {
+            "id": "final_test_refactoring",
+            "type": "REFACTORING",
+            "description": "Modify the main molecule test files to fix the final errors. 1. In `SearchBar_test.tsx`, update the keyboard navigation test to type into the input field before tabbing. 2. In `MarkerPopup_test.tsx`, correct the keyboard navigation test to expect the correct DOM-based focus order (Close button first). 3. In both test files, wrap any `user.type` or `user.click` that causes a state update (`setInternalValue`, `setExpanded`) within an `act()` block imported from `react`.",
+            "acceptance_criteria": [
+                "The SearchBar keyboard test must be fixed.",
+                "The MarkerPopup keyboard test must be fixed.",
+                "All `act()` warnings in the test output must be eliminated."
+            ],
+            "dependencies": [],
+            "status": "PENDING",
+            "confidence_level": "High",
+            "justification": "This task applies the final, well-understood fixes to the test suite."
+        },
+        {
+            "id": "final_green_validation",
+            "type": "VALIDATION",
+            "description": "Run the entire molecule test suite (`npm test -- tests/components/molecules/`). All tests must now pass with zero errors or warnings.",
+            "acceptance_criteria": [
+                "The command `npm test -- tests/components/molecules/` must exit with code 0.",
+                "The test output must show all tests passing.",
+                "The `plan_frontend_ui_detailed_task_molecules_implementation_status.md` status report must be updated to `VALIDATION_PASSED`."
+            ],
+            "dependencies": [
+                "final_test_refactoring"
+            ],
+            "status": "PENDING",
+            "confidence_level": "High",
+            "justification": "This is the final check for a fully green test suite."
+        }
+    ]
+} 

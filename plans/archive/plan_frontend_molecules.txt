@@ -1,0 +1,319 @@
+{
+  "id": "frontend_molecules",
+  "goal": "Deliver atomic design Level 2 components (SearchBar, MarkerPopup, ContributionForm) with state management, geolocation integration, and mobile-optimized user interactions",
+  "dependencies": {
+    "plan_prerequisites": "plan_frontend_atoms.config_refactor DONE"
+  },
+  "user_stories": [
+    {
+      "id": "US001",
+      "title": "As a mobile user, I want to see a map with toilet locations so I can quickly find the nearest toilet",
+      "acceptance_criteria": [
+        "Search functionality for location-based queries",
+        "Mobile-optimized search interface"
+      ]
+    },
+    {
+      "id": "US002", 
+      "title": "As a user in a hurry, I want to tap a toilet marker and see essential details so I can decide if it meets my needs",
+      "acceptance_criteria": [
+        "Marker popup shows: name, hours, accessibility, fee, distance",
+        "Information displays clearly on small mobile screens"
+      ]
+    },
+    {
+      "id": "US003",
+      "title": "As a community member, I want to suggest missing toilets so others can benefit from my local knowledge",
+      "acceptance_criteria": [
+        "Contribution form with location detection",
+        "Form validates required fields with helpful error messages"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "search_test",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests for SearchBar molecule and useGeolocation hook: geolocation integration, search query handling, mobile-optimized layout, and suggestion dropdown behavior",
+      "user_story_ref": "US001",
+      "dependencies": [],
+      "external_dependencies": ["Jest", "@testing-library/react", "@testing-library/user-event"],
+      "confidence_level": "High",
+      "confidence_justification": "SearchBar component has well-defined interface and testable user interactions",
+      "self_critique": "Geolocation testing in JSDOM requires careful mocking. Browser permission APIs may behave differently across test environments.",
+      "validation_expectations": {
+        "red_phase": "SearchBar component and useGeolocation hook tests fail (components don't exist)",
+        "test_count": "Minimum 8 tests covering input, geolocation, suggestions",
+        "test_runtime": "< 3 seconds for SearchBar test suite",
+        "geolocation_mocking": "Proper mocking of navigator.geolocation API"
+      },
+      "test_files": [
+        "tests/components/molecules/SearchBar_test.tsx",
+        "tests/hooks/useGeolocation_test.tsx"
+      ],
+      "storybook_files": [
+        "src/components/molecules/SearchBar/SearchBar.stories.tsx"
+      ],
+      "acceptance_criteria": [
+        "Tests verify search input handling and validation",
+        "Geolocation permission request flow tested with mocks",
+        "useGeolocation hook unit tests included",
+        "Suggestion dropdown interactions verified",
+        "Mobile touch interactions tested",
+        "Accessibility keyboard navigation tested",
+        "All tests fail initially (RED phase requirement)"
+      ]
+    },
+    {
+      "id": "search_impl",
+      "type": "IMPLEMENTATION", 
+      "description": "Implement SearchBar molecule with geolocation API integration, search query handling, mobile-first layout, accessible suggestion dropdown, and dedicated useGeolocation hook using atomic components",
+      "user_story_ref": "US001",
+      "dependencies": ["search_test"],
+      "external_dependencies": ["react-hook-form"],
+      "confidence_level": "Medium",
+      "confidence_justification": "Geolocation API has browser compatibility variations and permission handling complexity",
+      "self_critique": "Cross-browser geolocation behavior can be inconsistent. Permission prompts may block in automated testing environments.",
+      "validation_expectations": {
+        "green_phase": "All SearchBar and useGeolocation tests pass",
+        "geolocation_testing": "Manual testing required across different browsers",
+        "performance_target": "Search response time < 200ms",
+        "debounce_validation": "Search debouncing reduces API calls by 70%"
+      },
+      "implementation_files": [
+        "src/components/molecules/SearchBar/SearchBar.tsx",
+        "src/components/molecules/SearchBar/index.ts",
+        "src/hooks/useGeolocation.ts"
+      ],
+      "acceptance_criteria": [
+        "SearchBar component implemented with TypeScript interface",
+        "useGeolocation hook with comprehensive error handling",
+        "Geolocation API integration with permission management",
+        "Search suggestions dropdown functional",
+        "Mobile-optimized layout with thumb-friendly targets",
+        "Accessibility compliance verified",
+        "All SearchBar and geolocation tests pass (GREEN phase requirement)",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "search_refactor",
+      "type": "REFACTORING",
+      "description": "Optimize SearchBar for mobile performance, enhance error handling for geolocation failures, improve search debouncing, add comprehensive interaction testing, and create Chromatic baseline",
+      "user_story_ref": "US001",
+      "dependencies": ["search_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Performance optimization results can vary across mobile devices and network conditions",
+      "self_critique": "Search debouncing optimization may need device-specific tuning. Network latency variations could affect performance measurements.",
+      "validation_expectations": {
+        "refactor_phase": "All SearchBar tests continue passing",
+        "performance_improvement": "Search debounce reduces API calls by 70%",
+        "error_resilience": "Graceful degradation when geolocation unavailable",
+        "chromatic_baseline": "Visual regression baseline established"
+      },
+      "acceptance_criteria": [
+        "Search debouncing implemented (300ms delay)",
+        "Comprehensive error boundaries for geolocation failures",
+        "Performance optimized for lower-end mobile devices",
+        "Enhanced accessibility with live regions",
+        "Chromatic visual regression baseline created",
+        "All tests continue passing (REFACTOR phase requirement)",
+        "docs/cookbook/recipe_geolocation_integration.md created",
+        "Tests verify docs/cookbook/recipe_geolocation_integration.md exists and contains ≥ 30 lines",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "popup_test_create",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests for MarkerPopup molecule: toilet data display, mobile-optimized positioning, accessibility, and directions integration",
+      "user_story_ref": "US002",
+      "dependencies": ["search_refactor"],
+      "external_dependencies": ["Jest", "@testing-library/react"],
+      "confidence_level": "High",
+      "confidence_justification": "MarkerPopup has predictable data display patterns and clear interaction requirements",
+      "self_critique": "Popup positioning logic can be complex with edge cases around viewport boundaries. Testing may not cover all device orientations.",
+      "validation_expectations": {
+        "red_phase": "MarkerPopup component tests fail (component doesn't exist)",
+        "test_count": "Minimum 6 tests covering data display and interactions",
+        "test_runtime": "< 2 seconds for MarkerPopup test suite"
+      },
+      "test_files": [
+        "tests/components/molecules/MarkerPopup_test.tsx"
+      ],
+      "storybook_files": [
+        "src/components/molecules/MarkerPopup/MarkerPopup.stories.tsx"
+      ],
+      "acceptance_criteria": [
+        "Tests verify toilet data rendering (name, hours, accessibility)",
+        "Mobile positioning and sizing tested",
+        "Directions button functionality verified",
+        "Accessibility attributes tested",
+        "All tests fail initially (RED phase requirement)"
+      ]
+    },
+    {
+      "id": "popup_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Implement MarkerPopup molecule with toilet data display, mobile-optimized positioning, accessibility features, and directions integration",
+      "user_story_ref": "US002", 
+      "dependencies": ["popup_test_create"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "MarkerPopup implementation follows established popup patterns with clear data requirements",
+      "self_critique": "While popup patterns are well-established, mobile positioning across different screen sizes may require extensive testing.",
+      "validation_expectations": {
+        "green_phase": "All MarkerPopup tests pass",
+        "visual_verification": "Popup displays correctly on mobile screens",
+        "accessibility_verified": "Screen reader navigation functional"
+      },
+      "implementation_files": [
+        "src/components/molecules/MarkerPopup/MarkerPopup.tsx",
+        "src/components/molecules/MarkerPopup/index.ts"
+      ],
+      "acceptance_criteria": [
+        "MarkerPopup component displays toilet information correctly",
+        "Mobile-optimized layout with proper positioning",
+        "Directions button links to maps application",
+        "Accessibility compliance with ARIA labels",
+        "All MarkerPopup tests pass (GREEN phase requirement)",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "popup_refactor",
+      "type": "REFACTORING",
+      "description": "Optimize MarkerPopup for performance, enhance mobile UX with better positioning logic, improve accessibility, and add visual regression testing",
+      "user_story_ref": "US002",
+      "dependencies": ["popup_impl"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "MarkerPopup refactoring involves well-understood UX improvements and performance patterns",
+      "self_critique": "Intelligent positioning algorithms can be complex. Edge cases around viewport boundaries may require extensive testing.",
+      "validation_expectations": {
+        "refactor_phase": "All MarkerPopup tests continue passing",
+        "positioning_improved": "Popup stays within viewport bounds",
+        "performance_optimized": "Render time < 50ms"
+      },
+      "acceptance_criteria": [
+        "Intelligent positioning prevents popup overflow",
+        "Performance optimized with proper memoization",
+        "Enhanced accessibility with focus management",
+        "Visual regression tests added to Storybook",
+        "All tests continue passing (REFACTOR phase requirement)",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "form_test_create",
+      "type": "TEST_CREATION",
+      "description": "Create failing tests for ContributionForm molecule: form validation, location detection, mobile UX, API integration mocking, and accessibility compliance",
+      "user_story_ref": "US003",
+      "dependencies": ["popup_refactor"],
+      "external_dependencies": ["Jest", "@testing-library/react", "@testing-library/user-event", "nock"],
+      "confidence_level": "Medium",
+      "confidence_justification": "ContributionForm involves complex form validation and API integration which may have edge cases",
+      "self_critique": "Form validation edge cases can be numerous. API integration testing with nock may not cover all real-world network scenarios.",
+      "validation_expectations": {
+        "red_phase": "ContributionForm component tests fail (component doesn't exist)",
+        "test_count": "Minimum 10 tests covering validation, submission, errors",
+        "test_runtime": "< 5 seconds for ContributionForm test suite"
+      },
+      "test_files": [
+        "tests/components/molecules/ContributionForm_test.tsx"
+      ],
+      "storybook_files": [
+        "src/components/molecules/ContributionForm/ContributionForm.stories.tsx"
+      ],
+      "acceptance_criteria": [
+        "Tests verify form field validation and error messages",
+        "API integration mocked with nock for submission testing",
+        "Location detection functionality tested",
+        "Mobile-friendly form layout verified",
+        "Accessibility compliance tested",
+        "All tests fail initially (RED phase requirement)"
+      ]
+    },
+    {
+      "id": "form_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Implement ContributionForm molecule with React Hook Form validation, location detection, mobile-optimized layout, and integration with existing /api/suggest endpoint",
+      "user_story_ref": "US003",
+      "dependencies": ["form_test_create"],
+      "external_dependencies": ["react-hook-form", "@hookform/resolvers", "zod"],
+      "confidence_level": "Medium",
+      "confidence_justification": "Form implementation requires careful validation logic and API integration which may need iterative refinement",
+      "self_critique": "Form validation schemas can become complex. Mobile keyboard optimization may require device-specific adjustments.",
+      "validation_expectations": {
+        "green_phase": "All ContributionForm tests pass",
+        "api_integration": "Form successfully submits to /api/suggest",
+        "validation_robust": "All edge cases handled gracefully"
+      },
+      "implementation_files": [
+        "src/components/molecules/ContributionForm/ContributionForm.tsx",
+        "src/components/molecules/ContributionForm/index.ts",
+        "src/components/molecules/index.ts"
+      ],
+      "acceptance_criteria": [
+        "ContributionForm with comprehensive validation schema",
+        "Location detection with manual fallback",
+        "Mobile-optimized form layout with thumb-friendly controls",
+        "Integration with /api/suggest endpoint functional",
+        "Comprehensive error handling and user feedback",
+        "All ContributionForm tests pass (GREEN phase requirement)",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "form_refactor",
+      "type": "REFACTORING",
+      "description": "Optimize ContributionForm for mobile performance, enhance validation UX with real-time feedback, improve error handling, and create comprehensive form pattern cookbook",
+      "user_story_ref": "US003",
+      "dependencies": ["form_impl"],
+      "external_dependencies": [],
+      "confidence_level": "Medium",
+      "confidence_justification": "Form UX optimization on mobile devices may require device-specific adjustments and user testing",
+      "self_critique": "Real-time validation performance can vary on lower-end devices. Mobile keyboard interaction patterns may need extensive cross-device testing.",
+      "validation_expectations": {
+        "refactor_phase": "All ContributionForm tests continue passing",
+        "ux_improved": "Real-time validation provides immediate feedback",
+        "performance_optimized": "Form renders smoothly on lower-end devices",
+        "validation_debounce": "Real-time validation debounced to 200ms"
+      },
+      "acceptance_criteria": [
+        "Real-time validation with debounced feedback (200ms)",
+        "Enhanced error messaging with actionable suggestions",
+        "Performance optimized for mobile keyboards",
+        "Comprehensive accessibility improvements",
+        "All tests continue passing (REFACTOR phase requirement)",
+        "docs/cookbook/recipe_mobile_forms.md created",
+        "Tests verify docs/cookbook/recipe_mobile_forms.md exists and contains ≥ 30 lines",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    },
+    {
+      "id": "deps_config_impl",
+      "type": "IMPLEMENTATION",
+      "description": "Update aiconfig.json with new runtime dependencies: react-hook-form, @hookform/resolvers, zod for form validation patterns and register them in validated_patterns",
+      "user_story_ref": "US003",
+      "dependencies": ["form_refactor"],
+      "external_dependencies": [],
+      "confidence_level": "High",
+      "confidence_justification": "Simple aiconfig.json update with established patterns",
+      "self_critique": "Dependency registration is straightforward but maintaining consistency across all new libraries requires careful verification.",
+      "validation_expectations": {
+        "green_phase": "aiconfig.json contains all new form validation dependencies",
+        "consistency_check": "All dependencies match external_dependencies in tasks",
+        "pattern_documented": "Form validation patterns properly documented"
+      },
+      "acceptance_criteria": [
+        "aiconfig.json updated with react-hook-form, @hookform/resolvers, zod",
+        "Form validation patterns added to validated_patterns",
+        "Dependency versions consistent with external_dependencies",
+        "Global event counter (g) incremented",
+        "Modified files include artifact annotation linking to docs/frontend-ui-spec.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "id": "plan_diagnose_contribution_form_0062",
+  "version": 1,
+  "g_event_created": 185,
+  "title": "Diagnose and Fix ContributionForm Test Failures",
+  "description": "Systematic diagnosis and fix plan for the 9 failing ContributionForm tests. This plan addresses fee validation, opening hours input, character race conditions, custom hours logic, API integration, and keyboard navigation issues.",
+  "references": {
+    "status_report": "status/plan_frontend_ui_detailed_task_molecules_implementation_status.md",
+    "target_file": "src/components/molecules/ContributionForm/ContributionForm.tsx",
+    "test_file": "tests/components/molecules/ContributionForm_test.tsx"
+  },
+  "tasks": [
+    {
+      "id": "diagnose_failing_tests",
+      "type": "DIAGNOSTIC_TEST_CREATION",
+      "description": "Create a focused diagnostic test file that isolates the 9 failing ContributionForm tests. This will help us verify fixes in isolation before applying to the main test suite.",
+      "acceptance_criteria": [
+        "Create tests/diagnostics/contribution_form_failures_diag_test.tsx",
+        "Include the 9 failing test cases identified in the status report",
+        "Tests must initially fail to confirm we've captured the issues"
+      ],
+      "dependencies": [],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "Isolating failing tests is a proven debugging technique"
+    },
+    {
+      "id": "fix_fee_validation",
+      "type": "IMPLEMENTATION",
+      "description": "Implement real-time fee validation that shows errors immediately when invalid input is typed, not just on form submission.",
+      "acceptance_criteria": [
+        "Add real-time validation in handleInputChange for fee field",
+        "Show 'Please enter a valid amount' for non-numeric input",
+        "Show 'Fee must be between £0 and £10' for out-of-range values",
+        "Parse fee input properly to handle NaN cases"
+      ],
+      "dependencies": ["diagnose_failing_tests"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "Tests clearly expect immediate validation feedback"
+    },
+    {
+      "id": "fix_opening_hours_input",
+      "type": "IMPLEMENTATION",
+      "description": "Change opening hours from a select element to a text input to match test expectations, or implement a hybrid approach with both select and text input.",
+      "acceptance_criteria": [
+        "Opening hours field must accept typed text input",
+        "Field must be found by getByLabelText(/opening hours/i)",
+        "Value must be included in form submission"
+      ],
+      "dependencies": ["diagnose_failing_tests"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "Test explicitly uses user.type() which requires a text input"
+    },
+    {
+      "id": "fix_input_race_condition",
+      "type": "IMPLEMENTATION",
+      "description": "Fix the character scrambling issue in the name input field by ensuring proper controlled component implementation.",
+      "acceptance_criteria": [
+        "Typing 'Test Toilet' must result in value 'Test Toilet', not 'tTes'",
+        "Ensure value prop is always bound to state",
+        "Ensure onChange updates state synchronously"
+      ],
+      "dependencies": ["diagnose_failing_tests"],
+      "status": "PENDING",
+      "confidence_level": "Medium",
+      "justification": "Confidence: Medium. Race conditions can be tricky and might require debugging React's event handling"
+    },
+    {
+      "id": "fix_custom_hours_flow",
+      "type": "IMPLEMENTATION",
+      "description": "Fix the custom hours input visibility logic to show the custom input field when 'custom' option is selected.",
+      "acceptance_criteria": [
+        "When 'custom' is selected, show additional input field",
+        "Input should have label 'Specify hours'",
+        "Custom hours value must be used in form submission"
+      ],
+      "dependencies": ["fix_opening_hours_input"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "Simple conditional logic fix"
+    },
+    {
+      "id": "fix_api_integration",
+      "type": "IMPLEMENTATION",
+      "description": "Add base URL to API fetch calls so nock can properly intercept them in tests.",
+      "acceptance_criteria": [
+        "Fetch URL must include process.env.NEXT_PUBLIC_API_URL or fallback",
+        "All 3 API integration tests must pass",
+        "Error responses must be properly parsed as JSON"
+      ],
+      "dependencies": ["diagnose_failing_tests"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "URL mismatch is clear from test setup vs implementation"
+    },
+    {
+      "id": "fix_keyboard_navigation",
+      "type": "IMPLEMENTATION",
+      "description": "Remove read-only inputs from tab order by adding tabIndex={-1} to latitude and longitude fields.",
+      "acceptance_criteria": [
+        "Tab order: name → opening hours → accessible → fee → features → buttons",
+        "Latitude and longitude inputs must not receive focus via tab",
+        "All focusable elements must have proper tab order"
+      ],
+      "dependencies": ["diagnose_failing_tests"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "Standard accessibility pattern for read-only fields"
+    },
+    {
+      "id": "validate_diagnostic_fixes",
+      "type": "VALIDATION",
+      "description": "Run the diagnostic test file to ensure all fixes work correctly in isolation.",
+      "acceptance_criteria": [
+        "All 9 diagnostic tests must pass",
+        "No console warnings or errors"
+      ],
+      "dependencies": [
+        "fix_fee_validation",
+        "fix_opening_hours_input",
+        "fix_input_race_condition",
+        "fix_custom_hours_flow",
+        "fix_api_integration",
+        "fix_keyboard_navigation"
+      ],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "All fixes target specific, well-understood issues"
+    },
+    {
+      "id": "validate_full_suite",
+      "type": "VALIDATION",
+      "description": "Run the complete ContributionForm test suite to ensure all 26 tests pass.",
+      "acceptance_criteria": [
+        "npm test -- tests/components/molecules/ContributionForm_test.tsx must pass",
+        "All 26 tests must pass",
+        "No regression in previously passing tests"
+      ],
+      "dependencies": ["validate_diagnostic_fixes"],
+      "status": "PENDING",
+      "confidence_level": "High",
+      "justification": "Fixes address all identified issues"
+    }
+  ]
+}

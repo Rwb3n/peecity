@@ -88,7 +88,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         errors: [{ field: 'rate_limit', message: 'Too many submissions', code: 'rate_limited' }],
         warnings: [],
         isDuplicate: false
-      });
+      }, 'v2');
       
       return createStandardErrorResponse(rateLimitResult.error!);
     }
@@ -109,7 +109,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           validationResult.suggestionId,
           validationResult.data,
           validationResult.validation,
-          ipAddress
+          ipAddress,
+          'v2'
         );
       }
       
@@ -134,7 +135,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         validationResult.suggestionId!,
         validationResult.sanitizedData,
         duplicateResult.validation,
-        ipAddress
+        ipAddress,
+        'v2'
       );
       
       // Return special duplicate response format that includes validation
@@ -157,7 +159,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     await suggestionLogService.logSuccessfulSubmission(
       processedSuggestion,
       enrichedValidation,
-      ipAddress
+      ipAddress,
+      'v2'
     );
     
     logger.info('suggestion_success_v2', 'V2 suggestion processed successfully', {
@@ -199,7 +202,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
     
     try {
-      await suggestionLogService.logServerError(error, ipAddress);
+      await suggestionLogService.logServerError(error, ipAddress, 'v2');
     } catch (logError) {
       console.error('Failed to log server error:', logError);
     }

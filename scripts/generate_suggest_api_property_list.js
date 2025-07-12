@@ -6,7 +6,7 @@
  * @task suggest_api_docs_impl
  * @tdd-phase GREEN
  * 
- * Parses docs/export.geojson to extract all unique properties with:
+ * Parses data/toilets.geojson to extract all unique properties with:
  * - Frequency counts
  * - Data type detection
  * - Enum value extraction
@@ -17,7 +17,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Load the GeoJSON data
-const geojsonPath = path.join(__dirname, '../docs/export.geojson');
+const geojsonPath = path.join(__dirname, '../data/toilets.geojson');
 const geojsonData = JSON.parse(fs.readFileSync(geojsonPath, 'utf8'));
 
 // Initialize property analysis

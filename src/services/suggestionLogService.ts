@@ -20,6 +20,7 @@ export interface LogSuggestionRequest {
   data: any;
   result: SuggestionValidation;
   ipAddress: string;
+  apiVersion?: 'v1' | 'v2'; // Track which API version was used
 }
 
 /**
@@ -48,7 +49,8 @@ export class SuggestionLogService {
       suggestionId: request.suggestionId,
       action: request.action,
       data: { ...request.data, ip_address: request.ipAddress },
-      result: request.result
+      result: request.result,
+      apiVersion: request.apiVersion || 'v1' // Default to v1 for backward compatibility
     };
     
     try {
@@ -57,7 +59,8 @@ export class SuggestionLogService {
       logger.debug('log_suggestion', 'Suggestion logged successfully', { 
         suggestionId: request.suggestionId,
         action: request.action,
-        ipAddress: request.ipAddress
+        ipAddress: request.ipAddress,
+        apiVersion: request.apiVersion || 'v1'
       });
       
       // Also log through the structured logger for additional monitoring
@@ -69,7 +72,8 @@ export class SuggestionLogService {
               ? { lat: request.data.lat, lng: request.data.lng }
               : undefined,
             hasName: !!request.data.name,
-            ipAddress: request.ipAddress
+            ipAddress: request.ipAddress,
+            apiVersion: request.apiVersion || 'v1'
           });
           break;
           
@@ -77,7 +81,8 @@ export class SuggestionLogService {
           logger.warn('suggestion_validation_failed', 'Suggestion validation failed', {
             suggestionId: request.suggestionId,
             errorCount: request.result.errors?.length || 0,
-            ipAddress: request.ipAddress
+            ipAddress: request.ipAddress,
+            apiVersion: request.apiVersion || 'v1'
           });
           break;
           
@@ -122,18 +127,21 @@ export class SuggestionLogService {
    * @param suggestion Processed suggestion data
    * @param validation Validation result
    * @param ipAddress Client IP address
+   * @param apiVersion API version used (v1 or v2)
    */
   async logSuccessfulSubmission(
     suggestion: ProcessedSuggestion,
     validation: SuggestionValidation,
-    ipAddress: string
+    ipAddress: string,
+    apiVersion: 'v1' | 'v2' = 'v1'
   ): Promise<void> {
     await this.logSuggestion({
       suggestionId: suggestion.id,
       action: 'submitted',
       data: suggestion,
       result: validation,
-      ipAddress
+      ipAddress,
+      apiVersion
     });
   }
 
@@ -143,19 +151,22 @@ export class SuggestionLogService {
    * @param data Original request data
    * @param validation Validation result with errors
    * @param ipAddress Client IP address
+   * @param apiVersion API version used (v1 or v2)
    */
   async logValidationFailure(
     suggestionId: string,
     data: any,
     validation: SuggestionValidation,
-    ipAddress: string
+    ipAddress: string,
+    apiVersion: 'v1' | 'v2' = 'v1'
   ): Promise<void> {
     await this.logSuggestion({
       suggestionId,
       action: 'validation_failed',
       data,
       result: validation,
-      ipAddress
+      ipAddress,
+      apiVersion
     });
   }
 
@@ -165,19 +176,22 @@ export class SuggestionLogService {
    * @param data Sanitized suggestion data
    * @param validation Validation result with duplicate info
    * @param ipAddress Client IP address
+   * @param apiVersion API version used (v1 or v2)
    */
   async logDuplicateDetection(
     suggestionId: string,
     data: any,
     validation: SuggestionValidation,
-    ipAddress: string
+    ipAddress: string,
+    apiVersion: 'v1' | 'v2' = 'v1'
   ): Promise<void> {
     await this.logSuggestion({
       suggestionId,
       action: 'duplicate_detected',
       data,
       result: validation,
-      ipAddress
+      ipAddress,
+      apiVersion
     });
   }
 
@@ -185,17 +199,20 @@ export class SuggestionLogService {
    * Log a rate limiting event
    * @param ipAddress Client IP address
    * @param validation Basic validation result
+   * @param apiVersion API version used (v1 or v2)
    */
   async logRateLimitExceeded(
     ipAddress: string,
-    validation: SuggestionValidation
+    validation: SuggestionValidation,
+    apiVersion: 'v1' | 'v2' = 'v1'
   ): Promise<void> {
     await this.logSuggestion({
       suggestionId: '',
       action: 'rate_limited',
       data: { ip_address: ipAddress },
       result: validation,
-      ipAddress
+      ipAddress,
+      apiVersion
     });
   }
 
@@ -203,8 +220,9 @@ export class SuggestionLogService {
    * Log a server error
    * @param error Error details
    * @param ipAddress Client IP address
+   * @param apiVersion API version used (v1 or v2)
    */
-  async logServerError(error: any, ipAddress: string): Promise<void> {
+  async logServerError(error: any, ipAddress: string, apiVersion: 'v1' | 'v2' = 'v1'): Promise<void> {
     await this.logSuggestion({
       suggestionId: '',
       action: 'server_error',
@@ -215,7 +233,8 @@ export class SuggestionLogService {
         warnings: [],
         isDuplicate: false
       },
-      ipAddress
+      ipAddress,
+      apiVersion
     });
   }
 

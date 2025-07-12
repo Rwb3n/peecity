@@ -1,0 +1,128 @@
+{
+    "plan_id": "contributionform_v2_migration_0066",
+    "g": 197,
+    "plan_name": "Safe Migration of ContributionForm to API v2",
+    "plan_description": "Migrate ContributionForm from v1 to v2 API endpoint with proper safeguards, feature flags, and backward compatibility. This plan addresses the significant differences between v1 and v2 API contracts while maintaining zero downtime and full test coverage.",
+    "risk_assessment": {
+        "high_risks": [
+            "v2 requires 8 core properties that v1 doesn't require",
+            "Property name changes (e.g., payment_contactless → payment:contactless)",
+            "Value type changes (boolean → 'yes'/'no' strings)",
+            "Breaking existing functionality that users depend on"
+        ],
+        "mitigation_strategies": [
+            "Feature flag for gradual rollout",
+            "Dual-endpoint support during transition",
+            "Comprehensive integration tests for both APIs",
+            "Payload transformation service layer"
+        ]
+    },
+    "v1_v2_differences": {
+        "core_properties_required_v2": {
+            "@id": "string (e.g., 'node/temp123')",
+            "amenity": "string (always 'toilets')",
+            "wheelchair": "string ('yes'/'no'/'limited')",
+            "access": "string ('yes'/'customers'/'private')",
+            "opening_hours": "string (OSM format)",
+            "fee": "boolean (not number!)",
+            "lat": "number",
+            "lng": "number"
+        },
+        "property_mappings": {
+            "changing_table": "boolean → 'yes'/'no' string",
+            "payment_contactless": "payment:contactless with boolean → 'yes'/'no'",
+            "fee": "number (0.50) → boolean (true/false) for v2"
+        }
+    },
+    "tasks": [
+        {
+            "task_id": "create_payload_transformer_service",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Create 'src/services/SuggestPayloadTransformer.ts' with two methods: transformToV1Payload(formData) and transformToV2Payload(formData). This service will handle all the complex mapping logic, keeping the component clean. Include comprehensive unit tests for all transformation scenarios.",
+            "dependencies": [],
+            "confidence_level": "High",
+            "justification": "Isolated service layer allows testing transformations without touching the component",
+            "validation": "Unit tests cover all field mappings and edge cases"
+        },
+        {
+            "task_id": "add_feature_flag_support",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Add feature flag support to ContributionForm: 1) Add optional prop 'apiVersion' with default 'v1', 2) Add environment variable NEXT_PUBLIC_SUGGEST_API_VERSION, 3) Component uses prop > env var > default. This allows testing v2 without affecting all users.",
+            "dependencies": ["create_payload_transformer_service"],
+            "confidence_level": "High",
+            "justification": "Feature flags are a proven pattern for safe migrations",
+            "validation": "Component behavior unchanged when flag is off"
+        },
+        {
+            "task_id": "implement_v2_defaults_strategy",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "In SuggestPayloadTransformer, implement smart defaults for v2 core properties: @id: generate temporary ID like 'node/temp_${timestamp}', amenity: always 'toilets', wheelchair: derive from 'accessible' field or default 'unknown', access: default 'yes', opening_hours: map from hours field or '24/7', fee: true if fee > 0.",
+            "dependencies": ["create_payload_transformer_service"],
+            "confidence_level": "Medium",
+            "justification": "Defaults must be reasonable but may need adjustment based on API feedback",
+            "validation": "v2 payload passes API validation with defaults"
+        },
+        {
+            "task_id": "create_v2_integration_tests",
+            "task_type": "TEST_CREATION",
+            "task_description": "Create new test file 'tests/components/molecules/ContributionForm_v2_test.tsx' that tests the component with apiVersion='v2'. Include tests for: 1) All field mappings work correctly, 2) Default values are applied, 3) API is called with correct v2 endpoint and payload structure, 4) Both success and error scenarios.",
+            "dependencies": ["add_feature_flag_support", "implement_v2_defaults_strategy"],
+            "confidence_level": "High",
+            "justification": "Separate test file prevents any impact on existing v1 tests",
+            "validation": "All v2 tests pass, v1 tests still pass"
+        },
+        {
+            "task_id": "add_dual_endpoint_support",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Update ContributionForm to use the payload transformer and choose endpoint based on apiVersion prop: const transformer = new SuggestPayloadTransformer(); const endpoint = apiVersion === 'v2' ? '/api/v2/suggest' : '/api/suggest'; const payload = apiVersion === 'v2' ? transformer.transformToV2Payload(data) : transformer.transformToV1Payload(data);",
+            "dependencies": ["create_v2_integration_tests"],
+            "confidence_level": "High",
+            "justification": "Clean separation of v1 and v2 logic paths",
+            "validation": "Both v1 and v2 test suites pass"
+        },
+        {
+            "task_id": "create_migration_monitoring",
+            "task_type": "IMPLEMENTATION",
+            "task_description": "Add logging/metrics to track: 1) Which API version is being used, 2) Success/failure rates for each version, 3) Any validation errors from v2. This helps monitor the migration and quickly rollback if issues arise.",
+            "dependencies": ["add_dual_endpoint_support"],
+            "confidence_level": "High",
+            "justification": "Observability is critical for safe production migrations",
+            "validation": "Logs show api version and success status"
+        },
+        {
+            "task_id": "document_rollout_plan",
+            "task_type": "PLANNING",
+            "task_description": "Create 'docs/runbooks/contributionform-v2-rollout.md' with: 1) Phased rollout plan (dev → staging → 10% prod → 50% → 100%), 2) Success metrics to monitor, 3) Rollback procedures, 4) Timeline and checkpoints. Include SQL queries to analyze submission patterns.",
+            "dependencies": ["create_migration_monitoring"],
+            "confidence_level": "High",
+            "justification": "Clear rollout plan reduces production risk",
+            "validation": "Plan reviewed by team"
+        }
+    ],
+    "success_metrics": {
+        "technical": [
+            "Zero increase in error rate during migration",
+            "API response times remain consistent",
+            "All existing tests continue to pass"
+        ],
+        "functional": [
+            "All user-submitted data is preserved in v2 format",
+            "No user-facing errors during transition",
+            "Ability to quickly rollback if needed"
+        ]
+    },
+    "rollback_strategy": {
+        "triggers": [
+            "Error rate increases by >5%",
+            "API validation failures >10%",
+            "User complaints about submission failures"
+        ],
+        "procedure": [
+            "Set NEXT_PUBLIC_SUGGEST_API_VERSION=v1",
+            "Deploy immediately (no code changes needed)",
+            "Investigate issues with v2 payload/endpoint",
+            "Fix issues before attempting migration again"
+        ]
+    },
+    "version": "1.0.0"
+}

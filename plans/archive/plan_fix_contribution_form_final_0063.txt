@@ -1,0 +1,41 @@
+{
+    "v": "1.0.0",
+    "g": 189,
+    "plan_id": "plan_fix_contribution_form_final_0063",
+    "title": "Final Fixes for ContributionForm Component and Tests",
+    "description": "This plan addresses the final 8 failing tests for the ContributionForm component by aligning the component's implementation with the test suite's expectations and refactoring the tests to correctly interact with the now-stable component.",
+    "preceding_plan_id_ref": "plan_diagnose_contribution_form_0062",
+    "issue_ref": null,
+    "tasks": [
+        {
+            "task_id": "refactor_contributionform_tests",
+            "type": "REFACTORING",
+            "description": "Refactor the test suite in 'tests/components/molecules/ContributionForm_test.tsx' to align with the component's `onSubmit` validation behavior and updated field types. This involves: 1. Modifying tests to trigger a submit event before checking for validation errors. 2. Changing `userEvent.type` to `userEvent.selectOptions` for the 'Opening Hours' select field. 3. Ensuring tests await asynchronous state updates using `waitFor`.",
+            "dependencies": [],
+            "status": "PENDING",
+            "confidence_level": "High",
+            "justification": "The test failures are well-understood and are caused by mismatches between the test actions and component implementation. Refactoring the tests is a direct and reliable way to fix this.",
+            "acceptance_criteria": [
+                "The 'should require toilet name' test clicks submit before asserting the error.",
+                "The 'should allow valid form submission' test uses `selectOptions` for the hours field.",
+                "All validation tests are adapted for `onSubmit` behavior.",
+                "The number of failing tests is significantly reduced."
+            ]
+        },
+        {
+            "task_id": "fix_contributionform_component",
+            "type": "IMPLEMENTATION",
+            "description": "Apply final fixes to the 'src/components/molecules/ContributionForm/ContributionForm.tsx' component. This includes: 1. Ensuring the API call is robustly mocked to prevent environment-specific network errors in tests. 2. Verifying the conditional logic for the 'custom' hours input is compatible with `react-hook-form`'s state management and can be reliably tested.",
+            "dependencies": ["refactor_contributionform_tests"],
+            "status": "PENDING",
+            "confidence_level": "High",
+            "justification": "With a reliable test suite, these final component tweaks will be easy to validate and complete.",
+            "acceptance_criteria": [
+                "The API integration test passes reliably without network errors.",
+                "The 'custom hours' interaction test passes.",
+                "All 26 tests in 'ContributionForm_test.tsx' pass.",
+                "The component is fully green."
+            ]
+        }
+    ]
+} 

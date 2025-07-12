@@ -39,8 +39,8 @@ This guide helps developers diagnose and fix issues with the suggest-agent API e
    # Check feature count
    grep -c '"type": "Feature"' data/toilets.geojson
    
-   # If missing, copy from source
-   cp docs/export.geojson data/toilets.geojson
+   # If missing, regenerate using ingest agent
+   npm run ingest
    
    # Check logs directory permissions
    ls -la logs/

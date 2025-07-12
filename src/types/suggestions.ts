@@ -86,6 +86,7 @@ export interface SuggestionLogEntry {
   action: 'submitted' | 'validated' | 'approved' | 'rejected';
   data: ProcessedSuggestion | Partial<ProcessedSuggestion>;
   result?: SuggestionValidation;
+  apiVersion?: 'v1' | 'v2'; // Track which API version was used
 }
 
 /**

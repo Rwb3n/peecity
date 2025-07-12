@@ -127,11 +127,36 @@
       "viewport_testing": ["mobile1", "tablet", "desktop"],
       "accessibility_testing": "addon-a11y with WCAG 2.1 AA"
     },
+    "v2_migration_patterns": {
+      "feature_flag_strategy": "Component prop -> Environment variable -> Default value precedence",
+      "dual_endpoint_support": "v1 and v2 APIs operate concurrently during migration",
+      "payload_transformation": "SuggestPayloadTransformer service handles format differences",
+      "smart_defaults": "v2 provides sensible defaults for core properties (wheelchair: 'unknown', opening_hours: '24/7')",
+      "safety_gates": ["feature_flag_infrastructure", "payload_transformer_tests", "dual_endpoint_support", "migration_monitoring", "rollout_documentation"],
+      "zero_breaking_changes": "v1 continues working exactly as before",
+      "rollback_ready": "Feature flags enable instant rollback if issues arise"
+    },
+    "service_oriented_architecture": {
+      "core_services": ["ValidationService", "TieredValidationServiceOptimized", "DuplicateService", "RateLimitService", "SuggestionLogService", "IngestService", "MonitorService", "SuggestPayloadTransformer"],
+      "architecture_principles": ["SOLID compliance", "dependency injection", "service orchestration", "error standardization", "multi-layer testing"],
+      "testing_coverage_target": "99%+",
+      "performance_optimization": "20-50% improvement over baseline with caching and Map-based lookups"
+    },
+    "debugging_patterns": {
+      "react_hook_form_zod": "z.coerce patterns for form validation with safeParse fallback",
+      "api_testing_reliability": "jest.spyOn(global, 'fetch') over nock for stable tests",
+      "act_warning_prevention": "Proper async handling in React testing",
+      "test_resilience": "Robust patterns preventing flaky tests from async operations"
+    },
     "cookbook_integration": {
       "atomic_components": "docs/cookbook/recipe_atomic_components.md - Comprehensive patterns for shadcn/ui component development",
       "storybook_setup": "docs/cookbook/recipe_storybook_setup.md - Visual testing and development workflow patterns", 
       "shadcn_integration": "docs/cookbook/recipe_shadcn_integration.md - Design system integration with TailwindCSS and variant management",
-      "aiconfig_patterns": "docs/cookbook/recipe_aiconfig_patterns.md - Configuration management and optimization patterns"
+      "aiconfig_patterns": "docs/cookbook/recipe_aiconfig_patterns.md - Configuration management and optimization patterns",
+      "safe_migration_patterns": "docs/cookbook/recipe_safe_migration_patterns.md - Feature flag-based migration with rollback procedures",
+      "react_hook_form": "docs/cookbook/recipe_react_hook_form_with_zod.md - Complete working example with z.coerce patterns",
+      "api_testing": "docs/cookbook/recipe_robust_react_testing.md - Critical nock warnings and jest.spyOn best practices",
+      "react_testing": "docs/cookbook/recipe_robust_react_testing.md - Real-world debugging patterns from ContributionForm saga"
     },
     "osm_data_integration": {
       "property_count": 120,
@@ -157,5 +182,5 @@
       "last_updated": "2025-07-07"
     }
   },
-  "g": 169
+  "g": 200
 }
