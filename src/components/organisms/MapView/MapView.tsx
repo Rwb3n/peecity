@@ -25,15 +25,13 @@ const createClusterCustomIcon = (cluster: any) => {
   });
 };
 
-// Default marker icon (fallback)
+// Default marker icon (custom implementation to avoid external dependencies)
 const defaultIcon = new Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconUrl: '/icons/custom-marker.svg', // Custom local icon
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-  shadowSize: [41, 41],
+  className: 'custom-default-marker'
 });
 
 // Convert ToiletFeature to Toilet interface for MarkerPopup
@@ -235,9 +233,8 @@ export const MapView: React.FC<MapViewProps> = ({
       <MapContainer
         center={LONDON_CENTER}
         zoom={DEFAULT_ZOOM}
-        className={cn('w-full rounded-lg map-container-height', className)}
+        className={cn('w-full h-full rounded-lg map-container-height', className)}
         style={{ 
-          height: '384px', // Explicit height for React-Leaflet (24rem/384px = h-96)
           minHeight: '256px' // Fallback minimum height (16rem/256px = h-64)
         }}
         data-testid="map-container"
@@ -262,6 +259,7 @@ export const MapView: React.FC<MapViewProps> = ({
               position={[toilet.geometry.coordinates[1], toilet.geometry.coordinates[0]]} // [lat, lng]
               icon={defaultIcon}
               data-testid="marker"
+              data-default-icon="true"
               eventHandlers={{
                 click: () => handleMarkerClick(toilet),
               }}
@@ -272,7 +270,9 @@ export const MapView: React.FC<MapViewProps> = ({
                   onClose={handlePopupClose}
                   eventHandlers={{
                     click: (e) => {
-                      e.originalEvent.stopPropagation();
+                      // Prevent event bubbling to parent components
+                      e.originalEvent?.stopPropagation();
+                      e.originalEvent?.preventDefault();
                     },
                   }}
                 >
@@ -304,20 +304,20 @@ export const MapView: React.FC<MapViewProps> = ({
           font-weight: bold;
           font-size: 12px;
         }
-        /* Map height CSS isolation - override any global height conflicts */
+        /* Map height CSS isolation - allow inheritance with fallbacks */
         .map-container-height {
-          height: 384px !important; /* Force height for React-Leaflet */
           min-height: 256px !important; /* Minimum responsive height */
+          height: 100% !important; /* Inherit from parent container */
         }
-        /* Responsive height adjustments with higher specificity */
+        /* Responsive minimum height adjustments */
         @media (max-width: 640px) {
           .map-container-height {
-            height: 256px !important; /* h-64 equivalent for mobile */
+            min-height: 200px !important; /* Smaller minimum for mobile */
           }
         }
         @media (min-width: 641px) {
           .map-container-height {
-            height: 384px !important; /* h-96 equivalent for desktop */
+            min-height: 256px !important; /* Standard minimum for desktop */
           }
         }
       `}</style>

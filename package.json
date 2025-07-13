@@ -19,7 +19,8 @@
     "ingest": "tsx scripts/ingest-cli.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test-storybook": "test-storybook"
+    "test-storybook": "test-storybook",
+    "chromatic": "chromatic --project-token=chpt_d8c6e1f0f0c2a8d --build-script-name=build-storybook"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -68,6 +69,7 @@
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "autoprefixer": "^10.4.0",
+    "chromatic": "^13.1.2",
     "cross-env": "^7.0.3",
     "eslint": "^9.0.0",
     "eslint-config-next": "^15.0.0",

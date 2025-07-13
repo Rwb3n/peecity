@@ -7,7 +7,7 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   preset: 'ts-jest/presets/default-esm',
   setupFiles: ['<rootDir>/jest.setup.performance.js'],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.enhanced.js'],
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
@@ -31,13 +31,14 @@ const customJestConfig = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '^@/(.*)$': '<rootDir>/src/$1',
     '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^@/data/toilets\\.geojson$': '<rootDir>/data/toilets.geojson',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   resolver: undefined,
   cache: false,
   maxWorkers: 1,
   transformIgnorePatterns: [
-    'node_modules/(?!(node-cron)/)'
+    'node_modules/(?!(node-cron|@?react-leaflet|leaflet)/)'
   ],
 }
 

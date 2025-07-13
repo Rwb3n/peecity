@@ -102,3 +102,4 @@ Validation is complete when:
 - Specific, actionable feedback is provided for any issues found
 - Clear verdict with justification is documented
 - Recommendations are prioritized and implementable
+- !important: Validation results are inserted in status.md artifact

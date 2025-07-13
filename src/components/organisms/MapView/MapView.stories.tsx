@@ -26,6 +26,13 @@ const meta: Meta<typeof MapView> = {
     viewport: {
       defaultViewport: 'responsive',
     },
+    // Chromatic configuration for visual regression testing
+    chromatic: {
+      viewports: [375, 768, 1200], // Mobile, tablet, desktop
+      delay: 500, // Wait for map tiles to load
+      diffThreshold: 0.2, // Allow minor differences in map tiles
+      pauseAnimationAtEnd: true,
+    },
     docs: {
       description: {
         component: `
@@ -44,6 +51,11 @@ Features marker clustering, search integration, and real London toilet data.
 - Location click handling for suggestion workflow
 - Mobile-responsive with touch-friendly interactions
 - Accessible with proper ARIA labeling and keyboard support
+
+## Visual Regression Testing
+- **Chromatic integration** for automated visual testing
+- **Multi-viewport support** across mobile, tablet, and desktop
+- **Visual change detection** with baseline snapshot comparison
         `,
       },
     },
