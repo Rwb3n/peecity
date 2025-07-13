@@ -4,8 +4,7 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/react';
-import { within, userEvent } from '@storybook/testing-library';
-import { expect } from '@storybook/jest';
+import { within, userEvent, expect } from '@storybook/test';
 import { MarkerPopup } from './MarkerPopup';
 
 const meta: Meta<typeof MarkerPopup> = {
@@ -40,7 +39,7 @@ const meta: Meta<typeof MarkerPopup> = {
   },
   decorators: [
     (Story) => (
-      <div style={{ width: 350, maxWidth: '100%' }}>
+      <div className="w-full max-w-sm mx-auto p-4">
         <Story />
       </div>
     ),

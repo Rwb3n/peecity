@@ -344,7 +344,7 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
       {/* Location fields */}
       <fieldset>
         <legend className="text-sm font-medium mb-2">Location</legend>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div>
             <label htmlFor="latitude" className="block text-sm mb-1">
               Latitude
@@ -356,7 +356,7 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
               readOnly
               disabled={isLoading}
               tabIndex={-1}
-              className="min-h-[44px] bg-gray-50"
+              className="min-h-[44px] bg-gray-50 w-full"
             />
           </div>
           <div>
@@ -370,7 +370,7 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
               readOnly
               disabled={isLoading}
               tabIndex={-1}
-              className="min-h-[44px] bg-gray-50"
+              className="min-h-[44px] bg-gray-50 w-full"
             />
           </div>
         </div>
@@ -482,11 +482,22 @@ export const ContributionForm: React.FC<ContributionFormProps> = ({
       )}
 
       {/* Action Buttons */}
-      <div className="flex justify-end space-x-2 pt-4">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+      <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onCancel} 
+          disabled={isLoading}
+          className="w-full sm:w-auto order-2 sm:order-1"
+        >
           Cancel
         </Button>
-        <Button type="submit" disabled={isLoading} aria-busy={isLoading}>
+        <Button 
+          type="submit" 
+          disabled={isLoading} 
+          aria-busy={isLoading}
+          className="w-full sm:w-auto order-1 sm:order-2"
+        >
           {isLoading ? 'Submitting...' : 'Submit'}
         </Button>
       </div>

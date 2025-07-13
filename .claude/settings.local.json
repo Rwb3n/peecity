@@ -74,7 +74,8 @@
       "Bash(npm audit:*)",
       "Bash(jest --version)",
       "Bash(./node_modules/.bin/jest:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(cd \"D:\\PROJECTS\\peecity\")"
     ],
     "deny": []
   }

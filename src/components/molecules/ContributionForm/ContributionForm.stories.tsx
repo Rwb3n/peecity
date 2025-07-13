@@ -4,8 +4,7 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/react';
-import { within, userEvent, waitFor } from '@storybook/testing-library';
-import { expect } from '@storybook/jest';
+import { within, userEvent, waitFor, expect } from '@storybook/test';
 import { ContributionForm } from './ContributionForm';
 
 const meta: Meta<typeof ContributionForm> = {
@@ -35,7 +34,7 @@ const meta: Meta<typeof ContributionForm> = {
   },
   decorators: [
     (Story) => (
-      <div style={{ width: 400, maxWidth: '100%' }}>
+      <div className="w-full max-w-md mx-auto p-4">
         <Story />
       </div>
     ),

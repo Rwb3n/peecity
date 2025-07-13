@@ -73,7 +73,7 @@ export const SearchBar = React.forwardRef<HTMLFormElement, SearchBarProps>(
         ref={ref}
         role="search"
         onSubmit={handleSubmit}
-        className={cn('flex gap-2 w-full', className)}
+        className={cn('flex flex-col sm:flex-row gap-2 w-full', className)}
         data-testid="search-bar"
       >
         <div className="relative flex-1">
@@ -86,7 +86,7 @@ export const SearchBar = React.forwardRef<HTMLFormElement, SearchBarProps>(
             aria-label="Search for locations"
             aria-describedby={error ? 'search-error' : undefined}
             className={cn(
-              'pr-10 min-h-[44px]',
+              'pr-10 min-h-[44px] w-full',
               sizeClasses[size],
               error && 'border-red-500'
             )}
@@ -106,36 +106,38 @@ export const SearchBar = React.forwardRef<HTMLFormElement, SearchBarProps>(
           )}
         </div>
         
-        <Button
-          type="submit"
-          disabled={loading || !value.trim()}
-          aria-label="Search"
-          {...(loading && { 'aria-busy': true })}
-          className={cn('min-h-[44px]', sizeClasses[size])}
-        >
-          <Icon icon={Search} size="sm" />
-          <span className="sr-only">Search</span>
-        </Button>
-
-        {showLocationButton && onLocationRequest && (
+        <div className="flex gap-2 sm:contents">
           <Button
-            type="button"
-            variant="outline"
-            onClick={onLocationRequest}
-            disabled={loading}
-            aria-label="Use my location"
-            className={cn('min-h-[44px]', sizeClasses[size])}
+            type="submit"
+            disabled={loading || !value.trim()}
+            aria-label="Search"
+            {...(loading && { 'aria-busy': true })}
+            className={cn('min-h-[44px] flex-1 sm:flex-none', sizeClasses[size])}
           >
-            <Icon icon={MapPin} size="sm" />
-            <span className="sr-only">Use my location</span>
+            <Icon icon={Search} size="sm" />
+            <span className="sr-only">Search</span>
           </Button>
-        )}
+
+          {showLocationButton && onLocationRequest && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onLocationRequest}
+              disabled={loading}
+              aria-label="Use my location"
+              className={cn('min-h-[44px] flex-1 sm:flex-none', sizeClasses[size])}
+            >
+              <Icon icon={MapPin} size="sm" />
+              <span className="sr-only">Use my location</span>
+            </Button>
+          )}
+        </div>
 
         {error && (
           <div
             id="search-error"
             role="alert"
-            className="absolute top-full mt-2 text-sm text-red-600"
+            className="text-sm text-red-600 mt-1"
           >
             {error}
           </div>

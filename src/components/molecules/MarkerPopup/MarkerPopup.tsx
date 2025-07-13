@@ -96,7 +96,7 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({
     <div
       data-testid="marker-popup"
       className={cn(
-        'bg-white rounded-lg shadow-lg p-4 space-y-4 max-w-sm',
+        'bg-white rounded-lg shadow-lg p-4 space-y-4 max-w-[calc(100vw-2rem)] sm:max-w-sm',
         className
       )}
     >
@@ -188,7 +188,7 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({
       )}
 
       {/* Action buttons */}
-      <div className="flex gap-2 pt-2">
+      <div className="flex flex-col sm:flex-row gap-2 pt-2">
         {onDirections && (
           <Button
             size="sm"
@@ -196,10 +196,11 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({
             disabled={loading}
             aria-label={`Get directions to ${toilet.name}`}
             aria-busy={loading}
-            className="flex-1 min-h-[44px]"
+            className="flex-1 min-h-[44px] w-full sm:w-auto"
           >
             <Icon icon={Navigation} size="sm" className="mr-1" />
-            Get directions
+            <span className="hidden xs:inline">Get directions</span>
+            <span className="xs:hidden">Directions</span>
           </Button>
         )}
         
@@ -211,10 +212,11 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({
             disabled={loading}
             aria-label="Report an issue with this toilet"
             aria-busy={loading}
-            className="flex-1 min-h-[44px]"
+            className="flex-1 min-h-[44px] w-full sm:w-auto"
           >
             <Icon icon={AlertTriangle} size="sm" className="mr-1" />
-            Report issue
+            <span className="hidden xs:inline">Report issue</span>
+            <span className="xs:hidden">Report</span>
           </Button>
         )}
       </div>

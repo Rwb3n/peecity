@@ -4,8 +4,7 @@
  */
 
 import type { Meta, StoryObj } from '@storybook/react';
-import { within, userEvent } from '@storybook/testing-library';
-import { expect } from '@storybook/jest';
+import { within, userEvent, expect } from '@storybook/test';
 import { SearchBar } from './SearchBar';
 
 const meta: Meta<typeof SearchBar> = {
@@ -171,5 +170,35 @@ export const LocationRequest: Story = {
     // Click location button
     const locationButton = canvas.getByRole('button', { name: /use my location/i });
     await userEvent.click(locationButton);
+  },
+};
+
+/**
+ * Mobile viewport story to test responsive layout
+ */
+export const MobileView: Story = {
+  args: {
+    placeholder: 'Search for toilets...',
+    showLocationButton: true,
+    value: 'London Bridge',
+  },
+  parameters: {
+    viewport: {
+      viewports: {
+        mobile1: {
+          name: 'Mobile',
+          styles: {
+            width: '375px',
+            height: '667px',
+          },
+        },
+      },
+      defaultViewport: 'mobile1',
+    },
+    docs: {
+      description: {
+        story: 'Shows how the search bar adapts to mobile viewports with stacked button layout',
+      },
+    },
   },
 };
