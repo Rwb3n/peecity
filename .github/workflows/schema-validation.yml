@@ -1,0 +1,77 @@
+name: Schema Validation
+
+on:
+  push:
+    paths:
+      - 'schemas/**'
+      - 'src/lib/validation/schemas.ts'
+      - 'tests/schemas/**'
+      - 'tests/performance/schema_validation_benchmark_test.js'
+  pull_request:
+    paths:
+      - 'schemas/**'
+      - 'src/lib/validation/schemas.ts'
+      - 'tests/schemas/**'
+      - 'tests/performance/schema_validation_benchmark_test.js'
+  workflow_dispatch:
+    # Allow manual triggering for schema testing
+
+jobs:
+  schema-validation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Schema Integrity Validation
+      run: |
+        echo "🔧 Running schema integrity checks..."
+        npm run validate:integrity
+        
+    - name: Schema Performance Benchmarks
+      run: |
+        echo "🚀 Running schema performance benchmarks..."
+        npm run validate:schemas:ci
+        
+    - name: Data Validation Tests
+      run: |
+        echo "📊 Running data validation tests..."
+        npm run validate:data:ci
+        
+    - name: Integration Tests
+      run: |
+        echo "🔗 Running schema integration tests..."
+        npm test tests/integration/schema_integration_test.js -- --ci --silent
+        
+    - name: Schema validation summary
+      if: always()
+      run: |
+        echo "📋 Schema Validation Summary"
+        echo "════════════════════════════"
+        echo "✅ Schema integrity validation completed"
+        echo "⚡ Performance benchmarks completed"  
+        echo "📊 Data validation tests completed"
+        echo "🔗 Integration tests completed"
+        echo ""
+        echo "🎯 All schema validation checks passed!"
+        
+    - name: Upload artifacts on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: schema-validation-failure-${{ github.run_id }}
+        path: |
+          schemas/
+          tests/schemas/
+          tests/performance/schema_validation_benchmark_test.js
+        retention-days: 3

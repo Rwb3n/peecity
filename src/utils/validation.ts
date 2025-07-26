@@ -12,7 +12,7 @@
  * tier configuration for intelligent validation of all 120 OSM properties.
  */
 
-import { ToiletSuggestion, ValidationError, ValidationWarning, SuggestionValidation } from '../types/suggestions';
+import { ToiletSuggestion, SuggestionValidationError, ValidationWarning, SuggestionValidation } from '../types/suggestions';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 
@@ -34,7 +34,7 @@ const MAX_LENGTHS = {
  * Validate a toilet suggestion against the schema
  */
 export function validateSuggestion(data: any): SuggestionValidation {
-  const errors: ValidationError[] = [];
+  const errors: SuggestionValidationError[] = [];
   const warnings: ValidationWarning[] = [];
 
   // Required field validation
@@ -259,9 +259,9 @@ export interface PropertyValidationContext {
  */
 export function validatePropertyByTier(
   context: PropertyValidationContext
-): { errors: ValidationError[]; warnings: ValidationWarning[] } {
+): { errors: SuggestionValidationError[]; warnings: ValidationWarning[] } {
   const { propertyName, value, tier, validationType, isRequired, strictValidation } = context;
-  const errors: ValidationError[] = [];
+  const errors: SuggestionValidationError[] = [];
   const warnings: ValidationWarning[] = [];
 
   // Required field check (core tier only)
@@ -313,7 +313,7 @@ function validateStrictType(
   propertyName: string,
   value: any,
   validationType: string
-): ValidationError | null {
+): SuggestionValidationError | null {
   switch (validationType) {
     case 'number':
       if (typeof value !== 'number') {
@@ -394,8 +394,8 @@ function validateWithCoercion(
   propertyName: string,
   value: any,
   validationType: string
-): { error: ValidationError | null; warning: ValidationWarning | null } {
-  let error: ValidationError | null = null;
+): { error: SuggestionValidationError | null; warning: ValidationWarning | null } {
+  let error: SuggestionValidationError | null = null;
   let warning: ValidationWarning | null = null;
 
   switch (validationType) {
@@ -534,8 +534,8 @@ export function aggregateValidationByTier(
 export function validateManyProperties(
   data: Record<string, any>,
   propertyConfigs: Record<string, any>
-): { errors: ValidationError[]; warnings: ValidationWarning[]; validCount: number } {
-  const errors: ValidationError[] = [];
+): { errors: SuggestionValidationError[]; warnings: ValidationWarning[]; validCount: number } {
+  const errors: SuggestionValidationError[] = [];
   const warnings: ValidationWarning[] = [];
   let validCount = 0;
 

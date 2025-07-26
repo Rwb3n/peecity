@@ -24,6 +24,11 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
+    - name: Schema Health Check
+      run: |
+        echo "🔧 Performing weekly schema health check..."
+        npm run validate:integrity
+      
     - name: Run monitor agent
       env:
         DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

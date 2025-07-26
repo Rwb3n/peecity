@@ -1,0 +1,44 @@
+{
+  // TypeScript Configuration Template
+  // =================================
+  //
+  // Purpose: Standard TypeScript configuration for Next.js projects
+  // Usage: Copy to project root, rename to tsconfig.json, and substitute variables
+  // Last Updated: 2025-01-26
+  //
+  // Required Variables:
+  // - {{STRICT_MODE}}: Enable TypeScript strict mode (true/false)
+  // - {{SOURCE_MAPS}}: Enable source maps for debugging (true/false)  
+  // - {{SOURCE_DIR}}: Source directory name (e.g., "src", "lib")
+  //
+  // Example substitution:
+  // sed -i 's/{{STRICT_MODE}}/true/g' tsconfig.json
+  //
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": {{STRICT_MODE}},
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "sourceMap": {{SOURCE_MAPS}},
+    "inlineSourceMap": false,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./{{SOURCE_DIR}}/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

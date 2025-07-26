@@ -1,0 +1,178 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Overpass API Query Data",
+  "description": "Schema for validating Overpass API queries, responses, and configuration",
+  "definitions": {
+    "OverpassElement": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["node", "way", "relation"],
+          "description": "OSM element type"
+        },
+        "id": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "OSM element ID"
+        },
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Latitude for node elements"
+        },
+        "lon": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "Longitude for node elements"
+        },
+        "center": {
+          "type": "object",
+          "required": ["lat", "lon"],
+          "properties": {
+            "lat": {
+              "type": "number",
+              "minimum": -90,
+              "maximum": 90
+            },
+            "lon": {
+              "type": "number",
+              "minimum": -180,
+              "maximum": 180
+            }
+          },
+          "additionalProperties": false,
+          "description": "Center point for way and relation elements"
+        },
+        "tags": {
+          "type": "object",
+          "patternProperties": {
+            "^.+$": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "description": "OSM tags as key-value pairs"
+        }
+      },
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "type": { "enum": ["node"] }
+          },
+          "required": ["lat", "lon"]
+        },
+        {
+          "properties": {
+            "type": { "enum": ["way", "relation"] }
+          }
+        }
+      ]
+    },
+    "OverpassResponse": {
+      "type": "object",
+      "required": ["version", "generator", "elements"],
+      "properties": {
+        "version": {
+          "type": "number",
+          "minimum": 0.1,
+          "description": "Overpass API version"
+        },
+        "generator": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Overpass API generator string"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OverpassElement"
+          },
+          "description": "Array of OSM elements returned by query"
+        }
+      },
+      "additionalProperties": false
+    },
+    "IngestConfig": {
+      "type": "object",
+      "required": ["overpassApiUrl", "outputFile", "retryAttempts", "retryDelayMs", "timeoutMs"],
+      "properties": {
+        "overpassApiUrl": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "description": "Overpass API endpoint URL"
+        },
+        "outputFile": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\.(json|geojson)$",
+          "description": "Output file path for processed data"
+        },
+        "retryAttempts": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Number of retry attempts for failed requests"
+        },
+        "retryDelayMs": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 60000,
+          "description": "Delay between retry attempts in milliseconds"
+        },
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 300000,
+          "description": "Request timeout in milliseconds"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RequestOptions": {
+      "type": "object",
+      "required": ["method", "headers"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST"],
+          "description": "HTTP method for the request"
+        },
+        "headers": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z0-9-]+$": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "description": "HTTP headers as key-value pairs"
+        },
+        "body": {
+          "type": "string",
+          "description": "Request body for POST requests"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/OverpassResponse",
+      "description": "Overpass API response data"
+    },
+    {
+      "$ref": "#/definitions/IngestConfig",
+      "description": "Ingest agent configuration"
+    },
+    {
+      "$ref": "#/definitions/RequestOptions",
+      "description": "HTTP request options"
+    }
+  ]
+}

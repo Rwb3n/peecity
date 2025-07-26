@@ -7,8 +7,8 @@
  * Handles request parsing, schema validation, and data sanitization.
  */
 
-import { validateSuggestion, sanitizeSuggestion, validateRequestBody, generateSuggestionId } from '../utils/validation';
-import { ErrorFactory } from '../utils/errors';
+import { validateSuggestion, sanitizeSuggestion, validateRequestBody, generateSuggestionId, ErrorFactory } from '../lib';
+import { validateServiceResponse } from '../lib/validation/schemas';
 import { SuggestionValidation } from '../types/suggestions';
 
 export interface ValidationRequest {
@@ -30,6 +30,32 @@ export interface ValidationResult {
  */
 export class ValidationService {
   /**
+   * Validate response using schema validation (warning-only for debugging)
+   * @param response The validation result to validate
+   * @returns The same response (unmodified)
+   */
+  private validateResponseSchema(response: ValidationResult): ValidationResult {
+    const schemaValidationStart = performance.now();
+    const schemaResult = validateServiceResponse(response);
+    const schemaValidationDuration = performance.now() - schemaValidationStart;
+    
+    if (!schemaResult.isValid) {
+      // Warning-only mode - log but don't throw
+      console.warn('ValidationService: Response schema validation failed', {
+        errors: schemaResult.errors,
+        response: JSON.stringify(response, null, 2),
+        validationDurationMs: schemaValidationDuration
+      });
+    } else {
+      console.debug('ValidationService: Response schema validation passed', {
+        validationDurationMs: schemaValidationDuration
+      });
+    }
+    
+    return response;
+  }
+
+  /**
    * Process and validate a suggestion request
    * @param request Validation request with body and IP address
    * @returns Validation result with processed data or error
@@ -43,10 +69,12 @@ export class ValidationService {
         ? ErrorFactory.invalidJson(bodyError)
         : ErrorFactory.missingBody();
       
-      return {
+      const response = {
         isValid: false,
         error
       };
+      
+      return this.validateResponseSchema(response);
     }
 
     // Validate suggestion schema
@@ -56,12 +84,14 @@ export class ValidationService {
       const errorDetails = validation.errors.map(e => `${e.field}: ${e.message}`).join('; ');
       const validationError = ErrorFactory.validation('Validation failed', validation, errorDetails);
       
-      return {
+      const response = {
         isValid: false,
         data,
         validation,
         error: validationError
       };
+      
+      return this.validateResponseSchema(response);
     }
 
     // Sanitize the data
@@ -70,13 +100,15 @@ export class ValidationService {
     // Generate suggestion ID
     const suggestionId = generateSuggestionId();
 
-    return {
+    const response = {
       isValid: true,
       data,
       sanitizedData,
       validation,
       suggestionId
     };
+    
+    return this.validateResponseSchema(response);
   }
 }
 

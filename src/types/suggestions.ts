@@ -38,7 +38,7 @@ export interface ProcessedSuggestion extends ToiletSuggestion {
  */
 export interface SuggestionValidation {
   isValid: boolean;
-  errors: ValidationError[];
+  errors: SuggestionValidationError[];
   warnings: ValidationWarning[];
   isDuplicate: boolean;
   duplicateDistance?: number;     // Distance to nearest existing toilet (meters)
@@ -46,9 +46,10 @@ export interface SuggestionValidation {
 }
 
 /**
- * Validation error details
+ * Suggestion validation error details
+ * Note: Renamed from ValidationError to avoid conflict with lib/validation/errors.ts
  */
-export interface ValidationError {
+export interface SuggestionValidationError {
   field: string;
   message: string;
   code: 'required' | 'invalid_format' | 'out_of_range' | 'invalid_type';

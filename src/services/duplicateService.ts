@@ -7,10 +7,9 @@
  * Uses dependency injection for data access to improve testability and maintainability.
  */
 
-import { findNearestToilet } from '../utils/geospatial';
+import { findNearestToilet, ErrorFactory } from '../lib';
 import { getDuplicateDetectionConfig } from '../utils/config';
 import { createAgentLogger } from '../utils/logger';
-import { ErrorFactory } from '../utils/errors';
 import { CachedToiletDataProvider } from '../interfaces/toiletDataProvider';
 import { SuggestionValidation } from '../types/suggestions';
 

@@ -18,6 +18,11 @@ import {
 } from '../types/geojson';
 import { queryOverpass, TOILET_QUERIES } from '../utils/overpass';
 import { createAgentLogger } from '../utils/logger';
+import { 
+  validateOverpassQuery, 
+  validateGeoJsonToilet,
+  createSchemaValidationError
+} from '../lib/validation/schemas';
 
 const logger = createAgentLogger('ingest-service');
 
@@ -150,6 +155,23 @@ export class IngestService {
       elementCount: data.elements ? data.elements.length : 0
     });
     
+    // Validate Overpass API response schema
+    const schemaValidationStart = performance.now();
+    const validationResult = validateOverpassQuery(data);
+    const schemaValidationDuration = performance.now() - schemaValidationStart;
+    
+    if (!validationResult.isValid) {
+      logger.error('schema_validation_failed', 'Overpass response failed schema validation', {
+        errors: validationResult.errors,
+        validationDurationMs: schemaValidationDuration
+      });
+      throw createSchemaValidationError('overpassQuery', validationResult.errors || [], data);
+    }
+    
+    logger.debug('schema_validation_success', 'Overpass response schema validation passed', {
+      validationDurationMs: schemaValidationDuration
+    });
+    
     return data;
   }
 
@@ -241,6 +263,25 @@ export class IngestService {
       
       // Process and normalize data
       const geoJson = this.processOverpassData(overpassData);
+      
+      // Validate generated GeoJSON schema
+      const geoJsonValidationStart = performance.now();
+      const geoJsonValidationResult = validateGeoJsonToilet(geoJson);
+      const geoJsonValidationDuration = performance.now() - geoJsonValidationStart;
+      
+      if (!geoJsonValidationResult.isValid) {
+        logger.error('geojson_schema_validation_failed', 'Generated GeoJSON failed schema validation', {
+          errors: geoJsonValidationResult.errors,
+          featuresCount: geoJson.features.length,
+          validationDurationMs: geoJsonValidationDuration
+        });
+        throw createSchemaValidationError('geoJsonToilet', geoJsonValidationResult.errors || [], geoJson);
+      }
+      
+      logger.debug('geojson_schema_validation_success', 'Generated GeoJSON schema validation passed', {
+        featuresCount: geoJson.features.length,
+        validationDurationMs: geoJsonValidationDuration
+      });
       
       // Write to output file
       this.writeGeoJSON(geoJson, this.config.outputFile);

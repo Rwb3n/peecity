@@ -72,7 +72,13 @@
       "Bash(killall:*)",
       "Bash(npm ls:*)",
       "Bash(npm audit:*)",
-      "Bash(jest --version)"
+      "Bash(jest --version)",
+      "Bash(npm outdated)",
+      "Bash(diff:*)",
+      "Bash(git add:*)",
+      "Bash(git checkout:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
