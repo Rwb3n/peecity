@@ -14,8 +14,8 @@ const { performance } = require('perf_hooks');
 const path = require('path');
 
 // Import services to benchmark
-const { TieredValidationServiceWithMetrics } = require('../../src/services/TieredValidationServiceWithMetrics');
-const { ValidationService } = require('../../src/services/ValidationService');
+const { TieredValidationServiceWithMetrics } = require('../../src/services/validation/factory');
+const { ValidationService } = require('../../src/services/validationService');
 
 // Import performance targets from single source of truth
 const { validated_patterns } = require('../../aiconfig.json');
