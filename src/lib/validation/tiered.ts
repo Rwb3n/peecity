@@ -1,18 +1,4 @@
-/**
- * Tier-Based Validation Utilities
- * 
- * @artifact docs/cookbook/recipe_tiered_validation.md
- * @epic foundation_consolidation_epic
- * @task foundation_consolidation_task3
- * @tdd-phase GREEN
- * 
- * Tier-aware validation functions that work with the property tier configuration
- * for intelligent validation of all 120 OSM properties.
- * 
- * Migrated from src/utils/validation.ts as part of lib foundation consolidation.
- */
-
-import { SuggestionValidationError, ValidationWarning, SuggestionValidation } from '../../types/suggestions';
+import { SuggestionValidationError, ValidationWarning, SuggestionValidation } from '@/lib';
 
 /**
  * Tier validation result aggregation

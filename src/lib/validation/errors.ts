@@ -293,6 +293,30 @@ export const ErrorFactory = {
       HttpStatus.INTERNAL_SERVER_ERROR,
       details,
       false
+    ),
+
+  /**
+   * Create duplicate detection error
+   */
+  duplicate: (distance: number, nearestToiletId: string | null, thresholdMeters: number) =>
+    new AppError(
+      ErrorCode.DUPLICATE_DETECTED,
+      `Toilet suggestion too close to existing toilet (${distance}m away)`,
+      HttpStatus.CONFLICT,
+      nearestToiletId 
+        ? `Found existing toilet "${nearestToiletId}" ${distance} meters away` 
+        : `Found existing toilet ${distance} meters away`
+    ),
+
+  /**
+   * Create rate limiting error  
+   */
+  rateLimit: (submissions: number, maxSubmissions: number, windowDuration: number) =>
+    new AppError(
+      ErrorCode.RATE_LIMITED,
+      `Rate limit exceeded. Maximum ${maxSubmissions} submissions per hour.`,
+      HttpStatus.TOO_MANY_REQUESTS,
+      `You have made ${submissions} submissions in the current window.`
     )
 };
 
@@ -331,7 +355,7 @@ export function createErrorResponse(
   }
 
   const statusCode = error instanceof AppError ? error.statusCode : error.statusCode;
-  return ResponseHandler.json(response, { status: statusCode });
+  return ResponseHandler.json(response, { status: statusCode }) as NextResponse;
 }
 
 /**
@@ -347,7 +371,7 @@ export function createSuccessResponse(
     timestamp: new Date().toISOString()
   };
 
-  return ResponseHandler.json(response, { status: statusCode });
+  return ResponseHandler.json(response, { status: statusCode }) as NextResponse;
 }
 
 /**

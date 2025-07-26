@@ -21,11 +21,7 @@ import { TieredValidationService } from './TieredValidationService';
 import { TierConfigurationLoader } from './ConfigurationLoader';
 import { ValidationMetricsCollector } from './ValidationMetricsCollector';
 import { MapBasedPerformanceOptimizer } from './MapBasedPerformanceOptimizer';
-import { 
-  ValidationServiceFactoryInterface, 
-  ValidationService, 
-  ValidationLogger 
-} from './interfaces';
+import type { ValidationService, ValidationLogger, ValidationServiceFactoryInterface } from './interfaces';
 
 /**
  * Simple logger wrapper implementing ValidationLogger interface
@@ -160,9 +156,7 @@ export class ValidationServiceFactory implements ValidationServiceFactoryInterfa
     
     const logger = options.enableLogging
       ? new ValidationLoggerWrapper(
-          createAgentLogger('validation-service-custom', { 
-            level: options.logLevel || 'info' 
-          })
+          createAgentLogger('validation-service-custom')
         )
       : undefined;
     

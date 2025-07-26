@@ -1,13 +1,4 @@
-/**
- * Validation Service
- * 
- * @doc refs docs/architecture-spec.md#suggest-agent
- * 
- * Centralized validation service for suggestion data processing.
- * Handles request parsing, schema validation, and data sanitization.
- */
-
-import { validateSuggestion, sanitizeSuggestion, validateRequestBody, generateSuggestionId, ErrorFactory } from '../lib';
+import { validateSuggestion, sanitizeSuggestion, validateRequestBody, generateSuggestionId, ErrorFactory } from '@/lib';
 import { validateServiceResponse } from '../lib/validation/schemas';
 import { SuggestionValidation } from '../types/suggestions';
 

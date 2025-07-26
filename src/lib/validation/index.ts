@@ -41,17 +41,8 @@ export {
   type ErrorResponse
 } from './errors';
 
-// Schema validation functions
-export {
-  validateSchema,
-  validateGeoJsonToilet,
-  validateOverpassQuery,
-  validateServiceResponse,
-  clearSchemaCache,
-  getSchemaCacheStats,
-  validateManyWithSchema,
-  createSchemaValidator,
-  createSchemaValidationError,
-  benchmarkSchemaValidation,
-  type SchemaValidationResult
-} from './schemas';
+// Schema validation functions (SERVER-SIDE ONLY - Not exported to avoid fs dependency in browser)
+// For server-side usage, import directly from './schemas'
+// These functions require Node.js 'fs' module and cannot run in browser:
+// - validateServiceResponse, createSchemaValidationError, etc.
+// If needed in client code, consider alternative implementation without fs dependency

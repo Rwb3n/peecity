@@ -1,18 +1,4 @@
-/**
- * Overpass API Query Utilities
- * 
- * @artifact docs/architecture-spec.md#ingest-agent
- * @epic foundation_consolidation_epic
- * @task foundation_consolidation_task3
- * @tdd-phase GREEN
- * 
- * Reusable utility for querying the Overpass API with retry logic, caching,
- * and performance optimization. Extracted from ingest-agent for reusability.
- * 
- * Migrated from src/utils/overpass.ts as part of lib foundation consolidation.
- */
-
-import { OverpassResponse, RequestOptions } from '../../types/geojson';
+import { OverpassResponse, RequestOptions } from '@/lib';
 import { makeRequest, sleep, DEFAULT_USER_AGENT } from '../../utils/http';
 
 export interface OverpassConfig {

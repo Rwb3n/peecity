@@ -18,14 +18,14 @@
  */
 
 import { performance } from 'perf_hooks';
-import { ValidationResult } from '../validationService';
+import { ValidationResult } from '@/lib';
 import { createAgentLogger } from '../../utils/logger';
-import { MetricsCollector, ValidationMetrics, TierConfig, PropertyMetadata } from './interfaces';
+import { ValidationMetricsCollectorInterface, ValidationMetrics, TierConfig, PropertyMetadata } from './interfaces';
 
 /**
  * Validation metrics collector with performance monitoring
  */
-export class ValidationMetricsCollector implements MetricsCollector {
+export class ValidationMetricsCollector implements ValidationMetricsCollectorInterface {
   private metrics: ValidationMetrics;
   private logger: any;
   private propertyCache: Map<string, PropertyMetadata> | null = null;
@@ -57,7 +57,7 @@ export class ValidationMetricsCollector implements MetricsCollector {
     };
 
     // Initialize structured logger
-    this.logger = createAgentLogger('validation-metrics', { level: this.logLevel });
+    this.logger = createAgentLogger('validation-metrics');
   }
 
   /**
@@ -148,8 +148,8 @@ export class ValidationMetricsCollector implements MetricsCollector {
    */
   private updateTierMetrics(tierSummary: { [tierName: string]: { provided: number } }): void {
     Object.keys(tierSummary).forEach(tier => {
-      if (this.metrics.requestsByTier[tier] !== undefined) {
-        this.metrics.requestsByTier[tier]++;
+      if (tier in this.metrics.requestsByTier) {
+        (this.metrics.requestsByTier as any)[tier]++;
       }
     });
   }
@@ -160,8 +160,8 @@ export class ValidationMetricsCollector implements MetricsCollector {
   private recordTierErrors(errors: any[]): void {
     errors.forEach(error => {
       const tier = error.tier || 'specialized';
-      if (this.metrics.errorsByTier[tier] !== undefined) {
-        this.metrics.errorsByTier[tier]++;
+      if (tier in this.metrics.errorsByTier) {
+        (this.metrics.errorsByTier as any)[tier]++;
       }
     });
   }

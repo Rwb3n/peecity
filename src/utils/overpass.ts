@@ -10,7 +10,7 @@
 
 import * as https from 'https';
 import * as http from 'http';
-import { OverpassResponse, RequestOptions } from '../types/geojson';
+import { OverpassResponse, RequestOptions } from '@/lib';
 import { makeRequest, sleep, DEFAULT_USER_AGENT } from './http';
 
 export interface OverpassConfig {

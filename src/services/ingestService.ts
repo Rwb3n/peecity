@@ -84,7 +84,8 @@ export class IngestService {
       lon = element.center.lon;
     } else {
       // Skip elements without coordinates
-      logger.debug('normalize_skip', 'Skipping element without coordinates', { 
+      logger.debug('normalize_skip', { 
+        message: 'Skipping element without coordinates',
         id: element.id, 
         type: element.type 
       });
@@ -136,7 +137,8 @@ export class IngestService {
    * @returns Overpass API response
    */
   private async fetchOverpassData(): Promise<OverpassResponse> {
-    logger.info('fetch_start', 'Starting OSM data fetch', {
+    logger.info('fetch_start', {
+      message: 'Starting OSM data fetch',
       apiUrl: this.config.overpassApiUrl,
       cacheEnabled: this.config.enableCache
     });
@@ -151,7 +153,8 @@ export class IngestService {
       cacheExpiryMs: this.config.cacheExpiryMs
     });
 
-    logger.info('fetch_complete', 'OSM data fetch completed', {
+    logger.info('fetch_complete', {
+      message: 'OSM data fetch completed',
       elementCount: data.elements ? data.elements.length : 0
     });
     
@@ -161,14 +164,16 @@ export class IngestService {
     const schemaValidationDuration = performance.now() - schemaValidationStart;
     
     if (!validationResult.isValid) {
-      logger.error('schema_validation_failed', 'Overpass response failed schema validation', {
+      logger.error('schema_validation_failed', {
+        message: 'Overpass response failed schema validation',
         errors: validationResult.errors,
         validationDurationMs: schemaValidationDuration
       });
       throw createSchemaValidationError('overpassQuery', validationResult.errors || [], data);
     }
     
-    logger.debug('schema_validation_success', 'Overpass response schema validation passed', {
+    logger.debug('schema_validation_success', {
+      message: 'Overpass response schema validation passed',
       validationDurationMs: schemaValidationDuration
     });
     
@@ -183,7 +188,7 @@ export class IngestService {
     const outputDir = path.dirname(filePath);
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
-      logger.info('directory_created', 'Created output directory', { path: outputDir });
+      logger.info('directory_created', { message: 'Created output directory', path: outputDir });
     }
   }
 
@@ -193,7 +198,8 @@ export class IngestService {
    * @returns Normalized GeoJSON collection
    */
   private processOverpassData(overpassData: OverpassResponse): ToiletCollection {
-    logger.info('process_start', 'Starting data normalization', {
+    logger.info('process_start', {
+      message: 'Starting data normalization',
       elementCount: overpassData.elements?.length || 0
     });
 
@@ -212,7 +218,8 @@ export class IngestService {
       }
     };
 
-    logger.info('process_complete', 'Data normalization completed', {
+    logger.info('process_complete', {
+      message: 'Data normalization completed',
       featuresCount: features.length,
       filteredCount: (overpassData.elements?.length || 0) - features.length
     });
@@ -228,14 +235,16 @@ export class IngestService {
   private writeGeoJSON(geoJson: ToiletCollection, outputFile: string): void {
     this.ensureOutputDirectory(outputFile);
     
-    logger.info('write_start', 'Writing GeoJSON to file', {
+    logger.info('write_start', {
+      message: 'Writing GeoJSON to file',
       path: outputFile,
       featuresCount: geoJson.features.length
     });
 
     fs.writeFileSync(outputFile, JSON.stringify(geoJson, null, 2));
     
-    logger.info('write_complete', 'GeoJSON file written successfully', {
+    logger.info('write_complete', {
+      message: 'GeoJSON file written successfully',
       path: outputFile,
       size: fs.statSync(outputFile).size
     });
@@ -249,7 +258,8 @@ export class IngestService {
     const startTime = Date.now();
     
     try {
-      logger.info('ingest_start', 'Starting ingest process', {
+      logger.info('ingest_start', {
+        message: 'Starting ingest process',
         outputFile: this.config.outputFile,
         config: {
           retryAttempts: this.config.retryAttempts,
@@ -270,7 +280,8 @@ export class IngestService {
       const geoJsonValidationDuration = performance.now() - geoJsonValidationStart;
       
       if (!geoJsonValidationResult.isValid) {
-        logger.error('geojson_schema_validation_failed', 'Generated GeoJSON failed schema validation', {
+        logger.error('geojson_schema_validation_failed', {
+          message: 'Generated GeoJSON failed schema validation',
           errors: geoJsonValidationResult.errors,
           featuresCount: geoJson.features.length,
           validationDurationMs: geoJsonValidationDuration
@@ -278,7 +289,8 @@ export class IngestService {
         throw createSchemaValidationError('geoJsonToilet', geoJsonValidationResult.errors || [], geoJson);
       }
       
-      logger.debug('geojson_schema_validation_success', 'Generated GeoJSON schema validation passed', {
+      logger.debug('geojson_schema_validation_success', {
+        message: 'Generated GeoJSON schema validation passed',
         featuresCount: geoJson.features.length,
         validationDurationMs: geoJsonValidationDuration
       });
@@ -291,10 +303,11 @@ export class IngestService {
         success: true,
         featuresCount: geoJson.features.length,
         outputFile: this.config.outputFile,
-        generatedAt: geoJson.metadata.generated_at
+        generatedAt: geoJson.metadata!.generated_at
       };
 
-      logger.info('ingest_success', 'Ingest process completed successfully', {
+      logger.info('ingest_success', {
+        message: 'Ingest process completed successfully',
         ...result,
         durationMs: duration
       });
@@ -305,7 +318,8 @@ export class IngestService {
       const duration = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
-      logger.error('ingest_failed', 'Ingest process failed', {
+      logger.error('ingest_failed', {
+        message: 'Ingest process failed',
         error: errorMessage,
         durationMs: duration,
         outputFile: this.config.outputFile

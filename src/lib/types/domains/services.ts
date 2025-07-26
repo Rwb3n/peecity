@@ -21,7 +21,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { SuggestionValidation } from './toilet';
+import { SuggestionValidation } from '@/lib';
 
 // ============================================================================
 // Duplicate Detection Service Types

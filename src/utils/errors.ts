@@ -249,7 +249,7 @@ export function createErrorResponse(
   
   // Add rate limiting headers if applicable
   if (error instanceof RateLimitError) {
-    return ResponseHandler.json(response, {
+    return NextResponse.json(response, {
       status: statusCode,
       headers: {
         'X-RateLimit-Limit': error.maxSubmissions.toString(),
@@ -259,7 +259,7 @@ export function createErrorResponse(
     });
   }
 
-  return ResponseHandler.json(response, { status: statusCode });
+  return NextResponse.json(response, { status: statusCode });
 }
 
 /**
@@ -278,7 +278,7 @@ export function createSuccessResponse(
     timestamp: new Date().toISOString()
   };
 
-  return ResponseHandler.json(response, { status: statusCode });
+  return NextResponse.json(response, { status: statusCode });
 }
 
 /**

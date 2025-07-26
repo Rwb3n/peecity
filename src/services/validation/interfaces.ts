@@ -1,16 +1,4 @@
-/**
- * Validation Service Interfaces
- * 
- * @artifact docs/cookbook/recipe_tiered_validation.md
- * @epic foundation_consolidation_epic
- * @task foundation_consolidation_task2_corrected
- * @tdd-phase GREEN
- * 
- * Defines contracts for validation service components using dependency injection.
- * Enables composition-based architecture instead of configuration-based complexity.
- */
-
-import { ValidationRequest, ValidationResult } from '../validationService';
+import { ValidationResult, ValidationRequest } from '@/lib';
 import { SuggestionValidation } from '../../types/suggestions';
 
 /**
@@ -82,12 +70,12 @@ export interface ValidationMetrics {
 }
 
 /**
- * Metrics collection interface
+ * Validation metrics collection interface
  * 
  * Handles performance monitoring and validation metrics collection.
  * Single responsibility: metrics collection and reporting.
  */
-export interface MetricsCollector {
+export interface ValidationMetricsCollectorInterface {
   /**
    * Start timing a validation operation
    * @returns High-precision timestamp for duration calculation
@@ -297,7 +285,7 @@ export interface ValidationService {
  */
 export interface ServiceComposition {
   configurationLoader: ConfigurationLoader;
-  metricsCollector?: MetricsCollector;
+  metricsCollector?: ValidationMetricsCollectorInterface;
   performanceOptimizer?: PerformanceOptimizer;
   logger?: ValidationLogger;
 }

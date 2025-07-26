@@ -10,7 +10,7 @@
 import { getFilePathsConfig } from '../utils/config';
 import { createAgentLogger } from '../utils/logger';
 import { FileLogWriter, createFileLogWriter } from '../utils/fileLogWriter';
-import { SuggestionLogEntry, ProcessedSuggestion, SuggestionValidation } from '../types/suggestions';
+import { SuggestionLogEntry, ProcessedSuggestion, SuggestionValidation } from '@/lib';
 
 const logger = createAgentLogger('suggestion-log-service');
 
@@ -43,10 +43,19 @@ export class SuggestionLogService {
    * @param request Log request with event data
    */
   async logSuggestion(request: LogSuggestionRequest): Promise<void> {
+    // Map internal action types to valid log entry actions
+    const actionMapping: Record<string, 'submitted' | 'validated' | 'approved' | 'rejected'> = {
+      'submitted': 'submitted',
+      'validation_failed': 'rejected',
+      'duplicate_detected': 'rejected', 
+      'rate_limited': 'rejected',
+      'server_error': 'rejected'
+    };
+    
     const logEntry: SuggestionLogEntry = {
       timestamp: new Date().toISOString(),
       suggestionId: request.suggestionId,
-      action: request.action,
+      action: actionMapping[request.action] || 'rejected',
       data: { ...request.data, ip_address: request.ipAddress },
       result: request.result
     };
@@ -211,7 +220,7 @@ export class SuggestionLogService {
       data: { error: error instanceof Error ? error.message : 'Unknown error' },
       result: {
         isValid: false,
-        errors: [{ field: 'server', message: 'Internal server error', code: 'server_error' }],
+        errors: [{ field: 'server', message: 'Internal server error', code: 'invalid_type' }],
         warnings: [],
         isDuplicate: false
       },

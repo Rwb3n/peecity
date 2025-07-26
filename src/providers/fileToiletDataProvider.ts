@@ -8,8 +8,8 @@
  */
 
 import fs from 'fs';
-import { ToiletFeature } from '../types/geojson';
-import { CachedToiletDataProvider } from '../interfaces/toiletDataProvider';
+import { ToiletFeature } from '@/lib';
+import { CachedToiletDataProvider } from '@/lib';
 import { createAgentLogger } from '../utils/logger';
 
 /**
@@ -50,10 +50,7 @@ export class FileToiletDataProvider implements CachedToiletDataProvider {
     // Check cache first
     if (this.isCacheValid() && this.cachedData) {
       this.cacheHits++;
-      this.logger.debug('cache_hit', 'Toilet data loaded from cache', {
-        featureCount: this.cachedData.length,
-        lastLoaded: this.lastLoaded?.toISOString()
-      });
+      this.logger.debug('cache_hit', `Toilet data loaded from cache (${this.cachedData.length} features)`);
       return this.cachedData;
     }
 
@@ -79,19 +76,13 @@ export class FileToiletDataProvider implements CachedToiletDataProvider {
       this.cachedData = geoJsonData.features;
       this.lastLoaded = new Date();
 
-      this.logger.info('data_loaded', 'Toilet data loaded from file', {
-        filePath: this.config.filePath,
-        featureCount: this.cachedData.length,
-        fileSize: fileContent.length
-      });
+      this.logger.info('data_loaded', `Toilet data loaded from file (${this.cachedData?.length || 0} features, ${fileContent.length} bytes)`);
 
-      return this.cachedData;
+      return this.cachedData || [];
 
     } catch (error) {
-      this.logger.error('data_load_error', 'Failed to load toilet data from file', {
-        filePath: this.config.filePath,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('data_load_error', `Failed to load toilet data from file: ${errorMessage}`);
       throw error;
     }
   }
@@ -128,10 +119,8 @@ export class FileToiletDataProvider implements CachedToiletDataProvider {
         source: `file://${this.config.filePath}`
       };
     } catch (error) {
-      this.logger.warn('metadata_error', 'Failed to get file metadata', {
-        filePath: this.config.filePath,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.warn('metadata_error', `Failed to get file metadata: ${errorMessage}`);
       
       return {
         source: `file://${this.config.filePath}`

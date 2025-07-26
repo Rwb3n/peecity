@@ -14,7 +14,7 @@ import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ErrorFactory } from './errors';
+import { ErrorFactory } from '@/lib';
 
 // AJV instance with formats support
 const ajv = new Ajv({ 
@@ -86,7 +86,7 @@ export function validateSchema(data: unknown, schemaName: string): SchemaValidat
     }
     
     // Format validation errors
-    const errors = validate.errors?.map(error => {
+    const errors = validate.errors?.map((error: any) => {
       const field = error.instancePath || error.schemaPath || 'root';
       const message = error.message || 'Validation failed';
       return `${field}: ${message}`;

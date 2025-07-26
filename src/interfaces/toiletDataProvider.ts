@@ -1,13 +1,4 @@
-/**
- * Toilet Data Provider Interface
- * 
- * @doc refs docs/architecture-spec.md#suggest-agent
- * 
- * Abstraction for toilet data access to support dependency injection
- * and better testability. Breaks filesystem dependency from business logic.
- */
-
-import { ToiletFeature } from '../types/geojson';
+import { ToiletFeature } from '@/lib';
 
 /**
  * Interface for accessing toilet data

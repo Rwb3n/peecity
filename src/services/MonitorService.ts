@@ -11,8 +11,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { IngestService } from './ingestService';
 import { createAgentLogger } from '../utils/logger';
-import { AlertSender } from '../interfaces/AlertSender';
-import { MetricsCollector } from '../interfaces/MetricsCollector';
+import { AlertSender } from '@/lib';
+import { MetricsCollector } from '@/lib';
 import { DiscordAlertSender } from './alerts/DiscordAlertSender';
 import { ValidationSummaryMetricsCollector } from './metrics/ValidationSummaryMetricsCollector';
 import { PrometheusMetricsCollector } from './metrics/PrometheusMetricsCollector';
@@ -168,8 +168,8 @@ export class MonitorService {
       const cachedData = await this.readCachedData();
       
       // Compare data
-      const currentIds = new Set(currentData.features.map(f => f.properties.id));
-      const cachedIds = new Set(cachedData.features.map(f => f.properties.id));
+      const currentIds = new Set(currentData.features.map((f: any) => f.properties.id));
+      const cachedIds = new Set(cachedData.features.map((f: any) => f.properties.id));
       
       const newToilets = currentIds.size - new Set([...currentIds].filter(id => cachedIds.has(id))).size;
       const removedToilets = cachedIds.size - new Set([...cachedIds].filter(id => currentIds.has(id))).size;

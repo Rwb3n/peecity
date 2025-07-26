@@ -1,27 +1,4 @@
-/**
- * Validation Domain Types
- * 
- * @artifact docs/analysis/type-system-organization-analysis.md
- * @epic architecture_optimization_epic
- * @task architecture_optimization_task2
- * @tdd-phase GREEN
- * 
- * Consolidated validation types NOT already in src/lib/validation/.
- * Complements existing validation utilities with domain-specific types.
- * 
- * Sources for migration:
- * - src/services/validationService.ts: ValidationRequest, ValidationResult
- * - src/services/validation/interfaces.ts: TierConfig, PropertyMetadata, ValidationMetrics,
- *   MetricsCollector, PerformanceOptimizer, ValidationLogger, ConfigurationLoader,
- *   ValidationContext, TieredValidationResult, ValidationService, ServiceComposition,
- *   ValidationServiceFactoryInterface, PerformanceBenchmark
- * - src/types/suggestions.ts: ValidationError, ValidationWarning (if not in lib already)
- * 
- * Note: TierValidationSummary, PropertyValidationContext, ErrorResponse, SchemaValidationResult
- * remain in their current lib locations and will be re-exported.
- */
-
-import { SuggestionValidation } from './toilet';
+import { SuggestionValidation } from '@/lib';
 
 // ============================================================================
 // Core Validation Types

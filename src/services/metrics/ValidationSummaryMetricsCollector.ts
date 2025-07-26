@@ -8,7 +8,7 @@
  */
 
 import fetch from 'node-fetch';
-import { MetricsCollector, MetricsData, MetricsCollectionResult } from '../../interfaces/MetricsCollector';
+import { MetricsCollector, MetricsData, MetricsCollectionResult } from '@/lib';
 import { createAgentLogger } from '../../utils/logger';
 
 const logger = createAgentLogger('validation-summary-metrics');
@@ -25,7 +25,8 @@ export class ValidationSummaryMetricsCollector implements MetricsCollector {
     try {
       const response = await fetch(this.apiUrl);
       if (!response.ok) {
-        logger.warn('validation_summary_failed', 'Validation summary endpoint failed', {
+        logger.warn('validation_summary_failed', {
+          message: 'Validation summary endpoint failed',
           status: response.status,
           statusText: response.statusText
         });
@@ -56,7 +57,8 @@ export class ValidationSummaryMetricsCollector implements MetricsCollector {
         Object.assign(metrics, filteredMetrics);
       }
       
-      logger.info('metrics_collected', 'Metrics collected from validation summary', {
+      logger.info('metrics_collected', {
+        message: 'Metrics collected from validation summary',
         metrics,
         requestedMetrics
       });
@@ -70,7 +72,8 @@ export class ValidationSummaryMetricsCollector implements MetricsCollector {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
-      logger.warn('validation_summary_error', 'Error collecting from validation summary', {
+      logger.warn('validation_summary_error', {
+        message: 'Error collecting from validation summary',
         error: errorMessage
       });
       

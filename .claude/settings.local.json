@@ -78,7 +78,11 @@
       "Bash(git add:*)",
       "Bash(git checkout:*)",
       "Bash(npx ts-node:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(do)",
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(npx cross-env:*)",
+      "Bash(npx webpack-bundle-analyzer:*)"
     ],
     "deny": []
   }

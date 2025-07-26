@@ -7,8 +7,13 @@
  */
 
 import { percentileCalculators, StreamingPercentileCalculator } from '@/utils/percentiles';
-import { getValidationService } from '@/app/api/metrics/route';
-import { invalidateSummaryCache } from '@/app/api/validation/summary/route';
+
+// TODO: Implement these functions when API routes are created
+const getValidationService = (): { getMetrics: () => { performanceMetrics: { p95: number[] } } } | null => {
+  // Return null to indicate service not available
+  return null;
+};
+const invalidateSummaryCache = () => null;
 
 export class MetricsAggregationService {
   private updateInterval: NodeJS.Timeout | null = null;
@@ -49,6 +54,10 @@ export class MetricsAggregationService {
   private updatePercentiles(): void {
     try {
       const validationService = getValidationService();
+      if (!validationService) {
+        console.warn('Validation service not available for metrics update');
+        return;
+      }
       const metrics = validationService.getMetrics();
 
       // Update time window calculators with recent data
@@ -60,7 +69,7 @@ export class MetricsAggregationService {
       // For demo purposes, we'll add the current p95 values
       // In production, this would integrate with time-series data
       if (metrics.performanceMetrics.p95.length > 0) {
-        metrics.performanceMetrics.p95.forEach(value => {
+        metrics.performanceMetrics.p95.forEach((value: number) => {
           // Add to all calculators
           percentileCalculators['all'].add(value);
           

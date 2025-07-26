@@ -13,7 +13,9 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import Ajv from 'ajv';
-import { ConfigurationLoader, TierConfig } from './interfaces';
+import addFormats from 'ajv-formats';
+import { TierConfig } from '@/lib';
+import { ConfigurationLoader } from './interfaces';
 
 // Import property tiers schema for validation
 const propertyTiersSchema = require('../../../schemas/propertyTiers.schema.json');
@@ -27,6 +29,7 @@ export class TierConfigurationLoader implements ConfigurationLoader {
 
   constructor() {
     this.ajv = new Ajv();
+    addFormats(this.ajv);
   }
 
   /**
@@ -49,8 +52,9 @@ export class TierConfigurationLoader implements ConfigurationLoader {
       this.configCache = config;
       
       return config;
-    } catch (error) {
-      throw new Error(`Failed to load tier configuration from ${configPath}: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to load tier configuration from ${configPath}: ${errorMessage}`);
     }
   }
 

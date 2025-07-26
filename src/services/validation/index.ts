@@ -18,7 +18,7 @@ export type {
   TierConfig,
   PropertyMetadata,
   ValidationMetrics,
-  MetricsCollector,
+  ValidationMetricsCollectorInterface,
   PerformanceOptimizer,
   ValidationLogger,
   ConfigurationLoader,

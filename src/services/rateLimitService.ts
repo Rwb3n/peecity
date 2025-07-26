@@ -10,7 +10,7 @@
 import { checkRateLimit, recordSubmission, extractIPAddress, getRateLimitStats } from '../utils/rateLimit';
 import { getRateLimitConfig } from '../utils/config';
 import { createAgentLogger } from '../utils/logger';
-import { ErrorFactory } from '../lib';
+import { ErrorFactory } from '@/lib';
 import { NextRequest } from 'next/server';
 
 const logger = createAgentLogger('rate-limit-service');

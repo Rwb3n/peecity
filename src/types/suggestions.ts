@@ -43,6 +43,7 @@ export interface SuggestionValidation {
   isDuplicate: boolean;
   duplicateDistance?: number;     // Distance to nearest existing toilet (meters)
   nearestToiletId?: string;       // ID of nearest existing toilet
+  tierSummary?: any;              // Tier-based validation summary
 }
 
 /**

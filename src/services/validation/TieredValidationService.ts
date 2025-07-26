@@ -1,25 +1,12 @@
-/**
- * TieredValidationService - Refactored with Dependency Injection
- * 
- * @doc refs docs/cookbook/recipe_tiered_validation.md
- * @doc refs docs/adr/ADR-002-property-tiering.md
- * @artifact docs/cookbook/recipe_tiered_validation.md
- * @epic foundation_consolidation_epic
- * @task foundation_consolidation_task2_corrected
- * @tdd-phase GREEN
- * 
- * Clean validation service using composition instead of configuration.
- * Dependencies are injected rather than configured with feature flags.
- */
-
-import { ValidationService, ValidationRequest, ValidationResult } from '../validationService';
+import { ValidationResult, ValidationRequest } from '@/lib';
+import { ValidationService } from './interfaces';
 import { validateRequestBody, generateSuggestionId, ErrorFactory } from '../../lib';
-import { validateServiceResponse, createSchemaSuggestionValidationError } from '../../lib/validation/schemas';
+import { validateServiceResponse, createSchemaValidationError } from '../../lib/validation/schemas';
 import { SuggestionValidation, SuggestionValidationError, ValidationWarning } from '../../types/suggestions';
 import { 
   TierConfig, 
   ConfigurationLoader, 
-  MetricsCollector, 
+  ValidationMetricsCollectorInterface, 
   PerformanceOptimizer, 
   ValidationLogger,
   ValidationContext,
@@ -57,16 +44,16 @@ interface TierSummary {
  * Single responsibility: orchestrating validation using injected dependencies.
  * No configuration complexity - behavior determined by injected components.
  */
-export class TieredValidationService extends ValidationService {
+export class TieredValidationService implements ValidationService {
   private config: TierConfig | null = null;
 
   constructor(
     private configurationLoader: ConfigurationLoader,
-    private metricsCollector?: MetricsCollector,
+    private metricsCollector?: ValidationMetricsCollectorInterface,
     private performanceOptimizer?: PerformanceOptimizer,
     private logger?: ValidationLogger
   ) {
-    super();
+    // Constructor implementation
   }
 
   /**
@@ -87,8 +74,9 @@ export class TieredValidationService extends ValidationService {
         hasMetrics: !!this.metricsCollector,
         hasOptimizer: !!this.performanceOptimizer
       });
-    } catch (error) {
-      this.logger?.error('Failed to initialize TieredValidationService', { error: error.message });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger?.error('Failed to initialize TieredValidationService', { error: errorMessage });
       throw error;
     }
   }
@@ -110,7 +98,7 @@ export class TieredValidationService extends ValidationService {
       });
       
       // Error-throwing mode for data integrity (as recommended by skeptic)
-      throw createSchemaSuggestionValidationError('serviceResponse', schemaResult.errors || [], result);
+      throw createSchemaValidationError('serviceResponse', schemaResult.errors || [], result);
     }
     
     this.logger?.debug('TieredValidationService: Result schema validation passed', {
@@ -189,20 +177,24 @@ export class TieredValidationService extends ValidationService {
 
       return tieredResult;
 
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      
       this.logger?.error('Validation request failed', { 
-        error: error.message,
-        stack: error.stack 
+        error: errorMessage,
+        stack: errorStack 
       });
 
       // Record error metrics if collector is available
       if (this.metricsCollector && startTime !== undefined) {
-        this.metricsCollector.recordError(error, startTime);
+        const errorToRecord = error instanceof Error ? error : new Error(errorMessage);
+        this.metricsCollector.recordError(errorToRecord, startTime);
       }
 
       const errorResult = {
         isValid: false,
-        error: ErrorFactory.internalError(error.message)
+        error: ErrorFactory.internalError(errorMessage)
       };
       
       return this.validateResultSchema(errorResult);
@@ -242,7 +234,7 @@ export class TieredValidationService extends ValidationService {
             errors.push({
               field: prop,
               message: 'Latitude must be a number between -90 and 90',
-              type: 'invalid_coordinate',
+              code: 'out_of_range',
               tier: 'core'
             });
           } else {
@@ -254,7 +246,7 @@ export class TieredValidationService extends ValidationService {
             errors.push({
               field: prop,
               message: 'Longitude must be a number between -180 and 180',
-              type: 'invalid_coordinate',
+              code: 'out_of_range',
               tier: 'core'
             });
           } else {
@@ -265,7 +257,7 @@ export class TieredValidationService extends ValidationService {
         errors.push({
           field: prop,
           message: `${prop} is required`,
-          type: 'required_field',
+          code: 'required',
           tier: 'core'
         });
       }
@@ -284,8 +276,10 @@ export class TieredValidationService extends ValidationService {
     });
 
     const validation: SuggestionValidation = {
+      isValid: errors.length === 0,
       errors,
       warnings,
+      isDuplicate: false,
       tierSummary
     };
 

@@ -1,23 +1,4 @@
-/**
- * MapBasedPerformanceOptimizer
- * 
- * @artifact docs/cookbook/recipe_tiered_validation.md
- * @epic foundation_consolidation_epic
- * @task foundation_consolidation_task2_corrected
- * @tdd-phase GREEN
- * 
- * Performance-optimized validation using Map-based lookups and optimized algorithms.
- * Single responsibility: performance optimization for validation operations.
- * 
- * Key optimizations:
- * - Map-based property lookups (O(1) vs O(n))
- * - Pre-computed core property set
- * - Single-pass validation algorithm
- * - Early exit for critical failures
- * - Cached enum value sets
- */
-
-import { ValidationRequest, ValidationResult } from '../validationService';
+import { ValidationResult, ValidationRequest } from '@/lib';
 import { validateRequestBody, generateSuggestionId, ErrorFactory } from '../../lib';
 import { SuggestionValidation } from '../../types/suggestions';
 import { 
@@ -112,8 +93,9 @@ export class MapBasedPerformanceOptimizer implements PerformanceOptimizer {
       this.initializeEnumValues();
       
       this.isInitialized = true;
-    } catch (error) {
-      throw new Error(`Failed to initialize performance optimizer: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to initialize performance optimizer: ${errorMessage}`);
     }
   }
 
@@ -196,7 +178,20 @@ export class MapBasedPerformanceOptimizer implements PerformanceOptimizer {
         isValid: false,
         data: mappedData,
         sanitizedData: this.sanitizeTiered(mappedData),
-        validation,
+        validation: {
+          isValid: validation.isValid,
+          isDuplicate: false, // Add missing required property
+          errors: validation.errors.map(err => ({
+            field: err.field,
+            message: err.message,
+            code: 'invalid_type' as const // Convert type to code
+          })),
+          warnings: validation.warnings.map(warn => ({
+            field: warn.field,
+            message: warn.message,
+            code: 'formatting_issue' as const // Convert to valid warning code
+          }))
+        },
         suggestionId: generateSuggestionId(),
         error: {
           ...validationError,
@@ -218,7 +213,20 @@ export class MapBasedPerformanceOptimizer implements PerformanceOptimizer {
       isValid: true,
       data: mappedData,
       sanitizedData,
-      validation,
+      validation: {
+        isValid: validation.isValid,
+        isDuplicate: false, // Add missing required property
+        errors: validation.errors.map(err => ({
+          field: err.field,
+          message: err.message,
+          code: 'invalid_type' as const // Convert type to code
+        })),
+        warnings: validation.warnings.map(warn => ({
+          field: warn.field,
+          message: warn.message,
+          code: 'formatting_issue' as const // Convert to valid warning code
+        }))
+      },
       suggestionId
     };
   }
