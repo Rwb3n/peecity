@@ -1,3 +1,4 @@
+# last updated on: 2025-08-27 21:12:18
 # Build stage
 FROM node:20-alpine AS builder
 
@@ -12,6 +13,10 @@ RUN npm ci --only=production
 
 # Copy application files
 COPY . .
+
+# Set build-time environment variable for Next.js
+ARG NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+ENV NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
 # Build the application
 RUN npm run build

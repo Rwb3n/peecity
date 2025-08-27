@@ -118,7 +118,7 @@ open https://your-service-url
 gcloud run domain-mappings create \
   --service citypee \
   --domain citypee.com \
-  --region europe-west2
+  --region us-east1
 ```
 
 ---
@@ -143,7 +143,7 @@ gcloud run domain-mappings create \
 
 ### View Logs
 ```bash
-gcloud run services logs tail citypee --region europe-west2
+gcloud run services logs tail citypee --region us-east1
 ```
 
 ### Update Service
@@ -153,7 +153,7 @@ gcloud run services logs tail citypee --region europe-west2
 
 # Update environment variables only
 gcloud run services update citypee \
-  --region europe-west2 \
+  --region us-east1 \
   --set-env-vars="NEW_VAR=value"
 ```
 
@@ -161,7 +161,7 @@ gcloud run services update citypee \
 ```bash
 # Increase resources if needed
 gcloud run services update citypee \
-  --region europe-west2 \
+  --region us-east1 \
   --memory 1Gi \
   --cpu 2 \
   --max-instances 50
@@ -183,24 +183,24 @@ gcloud run services update citypee \
 - Check Docker is running locally: `docker --version`
 
 #### "API key not working"
-- Verify API key is set: `gcloud run services describe citypee --region europe-west2`
+- Verify API key is set: `gcloud run services describe citypee --region us-east1`
 - Check API restrictions in Google Cloud Console
 - Ensure Maps JavaScript API + Places API are enabled
 
 #### "Site not loading"
 - Check service URL: `gcloud run services list`
-- View logs: `gcloud run services logs tail citypee --region europe-west2`
+- View logs: `gcloud run services logs tail citypee --region us-east1`
 - Test API directly: `curl https://your-url/api/search`
 
 ### Emergency Rollback
 ```bash
 # List previous revisions
-gcloud run revisions list --service citypee --region europe-west2
+gcloud run revisions list --service citypee --region us-east1
 
 # Rollback to previous version
 gcloud run services update-traffic citypee \
   --to-revisions REVISION_NAME=100 \
-  --region europe-west2
+  --region us-east1
 ```
 
 ---

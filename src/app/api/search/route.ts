@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
 
+interface Toilet {
+  id: string
+  name: string
+  lat: number
+  lng: number
+  hours: string
+  accessible: boolean
+  fee: number
+  address: string
+  properties: any
+}
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
@@ -15,7 +27,7 @@ export async function GET(request: NextRequest) {
     const toiletData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'))
     
     // Transform GeoJSON features to API format
-    const toilets = toiletData.features.map((feature: any) => ({
+    const toilets: Toilet[] = toiletData.features.map((feature: any) => ({
       id: feature.properties.id,
       name: feature.properties.name || 'Public Toilet',
       lat: feature.geometry.coordinates[1],
@@ -32,7 +44,7 @@ export async function GET(request: NextRequest) {
     let results = toilets
     
     if (query) {
-      results = results.filter(toilet => 
+      results = results.filter((toilet: Toilet) => 
         toilet.name.toLowerCase().includes(query.toLowerCase()) ||
         toilet.address.toLowerCase().includes(query.toLowerCase())
       )
@@ -44,7 +56,7 @@ export async function GET(request: NextRequest) {
       const searchLng = parseFloat(lng)
       const maxRadius = parseFloat(radius)
       
-      results = results.filter(toilet => {
+      results = results.filter((toilet: Toilet) => {
         const distance = calculateDistance(searchLat, searchLng, toilet.lat, toilet.lng)
         return distance <= maxRadius
       })

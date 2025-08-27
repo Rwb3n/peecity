@@ -14,8 +14,12 @@
 - User controls servers: starts with `npm run dev`, stops with `Ctrl+C`
 
 ### File Safety
+- ALWAYS state explicitly what info you need, info you have, info you don't have, and how you will get it
 - ALWAYS list files in a directory before starting work
 - ALWAYS read files before editing them
+- NEVER delete files without explicit user permission
+- NEVER assume you know what a file does without reading it first
+- NEVER assume you know what files exist without checking first
 - Check dependencies before deleting anything
 - Test functionality after changes
 

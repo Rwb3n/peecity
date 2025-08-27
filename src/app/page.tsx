@@ -1,8 +1,13 @@
+// last updated on: 2025-08-27 22:22:59
 'use client'
 
 import { APIProvider, Map, AdvancedMarker, InfoWindow, useMap } from '@vis.gl/react-google-maps'
 import { useState, useEffect, useCallback } from 'react'
 import { LocationSearch } from '@/components/LocationSearch'
+
+interface Config {
+  mapsApiKey?: string
+}
 
 // Walking radius component
 function WalkingCircles({ center }: { center: {lat: number, lng: number} }) {
@@ -78,6 +83,44 @@ export default function HomePage() {
   const [gettingLocation, setGettingLocation] = useState(false)
   const [selectedToilet, setSelectedToilet] = useState<Toilet | null>(null)
   const [currentLocation, setCurrentLocation] = useState<LocationResult | null>(null)
+  
+  // Runtime configuration loading
+  const [config, setConfig] = useState<Config>({})
+  const [configLoading, setConfigLoading] = useState(true)
+  const [configError, setConfigError] = useState<string | null>(null)
+
+  // Load configuration from runtime API
+  useEffect(() => {
+    console.log('[CONFIG] Starting configuration load...')
+    console.log('[CONFIG] Current URL:', window.location.href)
+    
+    fetch('/api/config')
+      .then(res => {
+        console.log('[CONFIG] API response status:', res.status)
+        return res.json()
+      })
+      .then(data => {
+        console.log('[CONFIG] API response data:', data)
+        
+        if (data.error) {
+          console.error('[CONFIG] Configuration error:', data.error)
+          setConfigError(data.error)
+        } else {
+          console.log('[CONFIG] Configuration loaded successfully')
+          console.log('[CONFIG] API key present:', !!data.mapsApiKey)
+          console.log('[CONFIG] API key length:', data.mapsApiKey ? data.mapsApiKey.length : 0)
+          setConfig(data)
+        }
+      })
+      .catch(err => {
+        console.error('[CONFIG] Failed to load configuration:', err)
+        setConfigError('Failed to load configuration')
+      })
+      .finally(() => {
+        console.log('[CONFIG] Configuration loading complete')
+        setConfigLoading(false)
+      })
+  }, [])
 
   // Load real toilet data
   useEffect(() => {
@@ -162,13 +205,32 @@ export default function HomePage() {
     fetchToiletsNearLocation(location.lat, location.lng)
   }
 
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-  
-  if (!apiKey) {
+  // Loading state while fetching configuration
+  if (configLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 font-medium">Google Maps API key not configured</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading CityPee...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state if configuration failed to load
+  if (configError || !config.mapsApiKey) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-4xl mb-4">⚠️</div>
+          <p className="text-red-600 font-medium mb-2">Service temporarily unavailable</p>
+          <p className="text-gray-500 text-sm">Please try again later</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            Retry
+          </button>
         </div>
       </div>
     )
@@ -191,12 +253,11 @@ export default function HomePage() {
         <div className="mb-6">
           <LocationSearch 
             onLocationSelect={handleLocationSelect}
-            onGeolocationSelect={() => {}}
             loading={loading}
           />
         </div>
 
-        <APIProvider apiKey={apiKey}>
+        <APIProvider apiKey={config.mapsApiKey}>
           <div className="relative w-full h-[500px] rounded-lg overflow-hidden shadow-md">
             <Map
               defaultCenter={userLocation || {lat: 51.5074, lng: -0.1278}}

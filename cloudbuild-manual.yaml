@@ -1,0 +1,13 @@
+# last updated on: 2025-08-27 21:13:19
+# Manual build with API key
+steps:
+  # Build the Docker image with API key
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build', 
+      '--build-arg', 'NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyAlfr4COYhh1CMmiCRw_KBDTFPdw7pcrsE',
+      '-t', 'gcr.io/$PROJECT_ID/citypee:latest',
+      '.'
+    ]
+
+timeout: '1200s'
