@@ -1,4 +1,4 @@
-// last updated on: 2025-08-27 22:22:59
+// last updated on: 2025-08-28 00:17:17
 'use client'
 
 import { APIProvider, Map, AdvancedMarker, InfoWindow, useMap } from '@vis.gl/react-google-maps'
@@ -89,12 +89,17 @@ export default function HomePage() {
   const [configLoading, setConfigLoading] = useState(true)
   const [configError, setConfigError] = useState<string | null>(null)
 
+  // Express API backend URL
+  const API_BASE = process.env.NODE_ENV === 'production' 
+    ? 'https://citypee-api-310116477099.us-east1.run.app'
+    : 'https://citypee-api-310116477099.us-east1.run.app' // Use remote API for development too
+
   // Load configuration from runtime API
   useEffect(() => {
     console.log('[CONFIG] Starting configuration load...')
     console.log('[CONFIG] Current URL:', window.location.href)
     
-    fetch('/api/config')
+    fetch(`${API_BASE}/api/config`)
       .then(res => {
         console.log('[CONFIG] API response status:', res.status)
         return res.json()
@@ -126,7 +131,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchToilets = async () => {
       try {
-        const response = await fetch('/api/search?lat=51.5074&lng=-0.1278&radius=1000')
+        const response = await fetch(`${API_BASE}/api/search?lat=51.5074&lng=-0.1278&radius=1000`)
         const data = await response.json()
         
         if (data.success) {
@@ -175,7 +180,7 @@ export default function HomePage() {
   const fetchToiletsNearLocation = async (lat: number, lng: number) => {
     setLoading(true)
     try {
-      const response = await fetch(`/api/search?lat=${lat}&lng=${lng}&radius=1000`)
+      const response = await fetch(`${API_BASE}/api/search?lat=${lat}&lng=${lng}&radius=1000`)
       const data = await response.json()
       
       if (data.success) {

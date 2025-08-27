@@ -14,6 +14,7 @@
 - User controls servers: starts with `npm run dev`, stops with `Ctrl+C`
 
 ### File Safety
+- START with npx next info to check system status
 - ALWAYS state explicitly what info you need, info you have, info you don't have, and how you will get it
 - ALWAYS list files in a directory before starting work
 - ALWAYS read files before editing them

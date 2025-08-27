@@ -1,4 +1,4 @@
-# last updated on: 2025-08-27 13:18:41
+# last updated on: 2025-08-27 23:42:43
 # PostToolUse Hook - Auto-Timestamp for File Edits
 #
 # DESCRIPTION:
@@ -31,13 +31,36 @@
 #   }
 #
 # SUPPORTED FILE TYPES:
-#   JavaScript/TypeScript (.js, .ts, .jsx, .tsx) -> // comment
-#   C/C++/Java/C#/Go/Rust (.c, .cpp, .java, .cs, .go, .rs) -> // comment  
-#   Python/Shell/PowerShell (.py, .sh, .ps1) -> # comment
-#   Batch files (.bat, .cmd) -> REM comment
-#   SQL files (.sql) -> -- comment
-#   Ruby/R/Perl (.rb, .r, .pl) -> # comment
+#   Programming Languages:
+#     JavaScript/TypeScript (.js, .ts, .jsx, .tsx) -> // comment
+#     C/C++/Java/C#/Go/Rust (.c, .cpp, .java, .cs, .go, .rs) -> // comment
+#     PHP (.php), SCSS/LESS (.scss, .less) -> // comment
+#     Python/Shell/PowerShell (.py, .sh, .ps1) -> # comment
+#     Ruby/R/Perl (.rb, .r, .pl) -> # comment
+#   
+#   Data/Config Files:
+#     YAML (.yaml, .yml) -> # comment
+#     TOML (.toml), INI (.ini), Config (.conf, .cfg) -> # comment
+#     Properties (.properties), Environment (.env) -> # comment
+#   
+#   Markup/Style Files:
+#     XML/HTML/SVG (.xml, .html, .htm, .svg) -> <!-- comment -->
+#     CSS (.css) -> /* comment */
+#   
+#   Database Files:
+#     SQL/HQL (.sql, .hql) -> -- comment
+#   
+#   System Files:
+#     Batch files (.bat, .cmd) -> REM comment
+#     Git files (.gitignore) -> # comment
+#   
 #   Default fallback -> # comment
+#
+# EXCLUDED FILE TYPES (no timestamping to avoid syntax errors):
+#   JSON files (.json, .jsonc) - Comments break JSON parsers
+#   Package lock files (package-lock.json, yarn.lock, composer.lock, Pipfile.lock)
+#   Minified files (.min.js, .min.css) - Should not be manually edited
+#   Lock files (.lock) - Generated files that shouldn't be modified
 #
 # JSON INPUT FORMAT:
 #   PostToolUse hooks receive JSON via stdin with structure:
@@ -66,6 +89,17 @@ try {
             $filePath = $hookData.tool_response.filePath
         }
         
+        # Skip files where comments would break syntax
+        $extension = [System.IO.Path]::GetExtension($filePath).ToLower()
+        $excludedExtensions = @(".json", ".jsonc", ".lock", ".min.js", ".min.css")
+        $excludedFilenames = @("package.json", "package-lock.json", "yarn.lock", "composer.lock", "Pipfile.lock")
+        $filename = [System.IO.Path]::GetFileName($filePath)
+        
+        if ($extension -in $excludedExtensions -or $filename -in $excludedFilenames) {
+            # Skip files where adding comments would break syntax
+            exit 0
+        }
+        
         # Check if file exists and is not empty
         if (Test-Path $filePath -PathType Leaf) {
             # Read current file content
@@ -77,7 +111,7 @@ try {
                 
                 # Remove existing "last updated" line if present
                 $lines = $content -split "`r?`n"
-                if ($lines[0] -match "^(//|#).*last updated on:.*") {
+                if ($lines[0] -match "^(//|#|REM|--|/\*|<!--).*last updated on:.*") {
                     $lines = $lines[1..$($lines.Length - 1)]
                     $content = $lines -join "`n"
                 }
@@ -85,6 +119,7 @@ try {
                 # Determine comment syntax based on file extension
                 $extension = [System.IO.Path]::GetExtension($filePath).ToLower()
                 $commentPrefix = switch ($extension) {
+                    # Programming languages - C-style comments
                     ".js" { "// " }
                     ".ts" { "// " }
                     ".jsx" { "// " }
@@ -96,20 +131,54 @@ try {
                     ".go" { "// " }
                     ".rs" { "// " }
                     ".php" { "// " }
+                    ".scss" { "// " }
+                    ".less" { "// " }
+                    
+                    # Hash-style comments
                     ".py" { "# " }
                     ".sh" { "# " }
                     ".ps1" { "# " }
                     ".rb" { "# " }
                     ".r" { "# " }
                     ".pl" { "# " }
+                    ".yaml" { "# " }
+                    ".yml" { "# " }
+                    ".toml" { "# " }
+                    ".ini" { "# " }
+                    ".conf" { "# " }
+                    ".cfg" { "# " }
+                    ".properties" { "# " }
+                    ".gitignore" { "# " }
+                    ".env" { "# " }
+                    
+                    # SQL-style comments  
+                    ".sql" { "-- " }
+                    ".hql" { "-- " }
+                    
+                    # Batch file comments
                     ".bat" { "REM " }
                     ".cmd" { "REM " }
-                    ".sql" { "-- " }
+                    
+                    # Note: JSON files are excluded from timestamping to avoid syntax errors
+                    ".xml" { "<!-- " }    # XML/HTML comments (will need special end tag)
+                    ".html" { "<!-- " }
+                    ".htm" { "<!-- " }
+                    ".svg" { "<!-- " }
+                    ".css" { "/* " }      # CSS comments (will need special end tag)
+                    
+                    # Default fallback
                     default { "# " }
                 }
                 
-                # Prepend new timestamp line
-                $timestampLine = "${commentPrefix}last updated on: $timestamp"
+                # Create timestamp line with proper closing for block comments
+                if ($extension -in @(".xml", ".html", ".htm", ".svg")) {
+                    $timestampLine = "<!-- last updated on: $timestamp -->"
+                } elseif ($extension -eq ".css") {
+                    $timestampLine = "/* last updated on: $timestamp */"
+                } else {
+                    $timestampLine = "${commentPrefix}last updated on: $timestamp"
+                }
+                
                 $updatedContent = "$timestampLine`n$content"
                 
                 # Write back to file

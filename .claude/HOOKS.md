@@ -1,4 +1,4 @@
-# last updated on: 2025-08-27 13:22:22
+# last updated on: 2025-08-27 23:43:03
 # Claude Code Hooks System - Complete Guide
 
 ## Overview
@@ -154,21 +154,47 @@ Claude Code Tool Execution
 ## File Extension Support Matrix
 
 ```
-┌──────────────────┬─────────────────┬─────────────────────┐
-│   File Type      │   Extension     │   Comment Format    │
-├──────────────────┼─────────────────┼─────────────────────┤
-│ JavaScript       │ .js, .jsx       │ // last updated...  │
-│ TypeScript       │ .ts, .tsx       │ // last updated...  │
-│ C/C++/Java       │ .c, .cpp, .java │ // last updated...  │
-│ C#/Go/Rust       │ .cs, .go, .rs   │ // last updated...  │
-│ Python           │ .py             │ # last updated...   │
-│ PowerShell       │ .ps1            │ # last updated...   │
-│ Shell Script     │ .sh             │ # last updated...   │
-│ Ruby/R/Perl      │ .rb, .r, .pl    │ # last updated...   │
-│ Batch Files      │ .bat, .cmd      │ REM last updated... │
-│ SQL              │ .sql            │ -- last updated...  │
-│ Default/Unknown  │ *               │ # last updated...   │
-└──────────────────┴─────────────────┴─────────────────────┘
+┌──────────────────────┬──────────────────────────┬────────────────────────────┐
+│   File Category      │       Extensions         │     Comment Format         │
+├──────────────────────┼──────────────────────────┼────────────────────────────┤
+│ Programming Languages                                                       │
+├──────────────────────┼──────────────────────────┼────────────────────────────┤
+│ JavaScript/TypeScript│ .js, .jsx, .ts, .tsx     │ // last updated...         │
+│ C-Family Languages   │ .c, .cpp, .java, .cs     │ // last updated...         │
+│ Modern Languages     │ .go, .rs, .php           │ // last updated...         │
+│ Styling Languages    │ .scss, .less             │ // last updated...         │
+│ Script Languages     │ .py, .sh, .ps1           │ # last updated...          │
+│ Other Languages      │ .rb, .r, .pl             │ # last updated...          │
+├──────────────────────┼──────────────────────────┼────────────────────────────┤
+│ Data/Config Files                                                           │
+├──────────────────────┼──────────────────────────┼────────────────────────────┤
+│ YAML Files           │ .yaml, .yml              │ # last updated...          │
+│ Config Files         │ .toml, .ini, .conf, .cfg │ # last updated...          │
+│ Property Files       │ .properties, .env        │ # last updated...          │
+│ JSON Files           │ .json, .jsonc            │ [EXCLUDED - syntax error]  │
+│ Git Files            │ .gitignore               │ # last updated...          │
+├──────────────────────┼──────────────────────────┼────────────────────────────┤
+│ Markup/Style Files                                                          │
+├──────────────────────┼──────────────────────────┼────────────────────────────┤
+│ XML/HTML             │ .xml, .html, .htm, .svg  │ <!-- last updated... -->   │
+│ CSS                  │ .css                     │ /* last updated... */      │
+├──────────────────────┼──────────────────────────┼────────────────────────────┤
+│ Database Files                                                              │
+├──────────────────────┼──────────────────────────┼────────────────────────────┤
+│ SQL Files            │ .sql, .hql               │ -- last updated...         │
+├──────────────────────┼──────────────────────────┼────────────────────────────┤
+│ System Files                                                                │
+├──────────────────────┼──────────────────────────┼────────────────────────────┤
+│ Batch Files          │ .bat, .cmd               │ REM last updated...        │
+│ Default/Unknown      │ *                        │ # last updated...          │
+├──────────────────────┼──────────────────────────┼────────────────────────────┤
+│ EXCLUDED FILES (No Timestamping)                                            │
+├──────────────────────┼──────────────────────────┼────────────────────────────┤
+│ JSON Files           │ .json, .jsonc            │ [Comments break syntax]    │
+│ Lock Files           │ package-lock.json,       │ [Generated files]          │
+│                      │ yarn.lock, *.lock        │                            │
+│ Minified Files       │ .min.js, .min.css        │ [Should not be edited]     │
+└──────────────────────┴──────────────────────────┴────────────────────────────┘
 ```
 
 ---
