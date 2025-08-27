@@ -33,13 +33,11 @@
   },
   "include": [
     "next-env.d.ts",
-    "jest-custom-matchers.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "tests"
+    "node_modules"
   ]
 }

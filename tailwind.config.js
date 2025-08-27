@@ -1,19 +1,8 @@
-/**
- * Tailwind CSS Configuration
- * 
- * @artifact-annotation
- * canonical-docs: docs/cookbook/recipe_atomic_components.md
- * epic: fix_tailwind_colors_0034
- * plan: plan_fix_tailwind_colors_0034.txt
- * task: impl_tailwind_colors_fix
- * tdd-phase: GREEN
- */
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
