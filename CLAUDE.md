@@ -1,3 +1,4 @@
+# last updated on: 2025-08-27 13:23:55
 # CLAUDE.md
 
 **Essential guidance for Claude Code working with CityPee - London's toilet finder**
@@ -17,6 +18,12 @@
 - ALWAYS read files before editing them
 - Check dependencies before deleting anything
 - Test functionality after changes
+
+### Active Hooks System
+**Quick Reference:** This project has 2 production hooks running:
+- **SessionStart** → Adds context with date/time when Claude starts
+- **PostToolUse** → Auto-timestamps edited files with proper comment syntax
+- **Details:** See `.claude/HOOKS.md` for complete documentation if needed
 
 ---
 

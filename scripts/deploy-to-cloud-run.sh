@@ -9,8 +9,8 @@
 set -e
 
 # Configuration
-PROJECT_ID="${GCP_PROJECT_ID:-citypee-london}"
-REGION="${GCP_REGION:-europe-west2}"  # London region
+PROJECT_ID="${GCP_PROJECT_ID:-peecity}"
+REGION="${GCP_REGION:-us-east1}"  # East Coast region
 SERVICE_NAME="${SERVICE_NAME:-citypee}"
 IMAGE_NAME="gcr.io/${PROJECT_ID}/${SERVICE_NAME}"
 
