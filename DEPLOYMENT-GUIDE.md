@@ -15,11 +15,22 @@
 gcloud auth login
 
 # Create/select project
-gcloud projects create citypee-london --name="CityPee London"
-gcloud config set project citypee-london
+gcloud projects create peecity --name="CityPee London"
+gcloud config set project peecity
 
 # Enable billing (required for Cloud Run)
 # Visit: https://console.cloud.google.com/billing
+
+# Enable required APIs
+gcloud services enable \
+    cloudbuild.googleapis.com \
+    run.googleapis.com \
+    containerregistry.googleapis.com
+
+# Enable Google Maps APIs (for app functionality)
+gcloud services enable \
+    maps-backend.googleapis.com \
+    places-backend.googleapis.com
 ```
 
 ### 2. Environment Variables
@@ -32,23 +43,44 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_production_api_key_here
 
 ## Deployment Commands
 
-### Quick Deploy (Recommended)
-```bash
-# One command deployment
-chmod +x scripts/deploy-to-cloud-run.sh
-./scripts/deploy-to-cloud-run.sh
-```
+### GitHub Integration (Recommended)
+**Automatic deployment on every push to main branch**
 
-### Manual Deploy Steps
+1. **Connect GitHub repo to Cloud Build** (one-time setup):
+   - Visit [Cloud Build GitHub App](https://github.com/apps/google-cloud-build)
+   - Connect your repository: `Rwb3n/peecity`
+   - Grant permissions to the `peecity` Google Cloud project
+
+2. **Push to deploy**:
+   ```bash
+   git add cloudbuild.yaml
+   git commit -m "Add automatic Cloud Build deployment"
+   git push origin main
+   # 🚀 Automatic build & deploy triggered!
+   ```
+
+3. **Monitor deployment**:
+   ```bash
+   # View build logs
+   gcloud builds list --limit=5
+   
+   # View service status  
+   gcloud run services list --region us-east1
+   ```
+
+### Manual Deploy Steps (Alternative)
 ```bash
-# 1. Build and deploy
-gcloud builds submit --tag gcr.io/citypee-london/citypee .
+# Option 1: Use cloudbuild.yaml locally
+gcloud builds submit --config cloudbuild.yaml .
+
+# Option 2: Direct Docker build (old method)
+gcloud builds submit --tag gcr.io/peecity/citypee .
 
 # 2. Deploy to Cloud Run
 gcloud run deploy citypee \
-  --image gcr.io/citypee-london/citypee \
+  --image gcr.io/peecity/citypee \
   --platform managed \
-  --region europe-west2 \
+  --region us-east1 \
   --allow-unauthenticated \
   --memory 512Mi \
   --port 3000 \
@@ -56,7 +88,7 @@ gcloud run deploy citypee \
 
 # 3. Set Google Maps API key
 gcloud run services update citypee \
-  --region europe-west2 \
+  --region us-east1 \
   --set-env-vars="NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_key_here"
 ```
 
