@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GeoJSON Toilet Data",
+  "description": "Schema for validating toilet data in GeoJSON format",
+  "definitions": {
+    "Point": {
+      "type": "object",
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["Point"]
+        },
+        "coordinates": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          },
+          "description": "[longitude, latitude] - longitude must be -180 to 180, latitude must be -90 to 90"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ToiletProperties": {
+      "type": "object",
+      "required": ["id", "name", "hours", "accessible", "fee", "source", "last_verified_at", "verified_by"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the toilet facility"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "Name or description of the toilet facility"
+        },
+        "hours": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Opening hours (e.g., '24/7', 'Mon-Fri 9-17')"
+        },
+        "accessible": {
+          "type": "boolean",
+          "description": "Whether the facility is wheelchair accessible"
+        },
+        "fee": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Fee amount in GBP (0 for free facilities)"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Data source (e.g., 'OpenStreetMap', 'user_submission')"
+        },
+        "last_verified_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp of last verification"
+        },
+        "verified_by": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Who verified the data (e.g., 'ingest-agent', 'user')"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ToiletFeature": {
+      "type": "object",
+      "required": ["type", "geometry", "properties"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["Feature"]
+        },
+        "geometry": {
+          "$ref": "#/definitions/Point"
+        },
+        "properties": {
+          "$ref": "#/definitions/ToiletProperties"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ToiletCollectionMetadata": {
+      "type": "object",
+      "properties": {
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp when collection was generated"
+        },
+        "generated_by": {
+          "type": "string",
+          "description": "Agent or system that generated the collection"
+        },
+        "source": {
+          "type": "string",
+          "description": "Primary data source for the collection"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of features in the collection"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ToiletCollection": {
+      "type": "object",
+      "required": ["type", "features"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["FeatureCollection"]
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ToiletFeature"
+          },
+          "description": "Array of toilet features"
+        },
+        "metadata": {
+          "$ref": "#/definitions/ToiletCollectionMetadata"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/ToiletFeature",
+      "description": "Single toilet feature"
+    },
+    {
+      "$ref": "#/definitions/ToiletCollection",
+      "description": "Collection of toilet features"
+    }
+  ]
+}

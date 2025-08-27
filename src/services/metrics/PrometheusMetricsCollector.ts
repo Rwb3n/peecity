@@ -8,7 +8,7 @@
  */
 
 import fetch from 'node-fetch';
-import { MetricsCollector, MetricsData, MetricsCollectionResult } from '../../interfaces/MetricsCollector';
+import { MetricsCollector, MetricsData, MetricsCollectionResult } from '@/lib';
 import { createAgentLogger } from '../../utils/logger';
 
 const logger = createAgentLogger('prometheus-metrics');
@@ -25,7 +25,8 @@ export class PrometheusMetricsCollector implements MetricsCollector {
     try {
       const response = await fetch(this.apiUrl);
       if (!response.ok) {
-        logger.warn('prometheus_metrics_failed', 'Prometheus metrics endpoint failed', {
+        logger.warn('prometheus_metrics_failed', {
+          message: 'Prometheus metrics endpoint failed',
           status: response.status,
           statusText: response.statusText
         });
@@ -56,7 +57,8 @@ export class PrometheusMetricsCollector implements MetricsCollector {
         Object.assign(metrics, filteredMetrics);
       }
       
-      logger.info('metrics_collected', 'Metrics collected from Prometheus endpoint', {
+      logger.info('metrics_collected', {
+        message: 'Metrics collected from Prometheus endpoint',
         metrics,
         requestedMetrics
       });
@@ -70,7 +72,8 @@ export class PrometheusMetricsCollector implements MetricsCollector {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
-      logger.warn('prometheus_metrics_error', 'Error collecting from Prometheus metrics', {
+      logger.warn('prometheus_metrics_error', {
+        message: 'Error collecting from Prometheus metrics',
         error: errorMessage
       });
       

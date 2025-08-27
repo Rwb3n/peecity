@@ -47,8 +47,7 @@ async function main(): Promise<void> {
       
       process.exit(0);
     } else {
-      logger.error('cli_failed', 'Monitor agent failed', {
-        error: result.error,
+      logger.error('cli_failed', `Monitor agent failed: ${result.error}`, {
         duration: duration
       });
       
@@ -60,9 +59,8 @@ async function main(): Promise<void> {
     const duration = Date.now() - startTime;
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
-    logger.error('cli_error', 'Monitor agent CLI error', {
-      error: errorMessage,
-      durationMs: duration
+    logger.error('cli_error', `Monitor agent CLI error: ${errorMessage}`, {
+      duration: duration
     });
     
     console.error(`❌ Monitor agent CLI error: ${errorMessage}`);
@@ -72,29 +70,23 @@ async function main(): Promise<void> {
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
-  logger.error('unhandled_rejection', 'Unhandled promise rejection', {
-    reason: reason instanceof Error ? reason.message : String(reason),
-    promise: String(promise)
-  });
+  const reasonMessage = reason instanceof Error ? reason.message : String(reason);
+  logger.error('unhandled_rejection', `Unhandled promise rejection: ${reasonMessage}`);
   console.error('❌ Unhandled promise rejection:', reason);
   process.exit(1);
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  logger.error('uncaught_exception', 'Uncaught exception', {
-    error: error.message,
-    stack: error.stack
-  });
+  logger.error('uncaught_exception', `Uncaught exception: ${error.message}`);
   console.error('❌ Uncaught exception:', error);
   process.exit(1);
 });
 
 // Execute main function
 main().catch((error) => {
-  logger.error('main_error', 'Main function error', {
-    error: error instanceof Error ? error.message : 'Unknown error'
-  });
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  logger.error('main_error', `Main function error: ${errorMessage}`);
   console.error('❌ Main function error:', error);
   process.exit(1);
 });

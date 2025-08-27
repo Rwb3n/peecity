@@ -8,7 +8,7 @@
  */
 
 import fetch from 'node-fetch';
-import { AlertSender, AlertData, AlertSendResult } from '../../interfaces/AlertSender';
+import { AlertSender, AlertData, AlertSendResult } from '@/lib';
 import { createAgentLogger } from '../../utils/logger';
 
 const logger = createAgentLogger('discord-alert-sender');
@@ -40,10 +40,7 @@ export class DiscordAlertSender implements AlertSender {
         throw new Error(`Discord webhook failed: ${response.status} ${response.statusText}`);
       }
       
-      logger.info('discord_sent', 'Discord notification sent successfully', {
-        week: data.week,
-        webhookUrl: this.webhookUrl.substring(0, 50) + '...'
-      });
+      logger.info('discord_sent', `Discord notification sent successfully for week ${data.week}`);
       
       return {
         success: true,
@@ -53,10 +50,7 @@ export class DiscordAlertSender implements AlertSender {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
-      logger.error('discord_failed', 'Failed to send Discord notification', {
-        error: errorMessage,
-        week: data.week
-      });
+      logger.error('discord_failed', `Failed to send Discord notification for week ${data.week}: ${errorMessage}`);
       
       return {
         success: false,

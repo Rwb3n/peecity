@@ -1,13 +1,4 @@
-/**
- * Rate Limiting Utilities for API Protection
- * 
- * @doc refs docs/architecture-spec.md#suggest-agent
- * 
- * In-memory rate limiting implementation with sliding window approach.
- * Tracks submissions per IP address to prevent spam and abuse.
- */
-
-import { RateLimitInfo } from '../types/suggestions';
+import { RateLimitInfo } from '@/lib';
 
 /**
  * Rate limit configuration

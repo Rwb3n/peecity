@@ -7,7 +7,7 @@
 
 import * as https from 'https';
 import * as http from 'http';
-import { RequestOptions } from '../types/geojson';
+import { RequestOptions } from '@/lib';
 
 /** Sleep helper */
 export function sleep(ms: number): Promise<void> {

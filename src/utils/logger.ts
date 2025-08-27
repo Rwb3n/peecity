@@ -22,6 +22,16 @@ export interface LogEntry {
     ipAddress?: string;
     userAgent?: string;
     duration?: number;
+    // Extended properties for MonitorService
+    week?: string;
+    error?: string;
+    durationMs?: number;
+    currentCount?: number;
+    totalLines?: number;
+    source?: string;
+    channel?: string;
+    directory?: string;
+    [key: string]: any; // Allow additional properties
   };
 }
 

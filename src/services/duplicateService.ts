@@ -1,16 +1,6 @@
-/**
- * Duplicate Detection Service
- * 
- * @doc refs docs/architecture-spec.md#suggest-agent
- * 
- * Service for detecting duplicate toilet suggestions using spatial analysis.
- * Uses dependency injection for data access to improve testability and maintainability.
- */
-
-import { findNearestToilet } from '../utils/geospatial';
+import { findNearestToilet, ErrorFactory } from '@/lib';
 import { getDuplicateDetectionConfig } from '../utils/config';
 import { createAgentLogger } from '../utils/logger';
-import { ErrorFactory } from '../utils/errors';
 import { CachedToiletDataProvider } from '../interfaces/toiletDataProvider';
 import { SuggestionValidation } from '../types/suggestions';
 
@@ -48,9 +38,8 @@ export class DuplicateService {
     try {
       return await this.dataProvider.loadToilets();
     } catch (error) {
-      logger.error('toilets_load_error', 'Failed to load toilet data', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logger.error('toilets_load_error', `Failed to load toilet data: ${errorMessage}`);
       
       // Return empty array to continue processing
       return [];
@@ -78,7 +67,7 @@ export class DuplicateService {
             ...request.validation,
             warnings: [
               ...request.validation.warnings,
-              { field: 'data', message: 'No existing toilet data available for duplicate check', code: 'no_data' }
+              { field: 'data', message: 'No existing toilet data available for duplicate check', code: 'unusual_value' }
             ]
           }
         };
@@ -92,8 +81,7 @@ export class DuplicateService {
 
       const isDuplicate = nearest.distance <= duplicateConfig.thresholdMeters;
       
-      logger.debug('duplicate_check', 'Duplicate check completed', {
-        isDuplicate,
+      logger.debug(`Duplicate check completed - ${isDuplicate ? 'DUPLICATE' : 'UNIQUE'}`, {
         distance: nearest.distance,
         threshold: duplicateConfig.thresholdMeters,
         nearestToiletId: nearest.toilet?.properties?.id,
@@ -126,13 +114,13 @@ export class DuplicateService {
         validation: {
           ...request.validation,
           isDuplicate: false,
-          nearestDistance: nearest.distance,
+          duplicateDistance: nearest.distance,
           nearestToiletId: nearest.toilet?.properties?.id
         }
       };
 
     } catch (error) {
-      logger.error('duplicate_check', 'Error during duplicate detection', {
+      logger.error('duplicate_check', {
         error: error instanceof Error ? error.message : 'Unknown error',
         lat: request.lat,
         lng: request.lng
@@ -146,7 +134,7 @@ export class DuplicateService {
           ...request.validation,
           warnings: [
             ...request.validation.warnings,
-            { field: 'duplicate_check', message: 'Unable to verify duplicate status', code: 'check_failed' }
+            { field: 'duplicate_check', message: 'Unable to verify duplicate status', code: 'incomplete_data' }
           ]
         }
       };

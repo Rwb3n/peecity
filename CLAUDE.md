@@ -45,6 +45,16 @@ npm run lint        # Code linting
 npm run ingest      # Run ingest agent (fetch OSM data)
 ```
 
+## Schema Validation Commands
+
+```bash
+npm run validate:integrity    # Validate schema files integrity and performance
+npm run validate:schemas     # Run schema performance benchmarks
+npm run validate:schemas:ci  # Run schema benchmarks in CI mode (silent)
+npm run validate:data        # Validate data against schemas
+npm run validate:data:ci     # Validate data in CI mode (silent)
+```
+
 ## Project Management Scripts
 
 ```bash
@@ -63,6 +73,7 @@ node scripts/generate_status_skeletons.js  # Generate status report templates fo
 │   └── utils/     # Shared utility functions (overpass.ts)
 ├── agents/        # AI agent manifests
 ├── data/          # Generated datasets (toilets.geojson)
+├── schemas/       # JSON Schema validation files
 ├── scripts/       # Orchestration scripts
 ├── templates/     # Scaffold templates
 ├── docs/          # Documentation
@@ -250,15 +261,18 @@ npm test tests/performance/optimization_comparison_test.js
 - ✅ **Metrics Export COMPLETE** (Prometheus endpoint, validation summary API, CI guardrails, Grafana dashboard)
 - ✅ **Monitor agent COMPLETE** (Weekly monitoring with pluggable alerts and configurable metrics collection)
 - ✅ Service-oriented architecture established as project standard
-- 🔄 V1 feature implementation in progress (2 remaining epics)
+- ✅ **Epic 1: Foundation Consolidation COMPLETE** (Validation service consolidation and library foundation)
+- ✅ **Epic 2: Schema & Documentation Completion COMPLETE** (JSON Schema validation system and template documentation)
+- 🔄 V1 feature implementation in progress (1 remaining epic)
 - ⏳ Frontend UI, Deploy pipeline pending
 
 ## Service-Oriented Architecture
 
-The project now implements mature service-oriented architecture patterns:
+The project implements mature service-oriented architecture patterns:
 
 ### Core Services
 - **ValidationService** - Request validation and schema checking
+- **TieredValidationService** - Composition-based validation with dependency injection
 - **TieredValidationServiceOptimized** - Performance-optimized 4-tier property validation with 99%+ test coverage
 - **TieredValidationServiceWithMetrics** - Metrics-enhanced validation with P95 latency tracking
 - **DuplicateService** - Spatial duplicate detection with dependency injection  
@@ -267,9 +281,53 @@ The project now implements mature service-oriented architecture patterns:
 - **IngestService** - OSM data processing and normalization
 - **MonitorService** - Weekly monitoring workflow with pluggable alert channels and metrics collection
 
+### Validation Service Architecture
+
+The validation services now follow a composition-over-configuration pattern:
+
+#### New Architecture (Epic 1 Task 2)
+- **TieredValidationService**: Base service using dependency injection
+- **Factory Pattern**: Clean service composition via `src/services/validation/factory.ts`
+- **Interface-Based**: TypeScript interfaces for dependency injection
+- **Service Configurations**: Four clear factory functions replace configuration flags
+  - `createBasicValidationService()` - Minimal validation
+  - `createOptimizedValidationService()` - With performance optimization
+  - `createMetricsValidationService()` - With metrics collection
+  - `createFullValidationService()` - All features enabled
+
+#### Key Components
+- **Interfaces** (`src/services/validation/interfaces.ts`): TypeScript contracts for dependency injection
+- **TieredValidationService** (`src/services/validation/TieredValidationService.ts`): Core validation logic with injected dependencies
+- **MapBasedPerformanceOptimizer** (`src/services/validation/MapBasedPerformanceOptimizer.ts`): O(1) Map-based performance optimization
+- **ValidationMetricsCollector** (`src/services/validation/ValidationMetricsCollector.ts`): P95 latency tracking with structured logging
+
+### Library Foundation Structure
+
+The project consolidates scattered utilities into organized `src/lib/` structure:
+
+#### Structure
+```
+src/lib/
+├── index.ts              # Main barrel export
+├── validation/
+│   ├── index.ts          # Validation barrel export
+│   ├── core.ts           # Core validation functions
+│   └── errors.ts         # Error handling and messages
+└── geospatial/
+    ├── index.ts          # Geospatial barrel export
+    └── coordinates.ts    # Distance calculations and coordinate validation
+```
+
+#### Implementation Status
+- **Infrastructure**: Functional barrel export system established
+- **Migration**: 3 files successfully migrated to use lib imports
+- **Imports**: Changed from scattered utility imports to consolidated lib imports
+- **Example**: `validationService.ts` now uses single import: `import { validateSuggestion, sanitizeSuggestion, validateRequestBody, generateSuggestionId, ErrorFactory } from '../lib';`
+
 ### Architecture Patterns
 - **SOLID Compliance** - Perfect adherence to all five principles
 - **Dependency Injection** - Clean separation through interfaces
+- **Composition over Configuration** - Factory pattern replaces complex configuration flags
 - **Service Orchestration** - Route handlers as thin orchestration layers
 - **Error Standardization** - Consistent error handling via ErrorFactory
 - **Multi-Layer Testing** - Unit tests for services + integration tests for workflows
@@ -334,14 +392,42 @@ Each epic follows strict TDD (TEST_CREATION → IMPLEMENTATION → REFACTORING)
 - 🔄 frontend-ui in progress (atomic components complete, organisms pending)
 - ⏳ deploy-pipeline ready to begin (all dependencies satisfied)
 
+## Schema Validation System
+
+The project includes comprehensive JSON Schema validation for all critical data structures:
+
+### Schema Files
+- **`schemas/geoJsonToilet.schema.json`** - Validates GeoJSON toilet data structure
+- **`schemas/overpassQuery.schema.json`** - Validates Overpass API queries and responses  
+- **`schemas/serviceResponse.schema.json`** - Validates internal service responses
+- **`schemas/propertyTiers.schema.json`** - Validates property tier configuration
+
+### Schema Integration
+- **Performance Target**: < 2ms per validation (monitored and enforced)
+- **Service Integration**: Schema validation integrated into IngestService, ValidationService, and TieredValidationService
+- **Error Modes**: Error-throwing for data integrity (IngestService, TieredValidationService), warning-only for debugging (ValidationService)
+- **CI Integration**: Automated schema validation in GitHub Actions on every commit
+
+### Development Workflow
+1. **Local Validation**: Run `npm run validate:integrity` before committing schema changes
+2. **Performance Testing**: Use `npm run validate:schemas` to benchmark performance
+3. **Data Validation**: Use `npm run validate:data` to test data against schemas
+4. **CI Validation**: Automatic validation in pull requests and commits
+
+### Troubleshooting
+- **Schema compilation errors**: Check JSON syntax with `npm run validate:integrity`
+- **Performance issues**: Monitor schema compilation times (should be < 5ms avg)
+- **Validation failures**: Review error messages from AJV validator with detailed property paths
+
 ## Operational Notes
 
 - Always check `aiconfig.json` for project standards once it exists
 - Create status reports in `status/` after task completion using the template
 - Use `docs/cookbook/recipe_*.md` for reusable patterns
+- Run `npm run validate:integrity` after schema changes
 - Increment global event counter `g` in aiconfig.json for significant events
 - Follow artifact annotation requirements in implementation tasks
-- Current g counter: 123 (as of monitor agent epic completion)
+- Current g counter: 124 (as of schema validation system completion)
 
 ## Monitoring & Operations
 

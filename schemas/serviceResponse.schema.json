@@ -1,0 +1,192 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Service Response Data",
+  "description": "Schema for validating internal service responses and validation results",
+  "definitions": {
+    "ValidationError": {
+      "type": "object",
+      "required": ["field", "message", "code"],
+      "properties": {
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Field name that failed validation"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable error message"
+        },
+        "code": {
+          "type": "string",
+          "enum": ["required", "invalid_format", "out_of_range", "invalid_type"],
+          "description": "Error code for programmatic handling"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ValidationWarning": {
+      "type": "object",
+      "required": ["field", "message", "code"],
+      "properties": {
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Field name that triggered warning"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable warning message"
+        },
+        "code": {
+          "type": "string",
+          "enum": ["unusual_value", "incomplete_data", "formatting_issue"],
+          "description": "Warning code for programmatic handling"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SuggestionValidation": {
+      "type": "object",
+      "required": ["isValid", "errors", "warnings", "isDuplicate"],
+      "properties": {
+        "isValid": {
+          "type": "boolean",
+          "description": "Whether the suggestion passed validation"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ValidationError"
+          },
+          "description": "Array of validation errors"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ValidationWarning"
+          },
+          "description": "Array of validation warnings"
+        },
+        "isDuplicate": {
+          "type": "boolean",
+          "description": "Whether suggestion is a duplicate of existing facility"
+        },
+        "duplicateDistance": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Distance to nearest existing toilet in meters"
+        },
+        "nearestToiletId": {
+          "type": "string",
+          "description": "ID of nearest existing toilet facility"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ErrorDetails": {
+      "type": "object",
+      "required": ["code", "details"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Error code for programmatic handling"
+        },
+        "details": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Detailed error information"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SuggestionResponse": {
+      "type": "object",
+      "required": ["success", "message"],
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "Whether the operation succeeded"
+        },
+        "suggestionId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the suggestion"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable response message"
+        },
+        "validation": {
+          "$ref": "#/definitions/SuggestionValidation",
+          "description": "Validation results if applicable"
+        },
+        "error": {
+          "$ref": "#/definitions/ErrorDetails",
+          "description": "Error details if operation failed"
+        }
+      },
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "success": { "const": true }
+        }
+      },
+      "then": {
+        "not": {
+          "required": ["error"]
+        }
+      },
+      "else": {
+        "not": {
+          "required": ["suggestionId", "validation"]
+        }
+      }
+    },
+    "ValidationResult": {
+      "type": "object",
+      "required": ["isValid"],
+      "properties": {
+        "isValid": {
+          "type": "boolean",
+          "description": "Whether validation passed"
+        },
+        "data": {
+          "description": "Original data that was validated"
+        },
+        "sanitizedData": {
+          "description": "Sanitized version of the data"
+        },
+        "validation": {
+          "$ref": "#/definitions/SuggestionValidation",
+          "description": "Detailed validation results"
+        },
+        "suggestionId": {
+          "type": "string",
+          "description": "Generated suggestion ID"
+        },
+        "error": {
+          "description": "Error information if validation failed"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/SuggestionResponse",
+      "description": "API response for suggestion operations"
+    },
+    {
+      "$ref": "#/definitions/ValidationResult",
+      "description": "Internal validation service result"
+    },
+    {
+      "$ref": "#/definitions/SuggestionValidation",
+      "description": "Detailed validation results"
+    }
+  ]
+}

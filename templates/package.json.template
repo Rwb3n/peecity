@@ -1,0 +1,112 @@
+{
+  // Package.json Template for Node.js Projects
+  // ==========================================
+  // 
+  // Purpose: Standard Node.js project configuration with Next.js, TypeScript, and testing setup
+  // Usage: Copy to new project directory, rename to package.json, and substitute variables
+  // Last Updated: 2025-01-26
+  //
+  // Required Variables:
+  // - {{PROJECT_NAME}}: Project name (lowercase, no spaces, e.g., "my-app")
+  // - {{VERSION}}: Initial version (e.g., "0.1.0", "1.0.0")
+  // - {{PROJECT_DESCRIPTION}}: Brief project description
+  // - {{PRIVATE}}: Whether package is private (true/false)
+  // - {{NODE_VERSION}}: Minimum Node.js version (e.g., ">=18.0.0")
+  // - {{PACKAGE_MANAGER}}: Package manager with version (e.g., "npm@10.0.0")
+  //
+  // Example substitution:
+  // sed -i 's/{{PROJECT_NAME}}/my-new-app/g' package.json
+  //
+  "name": "{{PROJECT_NAME}}",
+  "version": "{{VERSION}}",
+  "description": "{{PROJECT_DESCRIPTION}}",
+  "private": {{PRIVATE}},
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:docs": "node scripts/lint-docs.js",
+    "lint:docs:verbose": "node scripts/lint-docs.js --verbose",
+    "lint:docs:fix": "node scripts/lint-docs.js --fix",
+    "lint:docs:ci": "node scripts/lint-docs.js --ci --changed-only",
+    "setup:git-hooks": "node scripts/setup-git-hooks.js",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "ingest": "tsx scripts/ingest-cli.ts",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "test-storybook": "test-storybook"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.0",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@storybook/addon-a11y": "^8.6.14",
+    "@tanstack/react-query": "^5.83.0",
+    "@types/leaflet": "^1.9.20",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "abort-controller": "^3.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "commander": "^14.0.0",
+    "dotenv": "^17.2.1",
+    "esbuild": "^0.25.8",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.525.0",
+    "next": "^15.4.4",
+    "node-cron": "^4.2.1",
+    "node-fetch": "^3.3.2",
+    "prom-client": "^15.1.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.61.1",
+    "react-leaflet": "^4.2.1",
+    "react-leaflet-markercluster": "^4.2.1",
+    "tailwind-merge": "^3.3.1",
+    "typescript": "^5.8.3",
+    "zod": "^4.0.10",
+    "zustand": "^5.0.6"
+  },
+  "devDependencies": {
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/addon-interactions": "^8.6.14",
+    "@storybook/addon-links": "^8.6.14",
+    "@storybook/addon-styling-webpack": "^1.0.1",
+    "@storybook/nextjs": "^8.6.14",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.3.1",
+    "@testing-library/user-event": "^14.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^24.1.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "autoprefixer": "^10.4.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.32.0",
+    "eslint-config-next": "^15.4.4",
+    "eslint-plugin-storybook": "^0.11.6",
+    "geojson-validation": "^1.0.2",
+    "gray-matter": "^4.0.3",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "js-yaml": "^4.1.0",
+    "markdownlint": "^0.38.0",
+    "nock": "^14.0.6",
+    "postcss": "^8.4.0",
+    "storybook": "^8.6.14",
+    "supertest": "^7.1.4",
+    "tailwindcss": "^3.4.17",
+    "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
+    "undici": "^7.12.0",
+    "web-streams-polyfill": "^4.1.0",
+    "whatwg-fetch": "^3.6.20"
+  },
+  "engines": {
+    "node": "{{NODE_VERSION}}"
+  },
+  "packageManager": "{{PACKAGE_MANAGER}}"
+}
