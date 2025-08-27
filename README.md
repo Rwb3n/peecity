@@ -1,11 +1,12 @@
-# 🚻 CityPee - Multi-City Toilet Finder
+# 🚻 CityPee London - Toilet Finder
 
-**Find public toilets with walking distances. Starting with London, expanding globally.**
+**Interactive Google Maps for finding London's public toilets with walking distance circles.**
 
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
-![Toilets](https://img.shields.io/badge/Toilets-1,053-green)
-![Build](https://img.shields.io/badge/Build-Working-green)
-![Maps](https://img.shields.io/badge/Google%20Maps-Integrated-blue)
+![Toilets](https://img.shields.io/badge/London%20Toilets-1,053-green)
+![Build](https://img.shields.io/badge/Build-Passing-brightgreen)
+![Maps](https://img.shields.io/badge/Google%20Maps-Live-blue)
+![Deployment](https://img.shields.io/badge/Docker-Ready-blue)
 
 ---
 
@@ -21,8 +22,8 @@
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/yourusername/citypee
-cd citypee
+git clone https://github.com/Rwb3n/peecity.git
+cd peecity
 npm install
 
 # 2. Add Google Maps API key
@@ -60,88 +61,101 @@ open http://localhost:3000
 
 ---
 
-## Your First Contribution (Pick One)
+## Try It Out (It's Already Working!)
 
-### Option A: Make Search Real (Easiest)
-```javascript
-// Fix src/app/api/search/route.ts
-// Current: Returns 3 fake toilets
-// Needed: Return from data/toilets.geojson
-// Time: 30 minutes
+### Option A: Test Locally (5 minutes)
+```bash
+# 1. Add your Google Maps API key
+echo "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_key" > .env.local
+
+# 2. Start the app
+npm run dev
+
+# 3. Open http://localhost:3000
+# ✅ See 1,053 toilets on interactive Google Maps
 ```
 
-### Option B: Wire Up Components (Visual)
-```javascript
-// Fix src/app/page.tsx
-// Current: Shows "Build in progress..."
-// Needed: Import and use SearchBar + ToiletCard
-// Time: 1 hour
+### Option B: Deploy to Production (15 minutes)
+```bash
+# 1. Deploy to Google Cloud Run
+./scripts/deploy-to-cloud-run.sh
+
+# 2. Test on your phone
+# ✅ GPS location + walking circles + toilet search
 ```
 
-### Option C: Add The Map (Most Fun)
+### Option C: Customize for Your City (1 hour)
 ```javascript
-// Add to src/app/page.tsx
-// Current: No map
-// Needed: Google Maps with toilet markers
-// Time: 2 hours
+// Replace data/toilets.geojson with your city's toilet data
+// Update LONDON_BOUNDS in LocationSearch.tsx
+// Deploy and share with your city!
 ```
 
 ---
 
-## Project Structure (Only What Matters)
+## Clean Project Structure (38 Essential Files)
 
 ```
-citypee/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx          ← THE MAIN PAGE (start here)
-│   │   └── api/
-│   │       └── search/       ← Returns fake data (fix this)
-│   │
-│   ├── components/           ← Ready to use (just import them)
-│   │   ├── SearchBar.tsx
-│   │   └── ToiletCard.tsx
-│   │
-│   └── lib/                  ← IGNORE (over-engineered mess)
+peecity/
+├── 🎯 CORE APP (4 files)
+│   ├── src/app/page.tsx           ← Complete Google Maps implementation
+│   ├── src/app/api/search/route.ts ← Real toilet data API
+│   ├── src/components/LocationSearch.tsx ← GPS + autocomplete + landmarks  
+│   └── src/components/ToiletCard.tsx ← Toilet details component
 │
-├── data/
-│   └── toilets.geojson       ← 1,053 real toilets (use this!)
+├── 📊 DATA (1 file)
+│   └── data/toilets.geojson       ← 1,053 verified London toilets
 │
-└── docs/
-    └── HOW-TO-FAIL.md        ← Read this to avoid mistakes
+├── 🎨 UI COMPONENTS (4 files)
+│   └── src/components/ui/         ← button, card, input (shadcn/ui)
+│
+├── ⚙️ CONFIG & DEPLOYMENT (8 files)
+│   ├── package.json, next.config.js
+│   ├── Dockerfile               ← Cloud Run ready
+│   └── scripts/deploy-to-cloud-run.sh
+│
+└── 📚 DOCUMENTATION (11 files)
+    ├── README.md               ← You are here
+    ├── docs/ARCHITECTURE.md    ← Technical overview
+    └── docs/checkpoints/       ← Project history (4 checkpoints)
 ```
+
+**No over-engineering. No unused code. Just what works.**
 
 ---
 
-## The Plan (Simple)
+## Next Steps (All Core Features Complete!)
 
-### Week 1: Make It Work
-- [ ] Wire up real toilet data
-- [ ] Add map with markers
-- [ ] Add walking radius circles
+### ✅ Phase 1: DONE - Core Functionality  
+- ✅ **Interactive Google Maps** with 1,053 real toilets
+- ✅ **GPS location detection** + Google Places autocomplete  
+- ✅ **Walking radius circles** (5/10/15 min visualization)
+- ✅ **Mobile-responsive design** with touch gestures
+- ✅ **Docker deployment** configuration ready
+
+### 🎯 Phase 2: Production Deployment (This Week)
 - [ ] Deploy to Google Cloud Run
+- [ ] Test on multiple devices (iOS, Android, desktop)
+- [ ] Set up production Google Maps API restrictions
+- [ ] Monitor and optimize performance
 
-### Week 2: Make It Useful
-- [ ] Add filters (wheelchair, baby change, free)
-- [ ] Add user confirmations ("Yes this toilet exists")
-- [ ] Improve mobile experience
-
-### Week 3: Make Money
-- [ ] Add Google AdSense
-- [ ] Add sponsored toilet pins
-- [ ] Launch and get users
+### 🚀 Phase 3: Growth Features (Next)
+- [ ] Add filters (wheelchair accessible, free toilets, baby change)
+- [ ] User feedback system ("Is this toilet still here?")
+- [ ] Offline support with cached toilet data
+- [ ] Expand to other cities (NYC, Paris, Tokyo)
 
 ---
 
-## Tech Stack (Keep It Simple)
+## Tech Stack (Simple & Working)
 
-- **Frontend**: Next.js 15 + React (already set up)
-- **Styling**: Tailwind CSS (already set up)
-- **Map**: Google Maps (need to add)
-- **Database**: JSON files for now (already have data)
-- **Deployment**: Google Cloud Run (Dockerfile ready)
+- **Frontend**: Next.js 15 + React 18 + TypeScript ✅
+- **Styling**: Tailwind CSS + shadcn/ui components ✅
+- **Maps**: @vis.gl/react-google-maps v1.5.5 ✅
+- **Data**: Static GeoJSON file (1,053 toilets) ✅
+- **Deployment**: Docker + Google Cloud Run ✅
 
-**No Redux, no GraphQL, no complexity.**
+**No databases, no Redux, no GraphQL, no complexity.**
 
 ---
 
@@ -171,23 +185,24 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_key_here
 
 ---
 
-## Common Issues
+## Development Commands
 
-### "Build times out"
-We know. It's the circular dependencies in `lib/`. Just ignore - it works with `npm run dev`.
+```bash
+npm run dev         # Start development server (USER ONLY!)
+npm run build       # Test production build
+npm run lint        # Check code quality
+npm run ingest      # Re-fetch toilet data from OpenStreetMap
+./scripts/deploy-to-cloud-run.sh  # Deploy to Cloud Run
+```
 
-### "Why are there 3 validation services?"
-Previous over-engineering. Ignore them all. We'll delete them soon.
-
-### "The tests are broken"
-Yep. We'll fix them after we have actual features to test.
+**Note**: Only you (the user) should run `npm run dev`. Claude never starts servers to prevent zombie processes.
 
 ---
 
 ## How to Get Help
 
 1. **Check the anti-patterns**: Read `docs/HOW-TO-FAIL.md`
-2. **Ask in issues**: https://github.com/yourusername/citypee/issues
+2. **Ask in issues**: https://github.com/Rwb3n/peecity/issues
 3. **Keep it simple**: If it feels complex, you're doing it wrong
 
 ---
