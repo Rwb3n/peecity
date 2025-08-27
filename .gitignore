@@ -164,11 +164,11 @@ temp/
 *.temp
 
 # Project-specific data files (generated)
-data/toilets.geojson
 data/suggestions.log
 data/monitor-cache/
 data/*.json
-data/*.geojson
+# Essential: Keep our toilet data!
+!data/toilets.geojson
 !data/README.md
 
 # Project-specific cache and build artifacts
