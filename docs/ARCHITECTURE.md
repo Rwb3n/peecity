@@ -1,3 +1,4 @@
+# last updated on: 2025-08-28 12:07:27
 # CityPee Architecture
 
 **Simple visual guide to how our toilet finder works**
@@ -8,15 +9,23 @@
 
 ```
 User's Phone/Browser
-       |
-   [LocationSearch]
-       |
-   [Google Maps]
-       |
+       ↓
+┌─────────────────┐
+│ FIREBASE HOSTING│  ← Static React App (CDN)
+│ peecity.web.app │
+└─────────┬───────┘
+          │ HTTPS + CORS
+          ▼
+┌─────────────────┐
+│   CLOUD RUN     │  ← Express API Server
+│ citypee-api-... │
+└─────────┬───────┘
+          │
+          ▼
    [1,053 Toilets]
 ```
 
-CityPee is a Next.js web app that shows toilets on Google Maps with walking circles. That's it.
+CityPee is a **microservices architecture**: Firebase Hosting serves the static frontend, Cloud Run hosts the Express API backend. Clean separation for performance and security.
 
 ---
 
@@ -25,12 +34,13 @@ CityPee is a Next.js web app that shows toilets on Google Maps with walking circ
 ```
 1. USER SEARCHES
    └── GPS Location OR Google Places OR Landmark Button
-       └── LocationSearch.tsx
+       └── LocationSearch.tsx (Firebase Hosting)
 
-2. APP FETCHES DATA  
-   └── /api/search?lat=X&lng=Y
-       └── Reads toilets.geojson (1,053 toilets)
-       └── Returns toilets within radius
+2. FRONTEND CALLS API  
+   └── fetch('https://citypee-api-*.run.app/api/search?lat=X&lng=Y')
+       └── CORS request to Express API (Cloud Run)
+       └── Express reads toilets.geojson (1,053 toilets)
+       └── Returns filtered toilets within radius
 
 3. MAP DISPLAYS RESULTS
    └── Google Maps shows:
@@ -45,25 +55,33 @@ CityPee is a Next.js web app that shows toilets on Google Maps with walking circ
 
 ```
 CityPee/
-├── 🎯 CORE APP (3 files)
+├── 🌐 FRONTEND (Firebase Hosting)
 │   ├── src/app/page.tsx           ← Main Google Maps page
-│   ├── src/app/api/search/route.ts ← Toilet data API
-│   └── src/components/LocationSearch.tsx ← GPS + search
+│   ├── src/components/LocationSearch.tsx ← GPS + search
+│   ├── src/components/ToiletCard.tsx ← Toilet info windows
+│   ├── src/components/ui/         ← button, card, input
+│   ├── out/                       ← Static build output (21 files)
+│   ├── firebase.json              ← Hosting configuration
+│   └── next.config.js             ← Static export config
 │
-├── 📊 DATA (1 file)  
-│   └── data/toilets.geojson       ← 1,053 real London toilets
+├── 🔧 BACKEND (Cloud Run)
+│   └── api-server/
+│       ├── server.js              ← Express API endpoints
+│       ├── data/toilets.geojson   ← 1,053 toilet dataset
+│       ├── Dockerfile             ← Container configuration
+│       └── package.json           ← API dependencies
 │
-├── 🎨 UI COMPONENTS (4 files)
-│   ├── src/components/ToiletCard.tsx
-│   └── src/components/ui/         ← button, card, input
+├── 📊 DATA
+│   └── data/toilets.geojson       ← Master toilet dataset
 │
-└── ⚙️ CONFIG (30 files)
-    ├── package.json, next.config.js
-    ├── Dockerfile, deploy script
-    └── docs/, README files
+└── 📚 DOCUMENTATION
+    ├── docs/ARCHITECTURE.md       ← This file
+    ├── docs/checkpoints/          ← Project history
+    ├── CLAUDE.md                  ← Agent guidance
+    └── README.md                  ← Setup instructions
 ```
 
-**Total: 38 files. Core functionality: 4 files.**
+**Clean separation**: Frontend and backend are independent deployments.
 
 ---
 
@@ -94,74 +112,173 @@ CityPee/
 
 ## API Design
 
-```
-GET /api/search?lat=51.5074&lng=-0.1278&radius=1000
+**Base URL:** `https://citypee-api-310116477099.us-east1.run.app`
 
-Returns:
+### **Health Check Endpoint**
+```http
+GET /health
+```
+**Response:**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-08-28T11:35:00.000Z"
+}
+```
+
+### **Configuration Endpoint**
+```http
+GET /api/config
+```
+**Description:** Returns Google Maps API key for frontend initialization  
+**Response:**
+```json
+{
+  "mapsApiKey": "AIzaSyA...rsE",
+  "timestamp": "2025-08-28T11:35:00.000Z"
+}
+```
+**Error Responses:**
+```json
+// Service unavailable (503)
+{
+  "error": "Configuration unavailable",
+  "details": "API key not configured"
+}
+
+// Internal error (500)
+{
+  "error": "Configuration service error",
+  "details": "error message"
+}
+```
+
+### **Toilet Search Endpoint**
+```http
+GET /api/search?lat={lat}&lng={lng}&radius={radius}&limit={limit}&q={query}
+```
+**Parameters:**
+- `lat` (optional): Search latitude coordinate
+- `lng` (optional): Search longitude coordinate  
+- `radius` (optional): Search radius in meters (default: 1000)
+- `limit` (optional): Maximum results to return (default: 50)
+- `q` (optional): Text search query for name/address
+
+**Example Request:**
+```http
+GET /api/search?lat=51.5074&lng=-0.1278&radius=1000&limit=20&q=public
+```
+
+**Success Response (200):**
+```json
 {
   "success": true,
   "data": [
     {
-      "id": "osm_node_123",
-      "name": "Public Toilets",
+      "id": "osm_node_123456",
+      "name": "Public Toilet",
       "lat": 51.5074,
       "lng": -0.1278,
       "hours": "24/7",
       "accessible": true,
       "fee": 0,
-      "address": "London"
+      "address": "London",
+      "properties": {
+        "id": "osm_node_123456",
+        "name": "Public Toilet",
+        "hours": "24/7",
+        "accessible": true,
+        "fee": 0,
+        "source": "osm",
+        "last_verified_at": "2025-08-26T18:32:20.740Z",
+        "verified_by": "ingest-agent"
+      }
     }
   ],
   "meta": {
     "total": 15,
-    "returned": 15
+    "returned": 15,
+    "query": "public",
+    "location": { "lat": 51.5074, "lng": -0.1278 },
+    "radius": 1000
   }
 }
 ```
 
-**Simple filtering:**
-- Location radius (meters)
-- Text search (name/address)
-- Result limit (default 50)
+**Error Response (500):**
+```json
+{
+  "success": false,
+  "error": "Search request failed",
+  "details": "error message"
+}
+```
+
+### **Security Features:**
+- **CORS Protection**: Browser-level protection for authorized domains
+  ```javascript
+  // Allowed origins (enforced by browser preflight)
+  /^https:\/\/.*\.web\.app$/          // Firebase Hosting
+  /^https:\/\/.*\.firebaseapp\.com$/   // Firebase Hosting  
+  'http://localhost:3000'              // Local development
+  'http://localhost:5000'              // Firebase emulator
+  
+  // Note: Direct server-to-server requests bypass CORS (expected behavior)
+  // Browser requests properly enforce CORS via OPTIONS preflight
+  ```
+- **Security Headers**: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection: 1; mode=block`
+- **API Key Isolation**: Google Maps key never exposed to frontend bundle
+- **Public Endpoints**: No authentication required, GET and OPTIONS methods only
+
+### **Data Processing:**
+- **Source**: Static GeoJSON file (`api-server/data/toilets.geojson`)
+- **Dataset**: 1,053 London public toilets
+- **Distance Calculation**: Haversine formula for geographic filtering
+- **Performance**: In-memory data loading, no database queries
 
 ---
 
 ## Technology Stack
 
 ```
-Frontend:
-├── Next.js 15 (React 18 + TypeScript)
+Frontend (Firebase Hosting):
+├── Next.js 15 (React 18 + TypeScript) - Static Export
 ├── @vis.gl/react-google-maps v1.5.5
-└── Tailwind CSS
+├── Tailwind CSS
+└── Firebase CDN (Global distribution)
+
+Backend (Cloud Run):
+├── Node.js Express Server
+├── Express CORS middleware
+├── Static GeoJSON data serving
+└── Docker containerized deployment
 
 APIs:
 ├── Google Maps JavaScript API
-└── Google Places API (autocomplete)
+├── Google Places API (autocomplete)
+└── Express REST API (/api/config, /api/search)
 
 Data:
 └── Static GeoJSON file (1,053 toilets)
-
-Deployment:
-├── Docker container
-└── Google Cloud Run
 ```
 
-**No databases, no complex state management, no microservices.**
+**Modern microservices**: Frontend CDN + Backend API for performance and security.
 
 ---
 
 ## Component Hierarchy
 
 ```
-page.tsx (Main App)
+page.tsx (Main App - Firebase Hosting)
+├── API Configuration Fetch (from Express backend)
 ├── LocationSearch
 │   ├── GPS button
 │   ├── Google Places input
 │   └── Landmark buttons (6 locations)
-├── Google Maps
+├── Google Maps (with backend API key)
 │   ├── WalkingCircles component
 │   ├── User location marker
-│   ├── Toilet markers (🚻)
+│   ├── Toilet markers (🚻) ← Data from Express API
 │   └── InfoWindow (clicked toilet)
 └── Walking legend
 ```
@@ -171,24 +288,31 @@ page.tsx (Main App)
 ## Deployment Flow
 
 ```
-1. LOCAL DEVELOPMENT
-   npm run dev (USER ONLY - never Claude!)
-   
-2. BUILD & TEST  
+FRONTEND (Firebase Hosting):
+1. BUILD STATIC EXPORT
    npm run build
    
-3. DOCKER BUILD
-   docker build -t citypee .
+2. DEPLOY TO FIREBASE
+   npx firebase deploy --only hosting
    
-4. DEPLOY TO CLOUD RUN
-   ./scripts/deploy-to-cloud-run.sh
+3. PRODUCTION FRONTEND
+   https://peecity.web.app
+
+BACKEND (Cloud Run):
+1. EXPRESS API DEVELOPMENT
+   cd api-server && node server.js
    
-5. PRODUCTION
-   https://citypee-xxx.run.app
+2. DOCKER BUILD & DEPLOY
+   cd api-server
+   gcloud run deploy citypee-api --source . --region us-east1
+   
+3. PRODUCTION BACKEND
+   https://citypee-api-310116477099.us-east1.run.app
 ```
 
-**Environment needed:**
-- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`
+**Environment Variables:**
+- Backend only: `GOOGLE_MAPS_API_KEY` (Cloud Run environment)
+- Frontend: No environment variables needed (gets API key from backend)
 
 ---
 
@@ -234,18 +358,38 @@ const LONDON_BOUNDS = {
 
 ```
 ❌ Map not loading
-   └── Check GOOGLE_MAPS_API_KEY in .env.local
+   └── Check Express API is running at citypee-api-*.run.app/api/config
+
+❌ CORS errors in browser console  
+   └── Verify Firebase domain is in Express CORS configuration
 
 ❌ "Cannot read lat of undefined"  
-   └── API returned invalid toilet data
+   └── Express API returned invalid toilet data format
 
 ❌ GPS permission denied
    └── Falls back to manual search + landmarks
 
-❌ Port 3000 busy
-   └── User must stop previous server with Ctrl+C
+❌ Firebase deploy fails
+   └── Run npm run build first to generate out/ directory
 ```
 
 ---
 
-This is the complete technical picture. CityPee finds toilets using Google Maps with walking circles. Nothing more, nothing less.
+## Architecture Benefits
+
+**🚀 Performance:**
+- Static assets served via Firebase Global CDN
+- API auto-scales on Cloud Run (0 to N instances)
+- Google Maps loads faster with backend API key
+
+**🔒 Security:**  
+- API keys never exposed in frontend bundle
+- CORS restricted to Firebase domains only
+- Independent deployments reduce attack surface
+
+**💰 Cost:**
+- Firebase Hosting free tier (generous limits)
+- Cloud Run pay-per-request (scales to zero)
+- No database costs (static GeoJSON data)
+
+This is the complete technical picture. CityPee finds toilets using modern microservices: Firebase CDN + Express API. Clean, fast, secure.

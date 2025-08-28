@@ -1,26 +1,42 @@
-// last updated on: 2025-08-27 23:49:37
+// last updated on: 2025-08-28 12:28:20
 const express = require('express')
 const cors = require('cors')
+const rateLimit = require('express-rate-limit')
 
 const app = express()
 const PORT = process.env.PORT || 8080
 
-// CORS middleware - Allow Firebase Hosting domain
+// CORS middleware - Allow Firebase Hosting domains only
 const corsOptions = {
   origin: [
-    'https://citypee-310116477099.us-east1.run.app', // Current Next.js app
     /^https:\/\/.*\.web\.app$/, // Firebase Hosting domains
     /^https:\/\/.*\.firebaseapp\.com$/, // Firebase Hosting domains
     'http://localhost:3000', // Local development
     'http://localhost:5000' // Firebase local emulator
   ],
   credentials: false,
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'OPTIONS'], // Only GET and OPTIONS needed
+  allowedHeaders: ['Content-Type']
 }
 
 app.use(cors(corsOptions))
 app.use(express.json())
+
+// Rate limiting middleware - Protect against API abuse
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: {
+    error: 'Too many requests',
+    details: 'Please try again later. Limit: 100 requests per 15 minutes.',
+    retryAfter: '15 minutes'
+  },
+  standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
+// Apply rate limiting to all API routes
+app.use('/api/', limiter)
 
 // Security headers
 app.use((req, res, next) => {

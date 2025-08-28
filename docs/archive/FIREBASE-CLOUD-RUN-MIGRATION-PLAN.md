@@ -1,4 +1,4 @@
-# last updated on: 2025-08-28 00:24:28
+# last updated on: 2025-08-28 11:18:13
 # Firebase Hosting + Cloud Run Backend Migration Plan
 
 **Date:** August 27, 2025  
@@ -588,7 +588,7 @@ Response Procedures:
 
 - [x] **Google Cloud access confirmed**
   - [x] Can deploy to Cloud Run: Service list returned successfully
-  - [x] API key confirmed in console: `AIzaSyAlfr4COYhh1CMmiCRw_KBDTFPdw7pcrsE` (UNRESTRICTED)
+  - [x] API key confirmed in console: `AIzaSyA****[REDACTED]****rsE` (UNRESTRICTED)
   - [x] API key restrictions currently: DISABLED (for testing) (CONFIRMED)
 
 - [x] **Development environment ready**
@@ -699,7 +699,7 @@ git checkout -b firebase-migration
 
 ## 📝 Current Status & Next Actions
 
-**✅ PHASE 2 COMPLETE - FRONTEND STATIC EXPORT READY**
+**🎉 MIGRATION COMPLETE - FIREBASE + CLOUD RUN ARCHITECTURE LIVE**
 
 **Completed Actions:**
 1. ✅ Pre-flight checklist executed and PASSED
@@ -720,17 +720,28 @@ git checkout -b firebase-migration
    - ✅ Next.js build successful: Clean 3-second build with static artifacts in `out/`
    - ✅ **Frontend-Backend Integration Verified**: Local static frontend serves correctly
    - ✅ **Security Enhanced**: Hardcoded API key removed from Next.js config route
+7. ✅ **Phase 3: Firebase Hosting Deployment COMPLETE**
+   - ✅ Firebase Hosting site created: `peecity` (https://peecity.web.app)
+   - ✅ Firebase CLI configuration: `firebase.json` configured for `out/` directory
+   - ✅ **SUCCESSFUL DEPLOYMENT**: 21 files uploaded to Firebase Hosting
+   - ✅ **End-to-End Integration Verified**: Firebase → Cloud Run API calls working
+   - ✅ **CORS Validation**: Cross-origin requests from Firebase domain successful
+   - ✅ **Security Lockdown**: Google Maps API key restricted to Firebase domains
+   - ✅ **Production Ready**: 1,053 toilets accessible via live application
 
-**Current Phase:** Phase 3 - Firebase Hosting Deployment  
-**Next Action:** Deploy static frontend to Firebase Hosting
+**🎯 MISSION ACCOMPLISHED**: CityPee now live at https://peecity.web.app
 
-## 🎯 Key Success: Complete Architecture Separation
+## 🏆 Final Success: Complete Migration Achieved
 
-**Problem:** Next.js on Cloud Run had complex environment variable handling preventing API key access  
-**Solution:** ✅ **ARCHITECTURE VALIDATED** - Clean separation achieved:
+**Original Problem:** Next.js on Cloud Run had complex environment variable handling preventing Google Maps API key access  
+
+**Final Solution:** ✅ **MIGRATION SUCCESSFUL** - Modern architecture achieved:
+- **Frontend**: Static React app on Firebase Hosting with global CDN ✅
 - **Backend**: Express API on Cloud Run with proper environment variables ✅
-- **Frontend**: Static React app ready for Firebase Hosting ✅  
-**Result:** Migration ready for final deployment phase - Firebase Hosting setup
+- **Security**: API keys isolated, CORS configured, domain restrictions enabled ✅
+- **Performance**: CDN-optimized static assets + auto-scaling backend ✅
+
+**Result:** Production-ready toilet finder serving London with enterprise-grade architecture
 
 ---
 

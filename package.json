@@ -10,8 +10,7 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "ingest": "tsx scripts/ingest-cli.ts"
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",
@@ -19,14 +18,12 @@
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@vis.gl/react-google-maps": "^1.5.5",
-    "ajv-formats": "^3.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "commander": "^14.0.0",
     "dotenv": "^17.2.1",
     "lucide-react": "^0.525.0",
     "next": "^15.4.4",
-    "node-fetch": "^3.3.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^3.3.1",
@@ -45,7 +42,6 @@
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.0",
     "tailwindcss": "^3.4.17",
-    "ts-morph": "^26.0.0",
     "tsx": "^4.20.3"
   },
   "engines": {
